@@ -1,7 +1,6 @@
 // auto-play cookie clicker
 //TODO: figure out which Gods to use
 //TODO: check that all achievements individually can be dropped and will be retaken (only for test)
-//TODO: have easy loading of autoplay, maybe together with the game itself
 //TODO: buy with 1 each if not rigidel-phase (1 hour before ripening), else buy 10 if already total ==0 %10
 //TODO: for faktor 10: check if it is needed all the time or just when growing over the edge (ripening etc.) - then just buy the 9 cheapest buildings once a day - activate rigidel only when we want to harvest one hour earlier
 //TODO: build a night mode version, where at night nothing happens
