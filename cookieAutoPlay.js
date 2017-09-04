@@ -1,21 +1,22 @@
 // auto-play cookie clicker
-//TODO: figure out which Gods to use
-//TODO: check that all achievements individually can be dropped and will be retaken (only for test)
-//TODO: buy with 1 each if not rigidel-phase (1 hour before ripening), else buy 10 if already total ==0 %10
-//TODO: for faktor 10: check if it is needed all the time or just when growing over the edge (ripening etc.) - then just buy the 9 cheapest buildings once a day - activate rigidel only when we want to harvest one hour earlier
 //TODO: build a night mode version, where at night nothing happens
 //TODO: reload if golden lump and below 6 harvested
 //TODO: check finalization: with and without all prestige upgrades
-//TODO: beautify code
-//TODO: cannot create dunking window, only directly after loading the autoplay code.
 //TODO: move logging etc into doAscend function
-//TODO: copy text from cookiemonster to cookiebot
+//TODO: use skruuia in slot 1 before popping (all) wrinklers
+//TODO: use vomitrax and/or muridal when switching off golden switch
+//TODO: With Golden Switch activated, the best combination for maxing Cps seems to be (in Diamond/Ruby/Jade order): Mokalsium, Holobore, Jeremy/Rigidel 
+//TODO: For active play, I think the best combination is: Godzamok, Vomitrax, Muridal - Ich habe Rigidel, vomitrax, muridal, godzamok is god of ruin
+//TODO: If you're using wrinklers, Skruuia should be switched to diamond before popping one as the bonus is only applied when a wrinkler is popped.
+//TODO: when cheating sugar lumps, divide the time to ripe by 60
+//TODO: cannot create dunking window, only directly after loading the autoplay code.
+//TODO: beautify code
 //TODO: create description of cookiebot in cookieclicker wiki
 
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "1.5"
+AutoPlay.version = "1.6"
 AutoPlay.gameVersion = "2.0042";
 AutoPlay.robotName="Automated Stani";
 AutoPlay.delay=0;
@@ -23,6 +24,7 @@ AutoPlay.delay=0;
 AutoPlay.run = function () {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
+  if (AutoPlay.nightMode()) return;
   AutoPlay.handleClicking();
   AutoPlay.handleGoldenCookies();
   AutoPlay.handleBuildings();
@@ -35,6 +37,11 @@ AutoPlay.run = function () {
   AutoPlay.handleAscend();
   AutoPlay.handleNotes();
 }
+
+//===================== Night Mode ==========================
+AutoPlay.nightMode = function() { return false; }
+// between 22 and 6/8 there is no activity
+// if we have the golden switch we keep clicking golden cookies until we only have one active buff clot, and then we buy the golden switch
 
 //===================== Handle Cookies and Golden Cookies ==========================
 // - Arcane aura (dragon): 10% more golden cookies
@@ -73,16 +80,16 @@ AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, 73, rolling
 
 //===================== Handle Buildings ==========================
 AutoPlay.handleBuildings = function() {
+  var buyAmount=100, checkAmount=1;
+  if (!Game.ascensionMode && Game.isMinigameReady(Game.Objects["Temple"]) && Game.Objects["Temple"].minigame.slot[0]==10 // Rigidel is in slot 0
+      && Game.BuildingsOwned%10==0 && (Date.now()-Game.startDate) > 2*60*1000) // do not use factor 10 in the first 2 minutes after descend
+    buyAmount=checkAmount=10;
   var cpc=0; // relative strength of cookie production
   for(var i = Game.ObjectsById.length-1; i >= 0; i--){ var me = Game.ObjectsById[i]; var mycpc = me.storedCps / me.price; if (mycpc > cpc) { cpc = mycpc; } }; 
-  if (!Game.ascensionMode && Game.isMinigameReady(Game.Objects["Temple"]) && (Date.now()-Game.startDate) > 2*60*1000) { // use factor 10 unless in the first 2 minutes after descend
-    for(i = Game.ObjectsById.length-1; i >= 0; i--) { 
-	  var me = Game.ObjectsById[i]; 
-	  if (me.amount % 10 != 0 || me.amount<50) me.buy();
-	  if (me.amount % 50 == 40 && (me.getSumPrice(10)<Game.cookies)) me.buy(10);
-	  if ((me.storedCps/me.price > cpc/2) && (me.getSumPrice(10)<Game.cookies)) { me.buy(10); return; }
-  } } else for(i = Game.ObjectsById.length-1; i >= 0; i--){ var me = Game.ObjectsById[i]; if ((me.storedCps/me.price > cpc*0.9) || (me.amount<5)) { me.buy(100); } }; 
-}
+  for(i = Game.ObjectsById.length-1; i >= 0; i--) { 
+    var me = Game.ObjectsById[i]; 
+    if ((me.storedCps/me.price > cpc/2 || me.amount % 50 >= 40) && (me.getSumPrice(checkAmount)<Game.cookies)) { me.buy(buyAmount); return; }
+} }
 
 //===================== Handle Seasons ==========================
 AutoPlay.handleSeasons = function() {
@@ -130,7 +137,7 @@ AutoPlay.handleSugarLumps = function() {
   if (Game.ascensionMode) return;
   var age=Date.now()-Game.lumpT;
   if (age>=Game.lumpMatureAge && Game.lumpCurrentType==0 && !Game.Achievements["Hand-picked"].won) AutoPlay.harvestLump();
-  if(Game.lumpCurrentType==0) AutoPlay.farmGoldenSugarLumps(age); // really needed?
+//  if(Game.lumpCurrentType==0) AutoPlay.farmGoldenSugarLumps(age); // not needed now, because we cheat sugar lumps
   if (age>=Game.lumpRipeAge) AutoPlay.harvestLump(); // normal harvesting, should check !masterCopy
   AutoPlay.cheatSugarLumps(age);
   AutoPlay.handleMinigames();
@@ -200,65 +207,25 @@ AutoPlay.handleMinigames = function() {
   if (Game.isMinigameReady(Game.Objects["Wizard tower"])) {
     var me=Game.Objects["Wizard tower"];
     var g=me.minigame;
-    var sp=g.spells["hand of fate"]; // try to get a sugar lump in backfiring - could do this often with save (about 10 per try)
-//TODO: spells outcome is dependent on the total number of spells cast, i.e. it will be the same after reload anyhow
-// experiment - der macht hier immer frenzy?! & golden cookie ist immer an derselben Stelle! (immer noch dasselbe Problem!)
-/*
-	if (savedMagic && !Game.shimmerTypes['golden'].n) { 
-	  if(g.magic > g.getSpellCost(sp)) { g.castSpell(sp); countTrials++; if(countTrials%10==0) { AutoPlay.debugInfo("have tried " + countTrials + " cast golden cookies."); } }
-	  else if(oldLumps == Game.lumpsTotal) { Game.LoadSave(savedMagic); } //or unsave ...
-//	  else if(oldLumps == Game.lumpsTotal) { Game.LoadSave(savedMagic); g.castSpell(sp); } //or unsave ...
-	  else savedMagic=0; 
-	}
-	if(!savedMagic && (g.magic > g.getSpellCost(sp))) {
-	  savedMagic = Game.WriteSave(1); 
-	  oldLumps = Game.lumpsTotal;
-	  g.castSpell(sp); countTrials=0;
-	}
-*/
-// end experiment 
-/*
-	if(Game.shimmerTypes['golden'].n && !savedMagic && (g.magic > g.getSpellCost(sp))) {
-	  if(g.magic!=g.magicM) { savedMagic = Game.WriteSave(1); oldLumps = Game.lumpsTotal; }
-	  g.castSpell(sp);
-	}
-	if (savedMagic && !Game.shimmerTypes['golden'].n) { if (oldLumps == Game.lumpsTotal) { Game.LoadSave(savedMagic); } savedMagic=0; }
-*/
+    var sp=g.spells["hand of fate"]; // try to get a sugar lump in backfiring
 	if(Game.shimmerTypes['golden'].n && (g.magic/g.getSpellCost(sp) >= 0.95)) { g.castSpell(sp); }
-//	if(Game.shimmerTypes['golden'].n && (g.magic > g.getSpellCost(sp))) { g.castSpell(sp); }
-//    if (Game.shimmerTypes['golden'].n && (g.magicM-g.magic < 1)) { me.switchMinigame(true); g.castSpell(sp); me.switchMinigame(false); }
-//    var sp=g.spells["conjure baked goods"]
-//    if (g.magic == g.magicM) { me.switchMinigame(true); g.castSpell(sp); me.switchMinigame(false); }
     if (Game.shimmerTypes['golden'].n == 3 && !Game.Achievements["Four-leaf cookie"].won) {
 	  me.switchMinigame(true); g.lumpRefill.click(); g.castSpell(sp); me.switchMinigame(false);
   } }
   // temples: pantheon
   if (Game.isMinigameReady(Game.Objects["Temple"])) {
-    AutoPlay.assignGod(0,"order");
-    AutoPlay.assignGod(1,"decadence"); // ???
-    AutoPlay.assignGod(2,"labor"); // ???
-	// use Godzamok? & sell buildings & buy after that (limit to 100)?
+    if(Game.lumpRipeAge-(Date.now()-Game.lumpT) < 2*60*60*1000) AutoPlay.assignSpirit(0,"order"); 
+	else AutoPlay.assignSpirit(0,"mother"); 
+    AutoPlay.assignSpirit(1,"decadence");
+    AutoPlay.assignSpirit(2,"labor");
   }
 }
 
-/*
-var t0 = performance.now();
-var ss = Game.WriteSave(1);
-var t1 = performance.now();
-Game.LoadSave(ss);
-var t2 = performance.now();
-console.log("Call to save took " + (t1 - t0) + " milliseconds.")
-console.log("Call to load took " + (t2 - t1) + " milliseconds.")
-*/
-
-AutoPlay.assignGod = function(slot, god) {
-  var me=Game.Objects["Temple"];
-  var g=me.minigame;
+AutoPlay.assignSpirit = function(slot, god) {
+  var g=Game.Objects["Temple"].minigame;
   if(g.swaps<3) return;
   if(g.slot[slot]==g.gods[god].id) return;
-  me.switchMinigame(true);
   g.slotHovered=slot; g.dragging=g.gods[god]; g.dropGod();
-  me.switchMinigame(false);
 }  
 
 //===================== Handle Wrinklers ==========================
@@ -337,8 +304,6 @@ AutoPlay.handleAscend = function() {
   if (!Game.Upgrades["Lucky payout"].bought && Game.ascendMeterLevel>0 && AutoPlay.endPhase() && (Game.heavenlyChips > 77777777) && (newPrestige <= 777777) && (newPrestige >= 777777-Game.ascendMeterLevel)) {
     AutoPlay.debugInfo("############# ascend for lucky heavenly upgrades.");
     AutoPlay.loggingInfo="############# ascend for lucky heavenly upgrades.";
-	checkAchievement=AutoPlay.nextAchievement;
-	Game.AchievementsById[AutoPlay.nextAchievement].won=1;
     AutoPlay.doAscend();
   }
   if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
@@ -390,14 +355,6 @@ AutoPlay.doAscend = function() {
 //===================== Handle Achievements ==========================
 AutoPlay.nextAchievement=0;
 AutoPlay.wantedAchievements = [82, 12, 89, 111, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 332];
-//round 1: keep quiet until hardcore and neverclick, then buy everything until all grandmas are there (82=Elder calm: use covenant) ca. 31h
-//round 2: get 100 quintillion (12), i.e. about 300 legacy, develop dragon (kitten), get first permanent slot (cursors), ca. 24h
-//round 3: get 100 antimatter condensers (89), get season switcher, ca. 50h
-//round 4: get all christmas (111), then all valentine including easter (130+169), then all halloween (108)
-//round 5: with five permanent slots: get enough ascends; until then continue with round 6
-//round 6: get the "bake xx cookies" achievements & all building achievements
-//round 7: get shadow achievements & all the remaining achievements
-//round 8: get all the level 10 buildings
 
 AutoPlay.findNextAchievement = function() {
   AutoPlay.handleSmallAchievements();
@@ -409,33 +366,23 @@ AutoPlay.findNextAchievement = function() {
   AutoPlay.checkAllAchievementsOK();
 }
 
-AutoPlay.checkAchievement=262; // could use AutoPlay.nextAchievement instead
-
 AutoPlay.checkAllAchievementsOK = function() {
-  if (AutoPlay.checkAchievement < Game.AchievementsById.length) {
-    if(Game.AchievementsById[AutoPlay.checkAchievement].pool=="dungeon") { AutoPlay.checkAchievement++; AutoPlay.checkAllAchievementsOK(); return; }
-    if(!Game.AchievementsById[AutoPlay.checkAchievement].won) {
-      AutoPlay.info("################ have not yet achieved: " + Game.AchievementsById[AutoPlay.checkAchievement].desc + ", try to do it now");
-      AutoPlay.nextAchievement=AutoPlay.checkAchievement;
-      AutoPlay.checkAchievement++;
-    } else {
-      AutoPlay.nextAchievement=AutoPlay.checkAchievement;
-	  Game.AchievementsById[AutoPlay.nextAchievement].won=0;
-      AutoPlay.info("############# testing to get achievement (again): " + Game.AchievementsById[AutoPlay.nextAchievement].desc);
-      AutoPlay.checkAchievement++;
-	}
-  } else {
-	for (var i in Game.Upgrades) {
-	  var me=Game.Upgrades[i];
-	  if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
-        AutoPlay.info("############### prestige upgrade " + me.name + " is missing - wait for it.");
-        AutoPlay.nextAchievement=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
-	    Game.AchievementsById[AutoPlay.nextAchievement].won=0;
-		return;
-	} }
-    clearInterval(AutoPlay.autoPlayer); //stop autoplay: 
-    AutoPlay.info("############# My job is done here, have a nice day.");
-} }
+  for (var i in Game.Achievements) {
+    var me=Game.Achievements[i];
+    if (!me.won && me.pool!="dungeon") { // missing achievement
+      AutoPlay.info("############### missing achievement #" + me.id + ": " + me.desc + ", try to get it now"); 
+	  AutoPlay.nextAchievement=me.id; return;
+  } }
+  for (var i in Game.Upgrades) {
+    var me=Game.Upgrades[i];
+    if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
+      AutoPlay.info("############### prestige upgrade " + me.name + " is missing, waiting to buy it.");
+      AutoPlay.nextAchievement=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
+	  Game.AchievementsById[AutoPlay.nextAchievement].won=0; return;
+  } }
+  clearInterval(AutoPlay.autoPlayer); //stop autoplay: 
+  AutoPlay.info("############# My job is done here, have a nice day.");
+}
 
 findMissingAchievements = function() {
   for (var i in Game.Achievements) {
@@ -448,12 +395,6 @@ findMissingAchievements = function() {
     if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
       AutoPlay.info("############### prestige upgrade " + me.name + " is missing.");
 } } }
-
-function jumpOverTestAchievement() {
-  AutoPlay.info("############# jumping over test achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].desc);
-  if(!Game.AchievementsById[AutoPlay.checkAchievement].won) AutoPlay.checkAchievement++;
-  AutoPlay.checkAllAchievementsOK();
-}
 
 //===================== Handle Heavenly Upgrades ==========================
 AutoPlay.prioUpgrades = [363,323,411,412,413,264,265,266,267,268,181,282,283,284,291,393,394]; // legacy, dragon, lucky upgrades, permanent slots, season switcher, better golden cookies, kittens, synergies, 
