@@ -11,7 +11,7 @@ You can see the current version, and a full history of all versions and what the
 
 Cookie Bot plays through the complete game of Cookie Clicker. This will take about two months, depending a lot on randomness in the game itself. The following steps are taken, and if you start somewhere ibn the middle, the procedure is adapted accordingly.
 
-* Step 1: keep quiet until hardcore and neverclick, then buy everything until all grandma acheivements are there: this takes about two days
+* Step 1: keep quiet until hardcore and neverclick, then buy everything until all grandma achievements are there: this takes about two days.
 * Step 2: get 100 quintillion cookies, i.e. about 300 legacy, develop the dragon with kitten aura, get the first permanent slot with maximum cursors: this takes about one more day.
 * Step 3: get 100 antimatter condensers, get the season switcher: this takes about 2-3 days
 * Step 4: complete christmas, then easter and valentine, then halloween: about 2-3 days
