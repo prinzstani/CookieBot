@@ -1,7 +1,4 @@
 // auto-play cookie clicker
-//TODO: do the 1000 ascend in endgame (after 1 billion heavenly) it takes only seconds to reach 1 more point
-//TODO: Do not buy 100 after 10 minutes
-//TODO: when cheating sugar lumps, divide the time to ripe by 60
 //TODO: cannot create dunking window, only directly after loading the autoplay code.
 //TODO: beautify code
 //TODO: create description of cookiebot in cookieclicker wiki
@@ -9,15 +6,16 @@
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "1.7"
+AutoPlay.version = "1.8"
 AutoPlay.gameVersion = "2.0042";
 AutoPlay.robotName="Automated Stani";
 AutoPlay.delay=0;
+AutoPlay.night=false;
 
 AutoPlay.run = function () {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
-  if (AutoPlay.nightMode()) return;
+  if (AutoPlay.nightMode()) { var age=Date.now()-Game.lumpT; AutoPlay.cheatSugarLumps(age); return; }
   AutoPlay.handleClicking();
   AutoPlay.handleGoldenCookies();
   AutoPlay.handleBuildings();
@@ -35,23 +33,32 @@ AutoPlay.run = function () {
 AutoPlay.nightMode = function() { 
   var h=(new Date).getHours();
   if(h>=7 && h<23) { // be active
-    if (Game.isMinigameReady(Game.Objects["Temple"])) {
-      AutoPlay.assignSpirit(1,"decadence",0);
-      AutoPlay.assignSpirit(2,"labor",0);
-    }
-    var gs=Game.Upgrades["Golden switch [on]"]; if(gs.unlocked) gs.buy();
+    AutoPlay.night=false;
+    var gs=Game.Upgrades["Golden switch [on]"]; if(gs.unlocked) {
+      if (Game.isMinigameReady(Game.Objects["Temple"])) {
+        AutoPlay.assignSpirit(1,"decadence",0);
+        AutoPlay.assignSpirit(2,"labor",0);
+      } 
+	  gs.buy();
+	}
     return false;
   }
+  if (AutoPlay.night) return true; //really sleep now
   var gs=Game.Upgrades["Golden switch [off]"]; if(gs.unlocked) {
+    AutoPlay.handleGoldenCookies();
     var buffCount=0;
     for (var i in Game.buffs) { if(Game.buffs[i].time>=0) buffCount++; }
 	if(buffCount==1 && Game.hasBuff("Clot")) gs.buy();
+	if(!gs.bought) return true; // do not activate spirits before golden switch
   }
   if (Game.isMinigameReady(Game.Objects["Temple"])) {
 	AutoPlay.assignSpirit(0,"mother",1); 
     AutoPlay.assignSpirit(1,"asceticism",1);
     AutoPlay.assignSpirit(2,"industry",1);
+    AutoPlay.removeSpirit(1,"decadence");
+    AutoPlay.removeSpirit(2,"labor");
   }
+  AutoPlay.night=true;
   return true;
 }
 
@@ -81,7 +88,7 @@ AutoPlay.handleUpgrades = function() {
 AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, 73, rolling pins
   switch(up.id) {
     case 71: return Game.Achievements["Elder nap"].won && Game.Achievements["Elder slumber"].won && Game.Achievements["Elder calm"].won && 
-	  (!Game.Achievements["Endless cycle"].won || Game.Upgrades["Arcane sugar"].bought); // brainsweep
+	  (!Game.Achievements["Reincarnation"].won || Game.Upgrades["Arcane sugar"].bought); // brainsweep
 	case 73: return Game.Achievements["Elder nap"].won && Game.Achievements["Elder slumber"].won && Game.Achievements["Elder calm"].won; // elder pact
 	case 74: return Game.Achievements["Elder nap"].won && Game.Achievements["Elder slumber"].won && Game.Upgrades["Elder Covenant"].unlocked; // elder pledge
 	case 84: return Game.Upgrades["Elder Pledge"].bought; // elder covenant
@@ -93,6 +100,7 @@ AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, 73, rolling
 //===================== Handle Buildings ==========================
 AutoPlay.handleBuildings = function() {
   var buyAmount=100, checkAmount=1;
+  if ((Date.now()-Game.startDate) > 10*60*1000) buyAmount=1; // buy single after 10 minutes
   if (!Game.ascensionMode && Game.isMinigameReady(Game.Objects["Temple"]) && Game.Objects["Temple"].minigame.slot[0]==10 // Rigidel is in slot 0
       && Game.BuildingsOwned%10==0 && (Date.now()-Game.startDate) > 2*60*1000) // do not use factor 10 in the first 2 minutes after descend
     buyAmount=checkAmount=10;
@@ -155,11 +163,13 @@ AutoPlay.handleSugarLumps = function() {
   AutoPlay.handleMinigames();
 }
 
-AutoPlay.lumpCheatDelay=20*60*1000; // 20 minutes
-
-AutoPlay.cheatSugarLumps = function(age) { // set Game.lumpT back such that sugar lumps ripe every hour, not every day
+AutoPlay.cheatLumps=false;
+AutoPlay.cheatSugarLumps = function(age) { // divide lump ripe time by 60, making hours into minutes
   for(a in Game.AchievementsById) { var me=Game.AchievementsById[a]; if (!(me.won || me.pool=="dungeon" || AutoPlay.lumpRelatedAchievements.indexOf(me.id)>=0)) return; }
-    if(age<Game.lumpRipeAge-AutoPlay.lumpCheatDelay) Game.lumpT=Date.now()-Game.lumpRipeAge+AutoPlay.lumpCheatDelay;
+  AutoPlay.cheatLumps=true;
+  var cheatDelay=Game.lumpRipeAge/60;
+  if(age<Game.lumpRipeAge-cheatDelay) Game.lumpT-=cheatDelay*59;
+  if (AutoPlay.nightMode() && age>Game.lumpRipeAge) { Game.lumpT-=60*60*1000; }
 }
 
 AutoPlay.harvestLump = function() {
@@ -226,7 +236,7 @@ AutoPlay.handleMinigames = function() {
   } }
   // temples: pantheon
   if (Game.isMinigameReady(Game.Objects["Temple"])) {
-    if(Game.lumpRipeAge-(Date.now()-Game.lumpT) < 2*60*60*1000) AutoPlay.assignSpirit(0,"order",0); 
+    if(Game.lumpRipeAge-(Date.now()-Game.lumpT) < 2*60*60*1000 && !AutoPlay.cheatLumps) AutoPlay.assignSpirit(0,"order",0); 
 	else AutoPlay.assignSpirit(0,"mother",0); 
     AutoPlay.assignSpirit(1,"decadence",0);
     AutoPlay.assignSpirit(2,"labor",0);
@@ -240,10 +250,13 @@ AutoPlay.assignSpirit = function(slot, god, force) {
   g.slotHovered=slot; g.dragging=g.gods[god]; g.dropGod();
 }  
 
-//===================== Handle Wrinklers ==========================
-//var currentWrinkler;
-//var wrinklerDelay;
+AutoPlay.removeSpirit = function(slot, god) {
+  var g=Game.Objects["Temple"].minigame;
+  if(g.slot[slot]!=g.gods[god].id) return;
+  g.slotHovered=-1; g.dragging=g.gods[god]; g.dropGod();
+}  
 
+//===================== Handle Wrinklers ==========================
 AutoPlay.handleWrinklers = function() {
   if (((Game.season == "easter") || (Game.season == "halloween")) && !AutoPlay.seasonFinished(Game.season)) 
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
@@ -251,15 +264,7 @@ AutoPlay.handleWrinklers = function() {
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
   if (AutoPlay.endPhase() && !Game.Achievements["Last Chance to See"].won) 
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
-  if (Game.Upgrades["Unholy bait"].bought) { // pop one wrinkler
-    if (AutoPlay.wrinklerDelay>0) AutoPlay.wrinklerDelay--;
-    else { 
-	  if (AutoPlay.currentWrinkler==undefined) AutoPlay.currentWrinkler=0;
-      var w=Game.wrinklers[AutoPlay.currentWrinkler];
-      if (w.close==1) { w.hp = 0; }
-      AutoPlay.currentWrinkler= (AutoPlay.currentWrinkler+1)%Game.getWrinklersMax();
-	  AutoPlay.wrinklerDelay=60*60*10; //one hour
-} } }
+}
 
 //===================== Handle Small Achievements ==========================
 AutoPlay.handleSmallAchievements = function() {
@@ -298,13 +303,17 @@ AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
 
 AutoPlay.handleAscend = function() {
+  if (Game.OnAscend) { AutoPlay.doReincarnate(); AutoPlay.findNextAchievement(); return; }
   var ascendDays=10;
-  if (Game.Upgrades["Permanent upgrade slot V"].bought && !Game.Achievements["Endless cycle"].won) { // this costs 3+2 minute per 2 ascend
+  if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) || ((Game.prestige+Game.ascendMeterLevel)%1000==777))) 
-	{ AutoPlay.doAscend("### go for many ascends",0); }
+	{ AutoPlay.doAscend("### go for 1000 ascends",0); }
+  }
+  if (Game.Upgrades["Permanent upgrade slot V"].bought && !Game.Achievements["Reincarnation"].won) { // this costs 3+2 minute per 2 ascend
+    if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) )) 
+	{ AutoPlay.doAscend("### go for 100 ascends",0); }
   }
   if (Game.ascensionMode && !AutoPlay.canContinue()) AutoPlay.doAscend("### reborn mode did not work, retry.",0);
-  if (Game.OnAscend) { AutoPlay.doReincarnate(); AutoPlay.findNextAchievement(); }
   if (AutoPlay.endPhase() && (Date.now()-Game.startDate) > ascendDays*24*60*60*1000) {
     AutoPlay.doAscend("### ascend after " + ascendDays + " days just while waiting for next achievement.",1);
   }
@@ -338,8 +347,7 @@ AutoPlay.doReincarnate = function() {
   if(!Game.Achievements["Neverclick"].won || !Game.Achievements["Hardcore"].won) { Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt(); }
   if(AutoPlay.endPhase() && AutoPlay.mustRebornAscend()) { Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt(); }
   Game.Reincarnate(true); 
-  if (AutoPlay.loggingInfo) setTimeout(AutoPlay.logging, 20*1000);
-  AutoPlay.debugInfo("logging in 20 seconds");
+  if (AutoPlay.loggingInfo) { setTimeout(AutoPlay.logging, 20*1000); AutoPlay.debugInfo("logging in 20 seconds"); }
   AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 }
 
@@ -417,7 +425,7 @@ AutoPlay.buyHeavenlyUpgrades = function() {
   Game.UpgradesById.forEach(function(e) { if (e.canBePurchased && !e.bought && e.buy(true)) { info("buying "+e.name); } });
   AutoPlay.assignPermanentSlot(1,AutoPlay.kittens);
   AutoPlay.assignPermanentSlot(2,AutoPlay.chancemakers); // have farms here for speed baking? - maybe not needed
-  if(!Game.Achievements["Endless cycle"].won) { // for many ascends
+  if(!Game.Achievements["Reincarnation"].won) { // for many ascends
     AutoPlay.assignPermanentSlot(0,AutoPlay.cursors);
     AutoPlay.assignPermanentSlot(3,[52]); // lucky day
     AutoPlay.assignPermanentSlot(4,[53]); // serendipity
