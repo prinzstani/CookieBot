@@ -1,12 +1,11 @@
-// auto-play cookie clicker
-//TODO: cannot create dunking window, only directly after loading the autoplay code.
-//TODO: beautify code
+// auto-play-through cookie clicker
+//TODO: beautify code (from sugar lumps)
 //TODO: create description of cookiebot in cookieclicker wiki
 
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "1.8"
+AutoPlay.version = "1.9"
 AutoPlay.gameVersion = "2.0042";
 AutoPlay.robotName="Automated Stani";
 AutoPlay.delay=0;
@@ -24,7 +23,6 @@ AutoPlay.run = function () {
   AutoPlay.handleSugarLumps();
   AutoPlay.handleDragon();
   AutoPlay.handleWrinklers();
-  AutoPlay.handleDunking();
   AutoPlay.handleAscend();
   AutoPlay.handleNotes();
 }
@@ -48,24 +46,22 @@ AutoPlay.nightMode = function() {
     AutoPlay.handleGoldenCookies();
     var buffCount=0;
     for (var i in Game.buffs) { if(Game.buffs[i].time>=0) buffCount++; }
-	if(buffCount==1 && Game.hasBuff("Clot")) gs.buy();
+	if((buffCount==1 && Game.hasBuff("Clot")) || h<7) gs.buy();
 	if(!gs.bought) return true; // do not activate spirits before golden switch
   }
   if (Game.isMinigameReady(Game.Objects["Temple"])) {
 	AutoPlay.assignSpirit(0,"mother",1); 
-    AutoPlay.assignSpirit(1,"asceticism",1);
-    AutoPlay.assignSpirit(2,"industry",1);
     AutoPlay.removeSpirit(1,"decadence");
     AutoPlay.removeSpirit(2,"labor");
+    AutoPlay.assignSpirit(1,"asceticism",1);
+    AutoPlay.assignSpirit(2,"industry",1);
   }
   AutoPlay.night=true;
   return true;
 }
 
 //===================== Handle Cookies and Golden Cookies ==========================
-// - Arcane aura (dragon): 10% more golden cookies
-// - business day: 5% more golden cookies, together with the god selebrak
-AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie
+AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or reindeer
   for(sx in Game.shimmers) {
     var s=Game.shimmers[sx];
     if((s.type!="golden") || (s.life<Game.fps) || (!Game.Achievements["Early bird"].won)) { s.pop(); return; }
@@ -230,7 +226,7 @@ AutoPlay.handleMinigames = function() {
     var me=Game.Objects["Wizard tower"];
     var g=me.minigame;
     var sp=g.spells["hand of fate"]; // try to get a sugar lump in backfiring
-	if(Game.shimmerTypes['golden'].n && (g.magic/g.getSpellCost(sp) >= 0.95)) { g.castSpell(sp); }
+	if(Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) && (g.magic/g.gmagicM >= 0.95)) { g.castSpell(sp); }
     if (Game.shimmerTypes['golden'].n == 3 && !Game.Achievements["Four-leaf cookie"].won) {
 	  me.switchMinigame(true); g.lumpRefill.click(); g.castSpell(sp); me.switchMinigame(false);
   } }
@@ -267,34 +263,24 @@ AutoPlay.handleWrinklers = function() {
 }
 
 //===================== Handle Small Achievements ==========================
+AutoPlay.backupHeight=0;
 AutoPlay.handleSmallAchievements = function() {
   if(!Game.Achievements["Tabloid addiction"].won) { for (i = 0; i < 50; i++) { Game.tickerL.click(); } }
   if(!Game.Achievements["Here you go"].won) Game.Achievements["Here you go"].click();
   if(!Game.Achievements["Tiny cookie"].won) Game.ClickTinyCookie();
   if(!Game.Achievements["God complex"].won) { Game.bakeryName = "Orteil"; Game.bakeryNamePrompt(); Game.ConfirmPrompt(); }
   if(!Game.Achievements["What's in a name"].won || Game.bakeryName!=AutoPlay.robotName) { Game.bakeryName = AutoPlay.robotName; Game.bakeryNamePrompt(); Game.ConfirmPrompt(); }
-  if(Game.Achievements["Set for life"].won && !Game.Achievements["Cheated cookies taste awful"].won) Game.Win("Cheated cookies taste awful"); // only take this at the end, after all is done
+  if(AutoPlay.endPhase() && !Game.Achievements["Cheated cookies taste awful"].won) Game.Win("Cheated cookies taste awful"); // only take this at the end, after all is done
+  if(!Game.Achievements["Third-party"].won) Game.Win("Third-party"); // cookie bot is a third party itself
+  if(!Game.Achievements["Cookie-dunker"].won && Game.milkProgress > 1 && Game.milkHd>0.34) {
+	if(AutoPlay.backupHeight) { Game.LeftBackground.canvas.height=AutoPlay.backupHeight; AutoPlay.backupHeight=0; }
+    else { AutoPlay.backupHeight=Game.LeftBackground.canvas.height; Game.LeftBackground.canvas.height=400; setTimeout(AutoPlay.unDunk, 20*1000); }
+  }
 }
 
-AutoPlay.dunkWindow=null;
-AutoPlay.handleDunking = function() { // get achievement cookie dunker and third party
-  if(Game.Achievements["Cookie-dunker"].won && Game.Achievements["Third-party"].won) return;
-  if(Game.milkProgress <= 1) return;
-  if(!AutoPlay.dunkWindow) { 
-    Game.WriteSave(); AutoPlay.dunkWindow = window.open(window.location.href, "", "width=400,height=400");
-    if(!AutoPlay.dunkWindow) {
-      AutoPlay.info("cannot create dunking window - have to cheat cookie dunker and third party achievements.");
-	  Game.Achievements["Cookie-dunker"].won=1; Game.Achievements["Third-party"].won=1; return;
-  } }
-  if(!AutoPlay.dunkWindow.Game) return;
-  if(!AutoPlay.dunkWindow.Game.Achievements) return;
-  if(!AutoPlay.dunkWindow.Game.Achievements["Cookie-dunker"].won) return;
-  if(!AutoPlay.dunkWindow.Game.LoadMod) return;
-  if(!AutoPlay.dunkWindow.CM) { AutoPlay.dunkWindow.Game.LoadMod('http://aktanusa.github.io/CookieMonster/CookieMonster.js'); return; }
-  if(!AutoPlay.dunkWindow.Game.Achievements["Third-party"].won) return;
-  AutoPlay.info("Achieved cookie dunking and third party.");
-  Game.LoadSave(AutoPlay.dunkWindow.Game.WriteSave(1));
-  AutoPlay.dunkWindow.close(); AutoPlay.dunkWindow=0;
+AutoPlay.unDunk = function() {
+  if(!Game.Achievements["Cookie-dunker"].won) { setTimeout(AutoPlay.unDunk, 20*1000); return; }
+  Game.LeftBackground.canvas.height=AutoPlay.backupHeight; AutoPlay.backupHeight=0;
 }
 
 //===================== Handle Ascend ==========================
@@ -421,8 +407,8 @@ AutoPlay.chancemakers = [416,417,418,419,420,421,422,423,441];
 AutoPlay.butterBiscuits = [334,335,336,337,400];
 
 AutoPlay.buyHeavenlyUpgrades = function() {
-  AutoPlay.prioUpgrades.forEach(function(id) { var e=Game.UpgradesById[id]; if (e.canBePurchased && !e.bought && e.buy(true)) { info("buying "+e.name); } });
-  Game.UpgradesById.forEach(function(e) { if (e.canBePurchased && !e.bought && e.buy(true)) { info("buying "+e.name); } });
+  AutoPlay.prioUpgrades.forEach(function(id) { var e=Game.UpgradesById[id]; if (e.canBePurchased && !e.bought && e.buy(true)) { AutoPlay.info("buying "+e.name); } });
+  Game.UpgradesById.forEach(function(e) { if (e.canBePurchased && !e.bought && e.buy(true)) { AutoPlay.info("buying "+e.name); } });
   AutoPlay.assignPermanentSlot(1,AutoPlay.kittens);
   AutoPlay.assignPermanentSlot(2,AutoPlay.chancemakers); // have farms here for speed baking? - maybe not needed
   if(!Game.Achievements["Reincarnation"].won) { // for many ascends
@@ -452,17 +438,14 @@ AutoPlay.handleDragon = function() {
       Game.specialTab="dragon"; Game.UpgradeDragon(); Game.ToggleSpecialMenu(0);
   } }
   if ((Game.dragonAura==0) && (Game.dragonLevel>=5)) { // set first aura to kitten (breath of milk)
-    AutoPlay.info("setting first aura to breath of milk.");
     Game.specialTab="dragon"; Game.SetDragonAura(1,0); 
     Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
   }
   if ((Game.dragonAura==1) && (Game.dragonLevel>=19)) { // set first aura to prism (radiant appetite)
-    AutoPlay.info("setting first aura to radiant appetite.");
     Game.specialTab="dragon"; Game.SetDragonAura(15,0); 
     Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
   }
   if ((Game.dragonAura2==0) && (Game.dragonLevel>=Game.dragonLevels.length-1)) { // set second aura to kitten (breath of milk)
-    AutoPlay.info("setting second aura to breath of milk.");
     Game.specialTab="dragon"; Game.SetDragonAura(1,1); 
     Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
 } }
