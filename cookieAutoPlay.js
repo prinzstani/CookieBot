@@ -226,7 +226,7 @@ AutoPlay.handleMinigames = function() {
     var me=Game.Objects["Wizard tower"];
     var g=me.minigame;
     var sp=g.spells["hand of fate"]; // try to get a sugar lump in backfiring
-	if(Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) && (g.magic/g.gmagicM >= 0.95)) { g.castSpell(sp); }
+	if(Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) && (g.magic/g.magicM >= 0.95)) { g.castSpell(sp); }
     if (Game.shimmerTypes['golden'].n == 3 && !Game.Achievements["Four-leaf cookie"].won) {
 	  me.switchMinigame(true); g.lumpRefill.click(); g.castSpell(sp); me.switchMinigame(false);
   } }
