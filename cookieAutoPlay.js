@@ -1,5 +1,4 @@
-// auto-play-through cookie clicker
-//TODO: beautify code (from sugar lumps)
+//cookie bot: auto-play-through cookie clicker
 //TODO: create description of cookiebot in cookieclicker wiki
 
 var AutoPlay;
@@ -62,6 +61,7 @@ AutoPlay.nightMode = function() {
 
 //===================== Handle Cookies and Golden Cookies ==========================
 AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or reindeer
+  if(Game.shimmerTypes['golden'].n>1) AutoPlay.debugInfo("there are " + Game.shimmerTypes['golden'].n + " active golden cookies.")
   for(sx in Game.shimmers) {
     var s=Game.shimmers[sx];
     if((s.type!="golden") || (s.life<Game.fps) || (!Game.Achievements["Early bird"].won)) { s.pop(); return; }
@@ -183,17 +183,17 @@ AutoPlay.farmGoldenSugarLumps = function(age) { // //this is tested and it works
   if(AutoPlay.nextAchievement!=Game.Achievements["All-natural cane sugar"].id) return;
   if (AutoPlay.masterSaveCopy) { AutoPlay.debugInfo("back to save master"); Game.LoadSave(AutoPlay.masterSaveCopy); AutoPlay.masterSaveCopy=0; return; }
   if (age<Game.lumpRipeAge && age>=Game.lumpMatureAge) {
-    if (AutoPlay.copyWindows.length>=AutoPlay.copyCount) { AutoPlay.debugInfo("##### creating master load copy"); AutoPlay.masterLoadCopy=Game.WriteSave(1); } // check rather !masterCopy
+    if (AutoPlay.copyWindows.length>=AutoPlay.copyCount) { AutoPlay.debugInfo("creating master load copy"); AutoPlay.masterLoadCopy=Game.WriteSave(1); } // check rather !masterCopy
     if (AutoPlay.copyWindows.length) {
 	  Game.LoadSave(AutoPlay.copyWindows.pop());
-	  if (Game.lumpCurrentType) AutoPlay.debugInfo("## found lump with type " + Game.lumpCurrentType);
+	  if (Game.lumpCurrentType) AutoPlay.debugInfo("found lump with type " + Game.lumpCurrentType);
 	  if (Game.lumpCurrentType==2) {
 	    AutoPlay.info("YESS, golden lump");
 		AutoPlay.masterLoadCopy=0; AutoPlay.copyWindows=[];
-	} } else if (AutoPlay.masterLoadCopy) { AutoPlay.debugInfo("##### going back to master copy"); Game.LoadSave(AutoPlay.masterLoadCopy); AutoPlay.masterLoadCopy=0; }
+	} } else if (AutoPlay.masterLoadCopy) { AutoPlay.debugInfo("going back to master copy"); Game.LoadSave(AutoPlay.masterLoadCopy); AutoPlay.masterLoadCopy=0; }
   }
   if (age>=Game.lumpRipeAge && AutoPlay.copyWindows.length<AutoPlay.copyCount) {
-    if(!AutoPlay.copyWindows.length) AutoPlay.info("### farming golden sugar lumps.");
+    if(!AutoPlay.copyWindows.length) AutoPlay.info("farming golden sugar lumps.");
     AutoPlay.masterSaveCopy=Game.WriteSave(1);
     Game.clickLump();
     AutoPlay.copyWindows.push(Game.WriteSave(1));
@@ -321,8 +321,7 @@ AutoPlay.doAscend = function(str,log) {
   if(Game.wrinklers.some(function(w) { return w.close; } )) AutoPlay.assignSpirit(0,"scorn",1);
   Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp=0; } ); // pop all wrinklers
   if (Game.Upgrades["Chocolate egg"].unlocked && !Game.Upgrades["Chocolate egg"].bought) {
-    if (Game.dragonLevel>=9) {
-      AutoPlay.debugInfo("setting first aura to earth shatterer.");
+    if (Game.dragonLevel>=9) { // setting first aura to earth shatterer
       Game.specialTab="dragon"; Game.SetDragonAura(5,0); 
       Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
 	}
@@ -343,7 +342,6 @@ AutoPlay.findNextAchievement = function() {
     if (!(Game.AchievementsById[AutoPlay.wantedAchievements[i]].won)) 
 	{ AutoPlay.nextAchievement = AutoPlay.wantedAchievements[i]; AutoPlay.debugInfo("trying to get achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].desc); return; }
   }
-  AutoPlay.info("### no new achievements needed, final check ...");
   AutoPlay.checkAllAchievementsOK();
 }
 
@@ -351,30 +349,30 @@ AutoPlay.checkAllAchievementsOK = function() {
   for (var i in Game.Achievements) {
     var me=Game.Achievements[i];
     if (!me.won && me.pool!="dungeon") { // missing achievement
-      AutoPlay.info("### missing achievement #" + me.id + ": " + me.desc + ", try to get it now"); 
+      AutoPlay.info("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
 	  AutoPlay.nextAchievement=me.id; return;
   } }
   for (var i in Game.Upgrades) {
     var me=Game.Upgrades[i];
     if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
       AutoPlay.nextAchievement=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
-      AutoPlay.info("############### prestige upgrade " + me.name + " is missing, waiting to buy it.");
+      AutoPlay.info("Prestige upgrade " + me.name + " is missing, waiting to buy it.");
 	  Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); return;
   } }
   clearInterval(AutoPlay.autoPlayer); //stop autoplay: 
-  AutoPlay.info("### My job is done here, have a nice day.");
+  AutoPlay.info("My job is done here, have a nice day.");
 }
 
-findMissingAchievements = function() {
+AutoPlay.findMissingAchievements = function() { // just for testing purposes
   for (var i in Game.Achievements) {
     var me=Game.Achievements[i];
     if (!me.won && me.pool!="dungeon") { // missing achievement
-      AutoPlay.info("### missing achievement #" + me.id + ": " + me.desc);
+      AutoPlay.debugInfo("missing achievement #" + me.id + ": " + me.desc);
   } }
   for (var i in Game.Upgrades) {
     var me=Game.Upgrades[i];
     if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
-      AutoPlay.info("### prestige upgrade " + me.name + " is missing.");
+      AutoPlay.debugInfo("prestige upgrade " + me.name + " is missing.");
 } } }
 
 //===================== Handle Heavenly Upgrades ==========================
@@ -388,7 +386,7 @@ AutoPlay.buyHeavenlyUpgrades = function() {
   AutoPlay.prioUpgrades.forEach(function(id) { var e=Game.UpgradesById[id]; if (e.canBePurchased && !e.bought && e.buy(true)) { AutoPlay.info("buying "+e.name); } });
   Game.UpgradesById.forEach(function(e) { if (e.canBePurchased && !e.bought && e.buy(true)) { AutoPlay.info("buying "+e.name); } });
   AutoPlay.assignPermanentSlot(1,AutoPlay.kittens);
-  AutoPlay.assignPermanentSlot(2,AutoPlay.chancemakers); // have farms here for speed baking? - maybe not needed
+  AutoPlay.assignPermanentSlot(2,AutoPlay.chancemakers);
   if(!Game.Achievements["Reincarnation"].won) { // for many ascends
     AutoPlay.assignPermanentSlot(0,AutoPlay.cursors);
     AutoPlay.assignPermanentSlot(3,[52]); // lucky day
@@ -430,11 +428,10 @@ AutoPlay.handleDragon = function() {
 
 //===================== Auxiliary ==========================
 
-AutoPlay.info = function(s) { console.log(s); Game.Notify("Automatic Playthrough",s,1,100); }
-AutoPlay.debugInfo = function(s) { console.log(s); Game.Notify("Automatic Playthrough",s,1,20); }
+AutoPlay.info = function(s) { console.log("### "+s); Game.Notify("Automatic Playthrough",s,1,100); }
+AutoPlay.debugInfo = function(s) { console.log("======> "+s); Game.Notify("Debugging CookieBot",s,1,20); }
 
-AutoPlay.logging = function() { // put this inline
-  AutoPlay.debugInfo("autoplay logging started");
+AutoPlay.logging = function() {
   var before=window.localStorage.getItem("autoplayLog");
   var toAdd="#logging autoplay V" + AutoPlay.version + " with " + AutoPlay.loggingInfo + "\n" + Game.WriteSave(1) + "\n";
   AutoPlay.loggingInfo=0;
@@ -464,10 +461,9 @@ function range(start, end) {
 
 //===================== Init & Start ==========================
 
-if (AutoPlay.autoPlayer) { AutoPlay.debugInfo("replacing old version of autoplay"); clearInterval(AutoPlay.autoPlayer); }
-else AutoPlay.debugInfo("found no old version of autoplay"); 
+if (AutoPlay.autoPlayer) { AutoPlay.info("replacing old version of autoplay"); clearInterval(AutoPlay.autoPlayer); }
 if (Game.version == AutoPlay.gameVersion) {
-  AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is really quick
+  AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
   AutoPlay.findNextAchievement();
- } else info("autoPlay works only with version " + gameVersion);
-l('versionNumber').innerHTML='v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
+  l('versionNumber').innerHTML='v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
+} else info("cookieBot works only with cookie clicker version " + gameVersion);
