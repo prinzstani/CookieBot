@@ -5,7 +5,7 @@
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "1.9"
+AutoPlay.version = "1.9a"
 AutoPlay.gameVersion = "2.0042";
 AutoPlay.robotName="Automated Stani";
 AutoPlay.delay=0;
@@ -140,17 +140,13 @@ AutoPlay.seasonFinished = function(s) {
 } }
 
 //===================== Handle Sugarlumps ==========================
-// golden sugar lumps = 1 in 2000 (ordinary) -> about 5 years
-// free sugar lump: 1 in 2000 golden cookies
-//hand of fate; free sugar lump 1 in 1000, if fail then 1 in 300
-//type of new lump is deterministic (random) on the time of the previous lump, i.e. cannot be changed by reload!
-AutoPlay.level1Order=[6,7]; // unlocking in this order
+AutoPlay.level1Order=[6,7]; // unlocking in this order for the minigames
 AutoPlay.level10Order=[7,14,13,12,11]; // finishing in this order
 AutoPlay.levelAchievements=range(307,320).concat([336]);
 AutoPlay.lumpRelatedAchievements=range(266,272).concat(AutoPlay.levelAchievements);
 
 AutoPlay.handleSugarLumps = function() {
-  if (Game.ascensionMode) return;
+  if (Game.ascensionMode) return; //do not work with sugar lumps when born again
   var age=Date.now()-Game.lumpT;
   if (age>=Game.lumpMatureAge && Game.lumpCurrentType==0 && !Game.Achievements["Hand-picked"].won) AutoPlay.harvestLump();
 //  if(Game.lumpCurrentType==0) AutoPlay.farmGoldenSugarLumps(age); // not needed now, because we cheat sugar lumps
@@ -162,15 +158,15 @@ AutoPlay.handleSugarLumps = function() {
 AutoPlay.cheatLumps=false;
 AutoPlay.cheatSugarLumps = function(age) { // divide lump ripe time by 60, making hours into minutes
   for(a in Game.AchievementsById) { var me=Game.AchievementsById[a]; if (!(me.won || me.pool=="dungeon" || AutoPlay.lumpRelatedAchievements.indexOf(me.id)>=0)) return; }
-  AutoPlay.cheatLumps=true;
+  AutoPlay.cheatLumps=true; // after checking that only lump related achievements are missing
   var cheatDelay=Game.lumpRipeAge/60;
   if(age<Game.lumpRipeAge-cheatDelay) Game.lumpT-=cheatDelay*59;
   if (AutoPlay.nightMode() && age>Game.lumpRipeAge) { Game.lumpT-=60*60*1000; }
 }
 
-AutoPlay.harvestLump = function() {
+AutoPlay.harvestLump = function() { // recursive call just needed if we have many sugar lumps
   Game.clickLump(); //could reload if golden lump and below 6 harvested (much work, little payback)
-  for(i in AutoPlay.level1Order) { var me = Game.ObjectsById[AutoPlay.level1Order[i]]; if(!me.level) { me.levelUp(); AutoPlay.harvestLump(); return; } };
+  for(i in AutoPlay.level1Order) { var me = Game.ObjectsById[AutoPlay.level1Order[i]]; if(!me.level && Game.lumps) { me.levelUp(); AutoPlay.harvestLump(); return; } };
   for(i in AutoPlay.level10Order) { var me = Game.ObjectsById[AutoPlay.level10Order[i]]; if(me.level<10) { if(me.level<Game.lumps) { me.levelUp(); AutoPlay.harvestLump(); } return; } };
   for(i = Game.ObjectsById.length-1; i >= 0; i--) { var me = Game.ObjectsById[i]; if(me.level<10 && me.level<Game.lumps) { me.levelUp(); AutoPlay.harvestLump(); return; } }; 
   for(i = Game.ObjectsById.length-1; i >= 0; i--) Game.ObjectsById[i].levelUp(); 
@@ -181,44 +177,28 @@ AutoPlay.masterSaveCopy=0;
 AutoPlay.masterLoadCopy=0;
 AutoPlay.copyCount=100;
 
-//this is tested and it works - it is some kind of cheating
-AutoPlay.farmGoldenSugarLumps = function(age) { // put this inline - do this only in endgame
+// golden sugar lumps = 1 in 2000 (ordinary) -> about 5 years
+AutoPlay.farmGoldenSugarLumps = function(age) { // //this is tested and it works (some kind of cheating) - do this only in endgame
   if(Game.Achievements["All-natural cane sugar"].won) return;
   if(AutoPlay.nextAchievement!=Game.Achievements["All-natural cane sugar"].id) return;
-  if (AutoPlay.masterSaveCopy) { AutoPlay.info("back to save master"); Game.LoadSave(AutoPlay.masterSaveCopy); AutoPlay.masterSaveCopy=0; return; }
+  if (AutoPlay.masterSaveCopy) { AutoPlay.debugInfo("back to save master"); Game.LoadSave(AutoPlay.masterSaveCopy); AutoPlay.masterSaveCopy=0; return; }
   if (age<Game.lumpRipeAge && age>=Game.lumpMatureAge) {
-    if (AutoPlay.copyWindows.length>=AutoPlay.copyCount) { AutoPlay.info("##### creating master load copy"); AutoPlay.masterLoadCopy=Game.WriteSave(1); } // check rather !masterCopy
+    if (AutoPlay.copyWindows.length>=AutoPlay.copyCount) { AutoPlay.debugInfo("##### creating master load copy"); AutoPlay.masterLoadCopy=Game.WriteSave(1); } // check rather !masterCopy
     if (AutoPlay.copyWindows.length) {
 	  Game.LoadSave(AutoPlay.copyWindows.pop());
-	  if (Game.lumpCurrentType) AutoPlay.info("## found lump with type " + Game.lumpCurrentType);
+	  if (Game.lumpCurrentType) AutoPlay.debugInfo("## found lump with type " + Game.lumpCurrentType);
 	  if (Game.lumpCurrentType==2) {
 	    AutoPlay.info("YESS, golden lump");
 		AutoPlay.masterLoadCopy=0; AutoPlay.copyWindows=[];
-	} } else if (AutoPlay.masterLoadCopy) { AutoPlay.info("##### going back to master copy"); Game.LoadSave(AutoPlay.masterLoadCopy); AutoPlay.masterLoadCopy=0; }
+	} } else if (AutoPlay.masterLoadCopy) { AutoPlay.debugInfo("##### going back to master copy"); Game.LoadSave(AutoPlay.masterLoadCopy); AutoPlay.masterLoadCopy=0; }
   }
   if (age>=Game.lumpRipeAge && AutoPlay.copyWindows.length<AutoPlay.copyCount) {
-    if(!AutoPlay.copyWindows.length) AutoPlay.info("farming golden sugar lumps.");
+    if(!AutoPlay.copyWindows.length) AutoPlay.info("### farming golden sugar lumps.");
     AutoPlay.masterSaveCopy=Game.WriteSave(1);
     Game.clickLump();
     AutoPlay.copyWindows.push(Game.WriteSave(1));
   }
 }
-
-AutoPlay.checkWindow=null;
-
-function checkCopies() {
-  if(!AutoPlay.copyWindows.length) return;
-  // need to do this in own window and not open a new one.
-  if(AutoPlay.checkWindow == null) { AutoPlay.checkWindow = window.open(window.location.href, "", "width=400,height=400"); return; }
-  if (!AutoPlay.checkWindow.Game) return;
-  AutoPlay.checkWindow.Game.LoadSave(AutoPlay.copyWindows.pop());
-  AutoPlay.info("found sugar lump of type " + AutoPlay.checkWindow.Game.lumpCurrentType);
-  AutoPlay.checkWindow.close(); AutoPlay.checkWindow=null;
-}
-
-var savedMagic=0;
-var countTrials;
-var oldLumps;
 
 AutoPlay.handleMinigames = function() {
   // wizard towers: grimoires
@@ -254,12 +234,10 @@ AutoPlay.removeSpirit = function(slot, god) {
 
 //===================== Handle Wrinklers ==========================
 AutoPlay.handleWrinklers = function() {
-  if (((Game.season == "easter") || (Game.season == "halloween")) && !AutoPlay.seasonFinished(Game.season)) 
-    Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
-  if (Game.Upgrades["Unholy bait"].bought && !Game.Achievements["Moistburster"].won) 
-    Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
-  if (AutoPlay.endPhase() && !Game.Achievements["Last Chance to See"].won) 
-    Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
+  var doPop = (((Game.season == "easter") || (Game.season == "halloween")) && !AutoPlay.seasonFinished(Game.season));
+  doPop = doPop || (Game.Upgrades["Unholy bait"].bought && !Game.Achievements["Moistburster"].won);
+  doPop = doPop || (AutoPlay.endPhase() && !Game.Achievements["Last Chance to See"].won);
+  if (doPop) Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
 }
 
 //===================== Handle Small Achievements ==========================
@@ -285,8 +263,6 @@ AutoPlay.unDunk = function() {
 
 //===================== Handle Ascend ==========================
 AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
-
-AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
 
 AutoPlay.handleAscend = function() {
   if (Game.OnAscend) { AutoPlay.doReincarnate(); AutoPlay.findNextAchievement(); return; }
@@ -333,7 +309,7 @@ AutoPlay.doReincarnate = function() {
   if(!Game.Achievements["Neverclick"].won || !Game.Achievements["Hardcore"].won) { Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt(); }
   if(AutoPlay.endPhase() && AutoPlay.mustRebornAscend()) { Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt(); }
   Game.Reincarnate(true); 
-  if (AutoPlay.loggingInfo) { setTimeout(AutoPlay.logging, 20*1000); AutoPlay.debugInfo("logging in 20 seconds"); }
+  if (AutoPlay.loggingInfo) setTimeout(AutoPlay.logging, 20*1000);
   AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 }
 
@@ -358,6 +334,8 @@ AutoPlay.doAscend = function(str,log) {
 //===================== Handle Achievements ==========================
 AutoPlay.nextAchievement=0;
 AutoPlay.wantedAchievements = [82, 12, 89, 111, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 332];
+
+AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
 
 AutoPlay.findNextAchievement = function() {
   AutoPlay.handleSmallAchievements();

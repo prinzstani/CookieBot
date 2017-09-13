@@ -1,7 +1,7 @@
 # Cookie Bot
-**Cookie Bot** is an addon you can load  into Cookie Clicker, that will do an automatic playthrough for Cookie Clicker. It does not cheat and it is not strictly speaking a third-party tool in the sense of cookie clicker, but it allows you to get all achievments needed for a complete playthrough.
+**Cookie Bot** is an addon you can load  into Cookie Clicker, that will do an automatic playthrough for Cookie Clicker. It does not cheat (but see below) and it is not strictly speaking a third-party tool in the sense of cookie clicker, but it allows you to get all achievments needed for a complete playthrough.
 
-The tool is designed to mimic a human player, and it does try to be not super-human in terms of clicking speed and possible moves. Cookie Bot will start whereever you are in your game and continue to a complete playthrough.
+The tool is designed to mimic a human player, and it avoids being super-human in terms of clicking speed and possible moves. Cookie Bot will start whereever you are in your game and continue to a complete playthrough.
 
 ## Current version
 
@@ -22,7 +22,7 @@ Cookie Bot plays through the complete game of Cookie Clicker. This will take abo
 * Step 9: get the golden sugar lump: about three more years
 
 With the current design of the game, the first 7 steps take about two months. The last two steps take together five years on average, and two years minimum.
-This is considered not good in terms of game dynamics, and the playthrough will cheat sugar lumps in the end phase. In particular, it will divide the ripening time for sugar lumps by 60, which makes it appear with as many minutes as it would have hours otherwise. With this cheat, the last two steps will take up to two months.
+This is considered not good in terms of game dynamics, and therefore the playthrough will cheat sugar lumps in the end phase. In particular, it will divide the ripening time for sugar lumps by 60. This way the ripening time is in minutes instead of hours. With this cheat, the last two steps will take approximately two months.
 
 # Usage
 
@@ -36,7 +36,7 @@ javascript: (function () {
 }());
 ```
 
-If (for some reason) the above doesn't work, trying pasting everything after the <code>javascript:</code> bit into your browser's console.
+If (for some reason) the above doesn't work, try pasting everything after the <code>javascript:</code> bit into your browser's console.
 
 # Bugs and suggestions
 
