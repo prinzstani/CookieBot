@@ -1,4 +1,5 @@
 //cookie bot: auto-play-through cookie clicker
+//TODO: handle four-leaf cookie better
 //TODO: create description of cookiebot in cookieclicker wiki
 
 var AutoPlay;
@@ -60,8 +61,16 @@ AutoPlay.nightMode = function() {
 }
 
 //===================== Handle Cookies and Golden Cookies ==========================
+var currentGolden=0;
+var goldenPopped=0;
 AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or reindeer
-  if(Game.shimmerTypes['golden'].n>1) AutoPlay.debugInfo("there are " + Game.shimmerTypes['golden'].n + " active golden cookies.")
+  if(currentGolden!=Game.shimmerTypes['golden'].n) { 
+    currentGolden=Game.shimmerTypes['golden'].n; 
+	if(currentGolden==1) goldenPopped++;
+	if(currentGolden>1) { AutoPlay.debugInfo(Game.shimmerTypes['golden'].n + " golden after:" + goldenPopped); goldenPopped=0; }
+  }
+
+  if(Game.shimmerTypes['golden'].n>=4 && !Game.Achievements('Four-leaf cookie').won) return;
   for(sx in Game.shimmers) {
     var s=Game.shimmers[sx];
     if((s.type!="golden") || (s.life<Game.fps) || (!Game.Achievements["Early bird"].won)) { s.pop(); return; }
@@ -206,7 +215,7 @@ AutoPlay.handleMinigames = function() {
     var me=Game.Objects["Wizard tower"];
     var g=me.minigame;
     var sp=g.spells["hand of fate"]; // try to get a sugar lump in backfiring
-	if(Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) && (g.magic/g.magicM >= 0.95)) { g.castSpell(sp); }
+	if(Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) && (g.magic/g.magicM >= 0.95)) { g.castSpell(sp); AutoPlay.debugInfo("cast a hand of fate."); }
     if (Game.shimmerTypes['golden'].n == 3 && !Game.Achievements["Four-leaf cookie"].won) {
 	  me.switchMinigame(true); g.lumpRefill.click(); g.castSpell(sp); me.switchMinigame(false);
   } }
