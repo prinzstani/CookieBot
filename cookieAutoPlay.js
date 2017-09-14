@@ -4,7 +4,7 @@
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "1.9a"
+AutoPlay.version = "1.9b"
 AutoPlay.gameVersion = "2.0042";
 AutoPlay.robotName="Automated Stani";
 AutoPlay.delay=0;
