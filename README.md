@@ -1,7 +1,9 @@
 # Cookie Bot
 **Cookie Bot** is an addon you can load  into Cookie Clicker, that will do an automatic playthrough for Cookie Clicker. It does not cheat (but see below) and it is not strictly speaking a third-party tool in the sense of cookie clicker, but it allows you to get all achievments needed for a complete playthrough.
 
-The tool is designed to mimic a human player, and it avoids being super-human in terms of clicking speed and possible moves. Cookie Bot will start whereever you are in your game and continue to a complete playthrough.
+The tool is designed to mimic a human player, and it avoids being super-human in terms of clicking speed and possible moves. This includes also not playing at night, i.e. from 23:00 until 07:00. For the night mode, if possible, the golden switch is used together with fitting spirits in order to maximize output.
+
+Cookie Bot will start whereever you are in your game and continue to a complete playthrough.
 
 ## Current version
 
@@ -22,7 +24,7 @@ Cookie Bot plays through the complete game of Cookie Clicker. This will take abo
 * Step 9: get the golden sugar lump: about three more years
 
 With the current design of the game, the first 7 steps take about two months. The last two steps take together five years on average, and two years minimum.
-This is considered not good in terms of game dynamics, and therefore the playthrough will cheat sugar lumps in the end phase. In particular, it will divide the ripening time for sugar lumps by 60. This way the ripening time is in minutes instead of hours. With this cheat, the last two steps will take approximately two months.
+This is considered not good in terms of game dynamics, and therefore the playthrough will cheat sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing). In particular, it will divide the ripening time for sugar lumps by 60. This way the ripening time is in minutes instead of hours. With this cheat, the last two steps will take approximately two months.
 
 # Usage
 

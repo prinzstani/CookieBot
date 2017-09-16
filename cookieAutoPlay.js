@@ -1,10 +1,8 @@
 //cookie bot: auto-play-through cookie clicker
-//TODO: create description of cookiebot in cookieclicker wiki
-
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "1.9b"
+AutoPlay.version = "2.0"
 AutoPlay.gameVersion = "2.0042";
 AutoPlay.robotName="Automated Stani";
 AutoPlay.delay=0;
@@ -33,8 +31,9 @@ AutoPlay.nightMode = function() {
     AutoPlay.night=false;
     var gs=Game.Upgrades["Golden switch [on]"]; if(gs.unlocked) {
       if (Game.isMinigameReady(Game.Objects["Temple"])) {
+        AutoPlay.removeSpirit(1,"asceticism");
         AutoPlay.assignSpirit(1,"decadence",0);
-        AutoPlay.assignSpirit(2,"labor",0);
+//        AutoPlay.assignSpirit(2,"labor",0);
       } 
 	  gs.buy();
 	}
@@ -60,15 +59,7 @@ AutoPlay.nightMode = function() {
 }
 
 //===================== Handle Cookies and Golden Cookies ==========================
-var currentGolden=0;
-var goldenPopped=0;
 AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or reindeer
-  if(currentGolden!=Game.shimmerTypes['golden'].n) { 
-    currentGolden=Game.shimmerTypes['golden'].n; 
-	if(currentGolden==1) goldenPopped++;
-	if(currentGolden>1) { AutoPlay.debugInfo(Game.shimmerTypes['golden'].n + " golden after:" + goldenPopped); goldenPopped=0; }
-  }
-
   if(Game.shimmerTypes['golden'].n>=4 && !Game.Achievements['Four-leaf cookie'].won) return;
   for(sx in Game.shimmers) {
     var s=Game.shimmers[sx];
@@ -214,13 +205,10 @@ AutoPlay.handleMinigames = function() {
     var me=Game.Objects["Wizard tower"];
     var g=me.minigame;
     var sp=g.spells["hand of fate"]; // try to get a sugar lump in backfiring
-	if(Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) && (g.magic/g.magicM >= 0.95)) { g.castSpell(sp); AutoPlay.debugInfo("cast a hand of fate."); }
-    if (Game.shimmerTypes['golden'].n == 2 && AutoPlay.nextAchievement==Game.Achievements["Four-leaf cookie"].id) {
-	  me.switchMinigame(true); g.lumpRefill.click(); g.castSpell(sp); me.switchMinigame(false);
-	}
-    if (Game.shimmerTypes['golden'].n == 3 && !Game.Achievements["Four-leaf cookie"].won) {
-	  me.switchMinigame(true); g.lumpRefill.click(); g.castSpell(sp); me.switchMinigame(false);
-  } }
+	if(Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) && (g.magic/g.magicM >= 0.95)) { g.castSpell(sp); }
+    if (Game.shimmerTypes['golden'].n == 2 && !Game.Achievements["Four-leaf cookie"].won && Game.lumps>0 && g.magic>=g.getSpellCost(sp)) { g.castSpell(sp); }
+    if (Game.shimmerTypes['golden'].n == 3 && !Game.Achievements["Four-leaf cookie"].won) { g.lumpRefill.click(); g.castSpell(sp); } 
+  }
   // temples: pantheon
   if (Game.isMinigameReady(Game.Objects["Temple"])) {
     if(Game.lumpRipeAge-(Date.now()-Game.lumpT) < 2*60*60*1000 && !AutoPlay.cheatLumps) AutoPlay.assignSpirit(0,"order",0); 
@@ -343,7 +331,7 @@ AutoPlay.doAscend = function(str,log) {
 
 //===================== Handle Achievements ==========================
 AutoPlay.nextAchievement=0;
-AutoPlay.wantedAchievements = [82, 12, 89, 111, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 332];
+AutoPlay.wantedAchievements = [82, 12, 89, 111, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 324, 332];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
 
