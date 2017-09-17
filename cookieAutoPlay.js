@@ -25,6 +25,8 @@ AutoPlay.run = function () {
 }
 
 //===================== Night Mode ==========================
+AutoPlay.preNightMode = function() { var h=(new Date).getHours(); return(h>=22); }
+
 AutoPlay.nightMode = function() { 
   var h=(new Date).getHours();
   if(h>=7 && h<23) { // be active
@@ -265,6 +267,7 @@ AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 
 AutoPlay.handleAscend = function() {
   if (Game.OnAscend) { AutoPlay.doReincarnate(); AutoPlay.findNextAchievement(); return; }
+  if(AutoPlay.preNightMode()) return; //do not ascend right before the night
   var ascendDays=10;
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) || ((Game.prestige+Game.ascendMeterLevel)%1000==777))) 
