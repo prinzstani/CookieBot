@@ -24,7 +24,7 @@ Cookie Bot plays through the complete game of Cookie Clicker. This will take abo
 * Step 9: get the golden sugar lump: about three more years
 
 With the current design of the game, the first 7 steps take about two months. The last two steps take together five years on average, and two years minimum.
-This is considered not good in terms of game dynamics, and therefore the playthrough will cheat sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing). In particular, it will divide the ripening time for sugar lumps by 60. This way the ripening time is in minutes instead of hours. With this cheat, the last two steps will take approximately two months.
+This is considered not good in terms of game dynamics, and therefore the playthrough will cheat sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing). In particular, it will divide the ripening time for sugar lumps by 600. This way the ripening time is a few minutes instead of hours. With this cheat, the last two steps will take less than one months.
 
 # Usage
 
