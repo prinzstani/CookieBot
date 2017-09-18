@@ -160,8 +160,9 @@ AutoPlay.cheatLumps=false;
 AutoPlay.cheatSugarLumps = function(age) { // divide lump ripe time by 600, making hours into few minutes
   for(a in Game.AchievementsById) { var me=Game.AchievementsById[a]; if (!(me.won || me.pool=="dungeon" || AutoPlay.lumpRelatedAchievements.indexOf(me.id)>=0)) return; }
   AutoPlay.cheatLumps=true; // after checking that only lump related achievements are missing
-  var cheatDelay=Game.lumpRipeAge/60/10;
-  if(age<Game.lumpRipeAge-cheatDelay) Game.lumpT-=cheatDelay*59;
+  var cheatReduction=60*10;
+  var cheatDelay=Game.lumpRipeAge/cheatReduction;
+  if(age<Game.lumpRipeAge-cheatDelay) Game.lumpT-=cheatDelay*(cheatReduction-1);
   if (AutoPlay.nightMode() && age>Game.lumpRipeAge) { Game.lumpT-=60*60*1000; }
 }
 
