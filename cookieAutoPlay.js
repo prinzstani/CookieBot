@@ -334,7 +334,7 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 12, 89, 111, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 324, 332];
+AutoPlay.wantedAchievements = [82, 12, 89, 111, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 332];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
