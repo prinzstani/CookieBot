@@ -1,4 +1,5 @@
 //cookie bot: auto-play-through cookie clicker
+//TODO: play 10 more minutes after everything is done in order to get things going
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
@@ -272,21 +273,21 @@ AutoPlay.handleAscend = function() {
   var ascendDays=10;
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) || ((Game.prestige+Game.ascendMeterLevel)%1000==777))) 
-	{ AutoPlay.doAscend("### go for 1000 ascends",0); }
+	{ AutoPlay.doAscend("go for 1000 ascends",0); }
   }
   if (Game.Upgrades["Permanent upgrade slot V"].bought && !Game.Achievements["Reincarnation"].won) { // this costs 3+2 minute per 2 ascend
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) )) 
-	{ AutoPlay.doAscend("### go for 100 ascends",0); }
+	{ AutoPlay.doAscend("go for 100 ascends",0); }
   }
-  if (Game.ascensionMode && !AutoPlay.canContinue()) AutoPlay.doAscend("### reborn mode did not work, retry.",0);
+  if (Game.ascensionMode && !AutoPlay.canContinue()) AutoPlay.doAscend("reborn mode did not work, retry.",0);
   if (AutoPlay.endPhase() && (Date.now()-Game.startDate) > ascendDays*24*60*60*1000) {
-    AutoPlay.doAscend("### ascend after " + ascendDays + " days just while waiting for next achievement.",1);
+    AutoPlay.doAscend("ascend after " + ascendDays + " days just while waiting for next achievement.",1);
   }
   var newPrestige=(Game.prestige+Game.ascendMeterLevel)%1000000;
-  if (AutoPlay.endPhase() && !Game.Upgrades["Lucky digit"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) { AutoPlay.doAscend("### ascend for lucky digit.",0); }
-  if (AutoPlay.endPhase() && !Game.Upgrades["Lucky number"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) { AutoPlay.doAscend("### ascend for lucky number.",0); }
+  if (AutoPlay.endPhase() && !Game.Upgrades["Lucky digit"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) { AutoPlay.doAscend("ascend for lucky digit.",0); }
+  if (AutoPlay.endPhase() && !Game.Upgrades["Lucky number"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) { AutoPlay.doAscend("ascend for lucky number.",0); }
   if (!Game.Upgrades["Lucky payout"].bought && Game.ascendMeterLevel>0 && AutoPlay.endPhase() && (Game.heavenlyChips > 77777777) && (newPrestige <= 777777) && (newPrestige >= 777777-Game.ascendMeterLevel)) {
-    AutoPlay.doAscend("### ascend for lucky payout.",1);
+    AutoPlay.doAscend("ascend for lucky payout.",0);
   }
   if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
 	var date=new Date();
@@ -294,7 +295,7 @@ AutoPlay.handleAscend = function() {
 	var legacyTime=Game.sayTime(date.getTime()/1000*Game.fps,-1);
 	date.setTime(Date.now()-Game.fullDate);
 	var fullTime=Game.sayTime(date.getTime()/1000*Game.fps,-1);
-    AutoPlay.doAscend("### have achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].desc + " after " + legacyTime + "(total: " + fullTime + ")",1);
+    AutoPlay.doAscend("have achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].desc + " after " + legacyTime + "(total: " + fullTime + ")",1);
 } }
 
 AutoPlay.canContinue = function() {
@@ -321,6 +322,7 @@ AutoPlay.mustRebornAscend = function() { return !([78,93,94,95].every(function(a
 AutoPlay.doAscend = function(str,log) {
   AutoPlay.debugInfo(str);
   AutoPlay.loggingInfo=log?str:0; 
+  if(AutoPlay.checkAllAchievementsOK(false)) { AutoPlay.logging(); return; } // do not ascend when we are finished
   if(Game.wrinklers.some(function(w) { return w.close; } )) AutoPlay.assignSpirit(0,"scorn",1);
   Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp=0; } ); // pop all wrinklers
   if (Game.Upgrades["Chocolate egg"].unlocked && !Game.Upgrades["Chocolate egg"].bought) {
@@ -345,25 +347,26 @@ AutoPlay.findNextAchievement = function() {
     if (!(Game.AchievementsById[AutoPlay.wantedAchievements[i]].won)) 
 	{ AutoPlay.nextAchievement = AutoPlay.wantedAchievements[i]; AutoPlay.debugInfo("trying to get achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].desc); return; }
   }
-  AutoPlay.checkAllAchievementsOK();
+  AutoPlay.checkAllAchievementsOK(true);
 }
 
-AutoPlay.checkAllAchievementsOK = function() {
+AutoPlay.checkAllAchievementsOK = function(log) {
   for (var i in Game.Achievements) {
     var me=Game.Achievements[i];
     if (!me.won && me.pool!="dungeon") { // missing achievement
-      AutoPlay.info("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
-	  AutoPlay.nextAchievement=me.id; return;
+      if(log) AutoPlay.info("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
+	  AutoPlay.nextAchievement=me.id; return false;
   } }
   for (var i in Game.Upgrades) {
     var me=Game.Upgrades[i];
     if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
       AutoPlay.nextAchievement=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
-      AutoPlay.info("Prestige upgrade " + me.name + " is missing, waiting to buy it.");
-	  Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); return;
+      if(log) AutoPlay.info("Prestige upgrade " + me.name + " is missing, waiting to buy it.");
+	  Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); return false;
   } }
   clearInterval(AutoPlay.autoPlayer); //stop autoplay: 
   AutoPlay.info("My job is done here, have a nice day.");
+  return true;
 }
 
 AutoPlay.findMissingAchievements = function() { // just for testing purposes
