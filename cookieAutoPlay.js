@@ -1,5 +1,4 @@
 //cookie bot: auto-play-through cookie clicker
-//TODO: play 10 more minutes after everything is done in order to get things going
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
@@ -355,14 +354,16 @@ AutoPlay.checkAllAchievementsOK = function(log) {
     var me=Game.Achievements[i];
     if (!me.won && me.pool!="dungeon") { // missing achievement
       if(log) AutoPlay.info("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
-	  AutoPlay.nextAchievement=me.id; return false;
+	  if(log) AutoPlay.nextAchievement=me.id; 
+	  return false;
   } }
   for (var i in Game.Upgrades) {
     var me=Game.Upgrades[i];
     if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
       AutoPlay.nextAchievement=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
       if(log) AutoPlay.info("Prestige upgrade " + me.name + " is missing, waiting to buy it.");
-	  Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); return false;
+	  if(log) Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); 
+	  return false;
   } }
   clearInterval(AutoPlay.autoPlayer); //stop autoplay: 
   AutoPlay.info("My job is done here, have a nice day.");
