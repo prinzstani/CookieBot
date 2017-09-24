@@ -98,7 +98,7 @@ AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, 73, rolling
 AutoPlay.handleBuildings = function() {
   var buyAmount=100, checkAmount=1;
   if ((Date.now()-Game.startDate) > 10*60*1000) buyAmount=1; // buy single after 10 minutes
-  if (!Game.ascensionMode && Game.isMinigameReady(Game.Objects["Temple"]) && Game.Objects["Temple"].minigame.slot[0]==10 // Rigidel is in slot 0
+  if (Game.resets && Game.ascensionMode==1 && Game.isMinigameReady(Game.Objects["Temple"]) && Game.Objects["Temple"].minigame.slot[0]==10 // Rigidel is in slot 0
       && Game.BuildingsOwned%10==0 && (Date.now()-Game.startDate) > 2*60*1000) // do not use factor 10 in the first 2 minutes after descend
     buyAmount=checkAmount=10;
   var cpc=0; // relative strength of cookie production
@@ -110,7 +110,7 @@ AutoPlay.handleBuildings = function() {
 
 //===================== Handle Seasons ==========================
 AutoPlay.handleSeasons = function() {
-  if (!Game.Upgrades["Season switcher"].bought || Game.ascensionMode) return;
+  if (!Game.Upgrades["Season switcher"].bought || Game.ascensionMode==1) return;
   if (AutoPlay.seasonFinished(Game.season)) {
     switch (Game.season) {
 	  case "christmas": Game.Upgrades["Bunny biscuit"].buy(); break; // go to easter
@@ -147,7 +147,7 @@ AutoPlay.levelAchievements=range(307,320).concat([336]);
 AutoPlay.lumpRelatedAchievements=range(266,272).concat(AutoPlay.levelAchievements);
 
 AutoPlay.handleSugarLumps = function() {
-  if (Game.ascensionMode) return; //do not work with sugar lumps when born again
+  if (Game.resets==0 || Game.ascensionMode==1) return; //do not work with sugar lumps when born again
   var age=Date.now()-Game.lumpT;
   if (age>=Game.lumpMatureAge && Game.lumpCurrentType==0 && !Game.Achievements["Hand-picked"].won) AutoPlay.harvestLump();
 //  if(Game.lumpCurrentType==0) AutoPlay.farmGoldenSugarLumps(age); // not needed now, because we cheat sugar lumps
@@ -278,7 +278,7 @@ AutoPlay.handleAscend = function() {
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) )) 
 	{ AutoPlay.doAscend("go for 100 ascends",0); }
   }
-  if (Game.ascensionMode && !AutoPlay.canContinue()) AutoPlay.doAscend("reborn mode did not work, retry.",0);
+  if (Game.ascensionMode==1 && !AutoPlay.canContinue()) AutoPlay.doAscend("reborn mode did not work, retry.",0);
   if (AutoPlay.endPhase() && (Date.now()-Game.startDate) > ascendDays*24*60*60*1000) {
     AutoPlay.doAscend("ascend after " + ascendDays + " days just while waiting for next achievement.",1);
   }
