@@ -48,13 +48,13 @@ AutoPlay.nightMode = function() {
     for (var i in Game.buffs) { if(Game.buffs[i].time>=0) buffCount++; }
 	if((buffCount==1 && Game.hasBuff("Clot")) || h<7) gs.buy();
 	if(!gs.bought) return true; // do not activate spirits before golden switch
-  }
-  if (Game.isMinigameReady(Game.Objects["Temple"])) {
-	AutoPlay.assignSpirit(0,"mother",1); 
-    AutoPlay.removeSpirit(1,"decadence");
-    AutoPlay.removeSpirit(2,"labor");
-    AutoPlay.assignSpirit(1,"asceticism",1);
-    AutoPlay.assignSpirit(2,"industry",1);
+    if (Game.isMinigameReady(Game.Objects["Temple"])) {
+	  AutoPlay.assignSpirit(0,"mother",1); 
+      AutoPlay.removeSpirit(1,"decadence");
+      AutoPlay.removeSpirit(2,"labor");
+      AutoPlay.assignSpirit(1,"asceticism",1);
+      AutoPlay.assignSpirit(2,"industry",1);
+    }
   }
   AutoPlay.night=true;
   return true;
