@@ -30,6 +30,7 @@ AutoPlay.preNightMode = function() { var h=(new Date).getHours(); return(h>=22);
 AutoPlay.nightMode = function() { 
   var h=(new Date).getHours();
   if(h>=7 && h<23) { // be active
+    if (AutoPlay.night) AutoPlay.useLump();
     AutoPlay.night=false;
     var gs=Game.Upgrades["Golden switch [on]"]; if(gs.unlocked) {
       if (Game.isMinigameReady(Game.Objects["Temple"])) {
@@ -166,11 +167,15 @@ AutoPlay.cheatSugarLumps = function(age) { // divide lump ripe time by 600, maki
   if (AutoPlay.nightMode() && age>Game.lumpRipeAge) { Game.lumpT-=60*60*1000; }
 }
 
-AutoPlay.harvestLump = function() { // recursive call just needed if we have many sugar lumps
+AutoPlay.harvestLump = function() { 
   Game.clickLump(); //could reload if golden lump and below 6 harvested (much work, little payback)
-  for(i in AutoPlay.level1Order) { var me = Game.ObjectsById[AutoPlay.level1Order[i]]; if(!me.level && Game.lumps) { me.levelUp(); AutoPlay.harvestLump(); return; } };
-  for(i in AutoPlay.level10Order) { var me = Game.ObjectsById[AutoPlay.level10Order[i]]; if(me.level<10) { if(me.level<Game.lumps) { me.levelUp(); AutoPlay.harvestLump(); } return; } };
-  for(i = Game.ObjectsById.length-1; i >= 0; i--) { var me = Game.ObjectsById[i]; if(me.level<10 && me.level<Game.lumps) { me.levelUp(); AutoPlay.harvestLump(); return; } }; 
+  AutoPlay.useLump();
+}
+
+AutoPlay.useLump = function() { // recursive call just needed if we have many sugar lumps
+  for(i in AutoPlay.level1Order) { var me = Game.ObjectsById[AutoPlay.level1Order[i]]; if(!me.level && Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; } };
+  for(i in AutoPlay.level10Order) { var me = Game.ObjectsById[AutoPlay.level10Order[i]]; if(me.level<10) { if(me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); } return; } };
+  for(i = Game.ObjectsById.length-1; i >= 0; i--) { var me = Game.ObjectsById[i]; if(me.level<10 && me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; } }; 
   for(i = Game.ObjectsById.length-1; i >= 0; i--) Game.ObjectsById[i].levelUp(); 
 }
 
