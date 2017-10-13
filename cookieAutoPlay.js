@@ -50,7 +50,7 @@ AutoPlay.nightMode = function() {
 	if((buffCount==1 && Game.hasBuff("Clot")) || h<7) gs.buy();
 	if(!gs.bought) return true; // do not activate spirits before golden switch
     if (Game.isMinigameReady(Game.Objects["Temple"])) {
-	  AutoPlay.assignSpirit(0,"mother",1); 
+//	  AutoPlay.assignSpirit(0,"mother",1); 
       AutoPlay.removeSpirit(1,"decadence");
       AutoPlay.removeSpirit(2,"labor");
       AutoPlay.assignSpirit(1,"asceticism",1);
@@ -99,7 +99,7 @@ AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, 73, rolling
 AutoPlay.handleBuildings = function() {
   var buyAmount=100, checkAmount=1;
   if ((Date.now()-Game.startDate) > 10*60*1000) buyAmount=1; // buy single after 10 minutes
-  if (Game.resets && Game.ascensionMode==1 && Game.isMinigameReady(Game.Objects["Temple"]) && Game.Objects["Temple"].minigame.slot[0]==10 // Rigidel is in slot 0
+  if (Game.resets && Game.ascensionMode!=1 && Game.isMinigameReady(Game.Objects["Temple"]) && Game.Objects["Temple"].minigame.slot[0]==10 // Rigidel is in slot 0
       && Game.BuildingsOwned%10==0 && (Date.now()-Game.startDate) > 2*60*1000) // do not use factor 10 in the first 2 minutes after descend
     buyAmount=checkAmount=10;
   var cpc=0; // relative strength of cookie production
@@ -107,6 +107,11 @@ AutoPlay.handleBuildings = function() {
   for(i = Game.ObjectsById.length-1; i >= 0; i--) { 
     var me = Game.ObjectsById[i]; 
     if ((me.storedCps/me.price > cpc/2 || me.amount % 50 >= 40) && (me.getSumPrice(checkAmount)<Game.cookies)) { me.buy(buyAmount); return; }
+  }
+  if(Game.resets && Game.ascensionMode!=1 && Game.isMinigameReady(Game.Objects["Temple"]) && Game.Objects["Temple"].minigame.slot[0]==10 && Game.BuildingsOwned%10!=0) { // Rigidel is in slot 0, buy the cheapest
+	var minIdx=0, minPrice=Game.ObjectsById[minIdx].price;
+    for(var i = Game.ObjectsById.length-1; i >= 0; i--){ if (Game.ObjectsById[i].price < minPrice) { minPrice=Game.ObjectsById[i].price; minIdx=i; } }; 
+	Game.ObjectsById[minIdx].buy();
 } }
 
 //===================== Handle Seasons ==========================
@@ -219,7 +224,9 @@ AutoPlay.handleMinigames = function() {
   }
   // temples: pantheon
   if (Game.isMinigameReady(Game.Objects["Temple"])) {
-    if(Game.lumpRipeAge-(Date.now()-Game.lumpT) < 2*60*60*1000 && !AutoPlay.cheatLumps) AutoPlay.assignSpirit(0,"order",0); 
+	var age=Date.now()-Game.lumpT;
+    if(Game.lumpRipeAge-age < 2*60*60*1000 && !AutoPlay.cheatLumps) AutoPlay.assignSpirit(0,"order",0); 
+	else if (AutoPlay.preNightMode() && Game.lumpOverripeAge-age < 9*60*60*1000 && !AutoPlay.cheatLumps) AutoPlay.assignSpirit(0,"order",0);
 	else AutoPlay.assignSpirit(0,"mother",0); 
     AutoPlay.assignSpirit(1,"decadence",0);
     AutoPlay.assignSpirit(2,"labor",0);
@@ -340,7 +347,7 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 12, 89, 111, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 332];
+AutoPlay.wantedAchievements = [82, 12, 89, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 332];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
