@@ -226,7 +226,7 @@ AutoPlay.handleMinigames = function() {
   if (Game.isMinigameReady(Game.Objects["Temple"])) {
 	var age=Date.now()-Game.lumpT;
     if(Game.lumpRipeAge-age < 61*60*1000 && !AutoPlay.cheatLumps) AutoPlay.assignSpirit(0,"order",0); 
-	else if (AutoPlay.preNightMode() && Game.lumpOverripeAge-age < 9*60*60*1000 && (new Date).getMinutes()<=5 && !AutoPlay.cheatLumps) AutoPlay.assignSpirit(0,"order",0);
+	else if (AutoPlay.preNightMode() && Game.lumpOverripeAge-age < 9*60*60*1000 && (new Date).getMinutes()==59 && !AutoPlay.cheatLumps) AutoPlay.assignSpirit(0,"order",0);
 	else AutoPlay.assignSpirit(0,"mother",0); 
     AutoPlay.assignSpirit(1,"decadence",0);
     AutoPlay.assignSpirit(2,"labor",0);
