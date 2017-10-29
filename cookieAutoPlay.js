@@ -72,8 +72,9 @@ AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or re
 
 AutoPlay.handleClicking = function() {
   if (!Game.Achievements["Neverclick"].won && (Game.cookieClicks<=15) ) return;
-  if (AutoPlay.endPhase() && !Game.Achievements["True Neverclick"].won && (!Game.cookieClicks) ) return;
-  if(!Game.Achievements["Uncanny clicker"].won) { for(i=0; i<10; i++) setTimeout(Game.ClickCookie, 50*i); }
+  if (Game.ascensionMode==1 && AutoPlay.endPhase() && !Game.Achievements["True Neverclick"].won && (!Game.cookieClicks) ) return;
+  if(!Game.Achievements["Uncanny clicker"].won) { for(i=1; i<6; i++) setTimeout(Game.ClickCookie, 50*i); }
+  if (Game.ascensionMode==1 && Game.Achievements["Hardcore"].won) setTimeout(Game.ClickCookie, 150);
   Game.ClickCookie();
 }
 
