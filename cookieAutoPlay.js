@@ -4,7 +4,7 @@ var AutoPlay;
 if(!AutoPlay) AutoPlay = {};
 AutoPlay.version = "2.0"
 AutoPlay.gameVersion = "2.0042";
-AutoPlay.robotName="Automated Stani";
+AutoPlay.robotName="Automated ";
 AutoPlay.delay=0;
 AutoPlay.night=false;
 
@@ -262,7 +262,9 @@ AutoPlay.handleSmallAchievements = function() {
   if(!Game.Achievements["Here you go"].won) Game.Achievements["Here you go"].click();
   if(!Game.Achievements["Tiny cookie"].won) Game.ClickTinyCookie();
   if(!Game.Achievements["God complex"].won) { Game.bakeryName = "Orteil"; Game.bakeryNamePrompt(); Game.ConfirmPrompt(); }
-  if(!Game.Achievements["What's in a name"].won || Game.bakeryName!=AutoPlay.robotName) { Game.bakeryName = AutoPlay.robotName; Game.bakeryNamePrompt(); Game.ConfirmPrompt(); }
+  if(!Game.Achievements["What's in a name"].won || Game.bakeryName.slice(0,AutoPlay.robotName.length)!=AutoPlay.robotName) { 
+    Game.bakeryName = AutoPlay.robotName+Game.bakeryName; Game.bakeryNamePrompt(); Game.ConfirmPrompt(); 
+  }
   if(AutoPlay.endPhase() && !Game.Achievements["Cheated cookies taste awful"].won) Game.Win("Cheated cookies taste awful"); // only take this at the end, after all is done
   if(!Game.Achievements["Third-party"].won) Game.Win("Third-party"); // cookie bot is a third party itself
   if(!Game.Achievements["Cookie-dunker"].won && Game.milkProgress > 1 && Game.milkHd>0.34) {
@@ -380,6 +382,9 @@ AutoPlay.checkAllAchievementsOK = function(log) {
   } }
   clearInterval(AutoPlay.autoPlayer); //stop autoplay: 
   AutoPlay.info("My job is done here, have a nice day.");
+  if(Game.bakeryName.slice(0,AutoPlay.robotName.length)==AutoPlay.robotName) { 
+    Game.bakeryName = Game.bakeryName.slice(AutoPlay.robotName.length); Game.bakeryNamePrompt(); Game.ConfirmPrompt(); 
+  }
   return true;
 }
 
