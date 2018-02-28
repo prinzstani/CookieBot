@@ -3,7 +3,7 @@ var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
 AutoPlay.version = "2.0"
-AutoPlay.gameVersion = "2.0042";
+AutoPlay.gameVersion = "2.0045";
 AutoPlay.robotName="Automated ";
 AutoPlay.delay=0;
 AutoPlay.night=false;
@@ -487,8 +487,7 @@ function range(start, end) {
 //===================== Init & Start ==========================
 
 if (AutoPlay.autoPlayer) { AutoPlay.info("replacing old version of autoplay"); clearInterval(AutoPlay.autoPlayer); }
-if (Game.version == AutoPlay.gameVersion) {
-  AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
-  AutoPlay.findNextAchievement();
-  l('versionNumber').innerHTML='v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
-} else info("cookieBot works only with cookie clicker version " + gameVersion);
+AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
+AutoPlay.findNextAchievement();
+l('versionNumber').innerHTML='v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
+if (Game.version != AutoPlay.gameVersion) AutoPlay.info("Warning: cookieBot is last tested with cookie clicker version " + AutoPlay.gameVersion);
