@@ -375,7 +375,7 @@ AutoPlay.checkAllAchievementsOK = function(log) {
   for (var i in Game.Upgrades) {
     var me=Game.Upgrades[i];
     if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
-      AutoPlay.nextAchievement=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
+      if(log) AutoPlay.nextAchievement=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
       if(log) AutoPlay.info("Prestige upgrade " + me.name + " is missing, waiting to buy it.");
 	  if(log) Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); 
 	  return false;
