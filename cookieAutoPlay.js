@@ -7,6 +7,7 @@ AutoPlay.gameVersion = "2.0045";
 AutoPlay.robotName="Automated ";
 AutoPlay.delay=0;
 AutoPlay.night=false;
+AutoPlay.finished=false;
 
 AutoPlay.run = function () {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
@@ -165,7 +166,7 @@ AutoPlay.handleSugarLumps = function() {
 
 AutoPlay.cheatLumps=false;
 AutoPlay.cheatSugarLumps = function(age) { // divide lump ripe time by 600, making hours into few minutes
-  if(AutoPlay.checkAllAchievementsOK(false)) return;
+  if(AutoPlay.finished) return;
   for(a in Game.AchievementsById) { var me=Game.AchievementsById[a]; if (!(me.won || me.pool=="dungeon" || AutoPlay.lumpRelatedAchievements.indexOf(me.id)>=0)) return; }
   AutoPlay.cheatLumps=true; // after checking that only lump related achievements are missing
   var cheatReduction=60*10;
@@ -337,7 +338,7 @@ AutoPlay.mustRebornAscend = function() { return !([78,93,94,95].every(function(a
 AutoPlay.doAscend = function(str,log) {
   AutoPlay.debugInfo(str);
   AutoPlay.loggingInfo=log?str:0; 
-  if(AutoPlay.checkAllAchievementsOK(false)) { AutoPlay.logging(); return; } // do not ascend when we are finished
+//  if(AutoPlay.checkAllAchievementsOK(false)) { AutoPlay.logging(); return; } // do not ascend when we are finished
   if(Game.wrinklers.some(function(w) { return w.close; } )) AutoPlay.assignSpirit(0,"scorn",1);
   Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp=0; } ); // pop all wrinklers
   if (Game.Upgrades["Chocolate egg"].unlocked && !Game.Upgrades["Chocolate egg"].bought) {
@@ -365,7 +366,7 @@ AutoPlay.findNextAchievement = function() {
   AutoPlay.checkAllAchievementsOK(true);
 }
 
-AutoPlay.checkAllAchievementsOK = function(log) {
+AutoPlay.checkAllAchievementsOK = function(log) { // could remove the parameter ...
   for (var i in Game.Achievements) {
     var me=Game.Achievements[i];
     if (!me.won && me.pool!="dungeon") { // missing achievement
@@ -382,11 +383,9 @@ AutoPlay.checkAllAchievementsOK = function(log) {
 	  return false;
   } }
   // finished with playing: idle further
+  AutoPlay.finished=true;
   if(log) AutoPlay.info("My job is done here, have a nice day. I am still idling along.");
-  if(log) AutoPlay.info("Idling along."); 
   if(log) AutoPlay.nextAchievement=99; 
-  var me=Game.AchievementsById[99];
-  if(log) AutoPlay.info("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
   return false;
   
   clearInterval(AutoPlay.autoPlayer); //stop autoplay: 
