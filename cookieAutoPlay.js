@@ -165,6 +165,7 @@ AutoPlay.handleSugarLumps = function() {
 
 AutoPlay.cheatLumps=false;
 AutoPlay.cheatSugarLumps = function(age) { // divide lump ripe time by 600, making hours into few minutes
+  if(AutoPlay.checkAllAchievementsOK(false)) return;
   for(a in Game.AchievementsById) { var me=Game.AchievementsById[a]; if (!(me.won || me.pool=="dungeon" || AutoPlay.lumpRelatedAchievements.indexOf(me.id)>=0)) return; }
   AutoPlay.cheatLumps=true; // after checking that only lump related achievements are missing
   var cheatReduction=60*10;
@@ -380,6 +381,14 @@ AutoPlay.checkAllAchievementsOK = function(log) {
 	  if(log) Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); 
 	  return false;
   } }
+  // finished with playing: idle further
+  if(log) AutoPlay.info("My job is done here, have a nice day. I am still idling along.");
+  if(log) AutoPlay.info("Idling along."); 
+  if(log) AutoPlay.nextAchievement=99; 
+  var me=Game.AchievementsById[99];
+  if(log) AutoPlay.info("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
+  return false;
+  
   clearInterval(AutoPlay.autoPlayer); //stop autoplay: 
   AutoPlay.info("My job is done here, have a nice day.");
   if(Game.bakeryName.slice(0,AutoPlay.robotName.length)==AutoPlay.robotName) { 
