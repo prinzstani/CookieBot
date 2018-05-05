@@ -1,8 +1,15 @@
 //cookie bot: auto-play-through cookie clicker
+
+//TODO for version2.0106
+// handle soil
+// handle Upgrades dropped by garden plants
+// use garden for sugarlumps and cps
+// throw away plants only after level 9
+
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.0"
+AutoPlay.version = "2.01+"
 AutoPlay.gameVersion = "2.0045";
 AutoPlay.robotName="Automated ";
 AutoPlay.delay=0;
@@ -149,13 +156,13 @@ AutoPlay.seasonFinished = function(s) {
 } }
 
 //===================== Handle Sugarlumps ==========================
-AutoPlay.level1Order=[6,7]; // unlocking in this order for the minigames
-AutoPlay.level10Order=[7,14,13,12,11]; // finishing in this order
+AutoPlay.level1Order=[2,6,7]; // unlocking in this order for the minigames
+AutoPlay.level10Order=[2,7,14,13,12,11]; // finishing in this order
 AutoPlay.levelAchievements=range(307,320).concat([336]);
 AutoPlay.lumpRelatedAchievements=range(266,272).concat(AutoPlay.levelAchievements);
 
 AutoPlay.handleSugarLumps = function() {
-  if (Game.resets==0 || Game.ascensionMode==1) return; //do not work with sugar lumps when born again
+  if (!Game.canLumps()) return; //do not work with sugar lumps before enabled
   var age=Date.now()-Game.lumpT;
   if (age>=Game.lumpMatureAge && Game.lumpCurrentType==0 && !Game.Achievements["Hand-picked"].won) AutoPlay.harvestLump();
 //  if(Game.lumpCurrentType==0) AutoPlay.farmGoldenSugarLumps(age); // not needed now, because we cheat sugar lumps
@@ -184,7 +191,7 @@ AutoPlay.useLump = function() { // recursive call just needed if we have many su
   for(i in AutoPlay.level1Order) { var me = Game.ObjectsById[AutoPlay.level1Order[i]]; if(!me.level && Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; } };
   for(i in AutoPlay.level10Order) { var me = Game.ObjectsById[AutoPlay.level10Order[i]]; if(me.level<10) { if(me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); } return; } };
   for(i = Game.ObjectsById.length-1; i >= 0; i--) { var me = Game.ObjectsById[i]; if(me.level<10 && me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; } }; 
-  for(i = Game.ObjectsById.length-1; i >= 0; i--) Game.ObjectsById[i].levelUp(); 
+//  for(i = Game.ObjectsById.length-1; i >= 0; i--) Game.ObjectsById[i].levelUp(); -- do not use sugar lumps for more than level 10
 }
 
 AutoPlay.copyWindows=[]; // need to init in the code some place
@@ -234,6 +241,210 @@ AutoPlay.handleMinigames = function() {
     AutoPlay.assignSpirit(1,"decadence",0);
     AutoPlay.assignSpirit(2,"labor",0);
   }
+  // farms: garden
+  if (Game.isMinigameReady(Game.Objects["Farm"])) {
+    var g=Game.Objects["Farm"].minigame;
+	AutoPlay.planting(g);
+	AutoPlay.harvesting(g);
+  }
+}
+
+AutoPlay.plantDependencies = [ 
+['dummy','dummy','dummy'], // just to fill index 0
+['queenbeetLump','queenbeet','queenbeet'], // need to know its index
+['everdaisy','elderwort','tidygrass'], // need to know its index
+// critical path
+['thumbcorn','bakerWheat','bakerWheat'],
+['cronerice','bakerWheat','thumbcorn'],
+['gildmillet','thumbcorn','cronerice'],
+['clover','bakerWheat','gildmillet'],
+['shimmerlily','gildmillet','clover'],
+['elderwort','cronerice','shimmerlily'],
+//level 1
+['chocoroot','bakerWheat','brownMold'],
+['wrinklegill','crumbspore','brownMold'],
+['whiteMildew','brownMold','brownMold'],
+['doughshroom','crumbspore','crumbspore'],
+['bakeberry','bakerWheat','bakerWheat'],
+//level 2
+['whiteChocoroot','chocoroot','whiteMildew'],
+['queenbeet','chocoroot','bakeberry'],
+//level 3
+['tidygrass','bakerWheat','whiteChocoroot'],
+//level 5
+['greenRot','clover','whiteMildew'],
+//level 6
+['whiskerbloom','whiteChocoroot','shimmerlily'],
+['keenmoss','brownMold','greenRot'],
+//endpoints
+['goldenClover','bakerWheat','gildmillet'],
+['glovemorel','thumbcorn','crumbspore'],
+['wardlichen','cronerice','whiteMildew'],
+['duketater','queenbeet','queenbeet'],
+['chimerose','whiskerbloom','shimmerlily'],
+['nursetulip','whiskerbloom','whiskerbloom'],
+['drowsyfern','chocoroot','keenmoss'],
+['cheapcap','crumbspore','shimmerlily'],
+['foolBolete','greenRot','doughshroom'],
+['shriekbulb','wrinklegill','elderwort'],
+['ichorpuff','crumbspore','elderwort']
+];
+
+AutoPlay.plantList=[0,0,0,0];
+AutoPlay.plantPending=false; // Is there a plant we want and that is not mature yet?
+
+AutoPlay.findPlants = function(game,idx) {
+  var couldPlant=0;
+  if(AutoPlay.plantList[idx]!=0) {// already used
+    var oldPlant=AutoPlay.plantDependencies[AutoPlay.plantList[idx]][0];
+//	AutoPlay.info("currently we have " + oldPlant + " and it is unlocked " + game.plants[oldPlant].unlocked);
+    if(game.plants[oldPlant].unlocked) AutoPlay.plantList[idx]=0; else return true;
+  }
+  for(i = 3; i < AutoPlay.plantDependencies.length; i++) {
+	var plant=AutoPlay.plantDependencies[i][0];
+	if(!game.plants[plant].unlocked && game.plants[AutoPlay.plantDependencies[i][1]].unlocked && game.plants[AutoPlay.plantDependencies[i][2]].unlocked) { // want to get the plant
+	  if(AutoPlay.plantList.includes(i)) couldPlant=i; // it is already in another slot - remember it
+	  else { AutoPlay.plantList[idx]=i; /*AutoPlay.info("planting " + plant + " onto " + idx);*/ return true; }
+    }
+  }
+  if(!couldPlant) { // did not find any more normal plants to handle, check expensive methods
+    var chkx=(idx%2)?0:5; var chky=(idx>1)?0:5;
+	if(!game.isTileUnlocked(chkx,chky)) return false; // only plant if the spot is big enough
+    if(!game.plants["queenbeetLump"].unlocked) { 
+	  if(AutoPlay.plantList.includes(1)) couldPlant=1; 
+	  else { AutoPlay.plantList[idx]=1; /*AutoPlay.info("expensive planting queenbeetLump onto " + idx);*/ return true; }
+	}
+    if(!game.plants["everdaisy"].unlocked) { 
+	  if(AutoPlay.plantList.includes(2)) couldPlant=2;
+	  else { AutoPlay.plantList[idx]=2;  /*AutoPlay.info("expensive planting everdaisy onto " + idx);*/ return true; }
+	}
+	if(!couldPlant) return false;
+  }
+  // did not find anything else to do, join one of the others
+  AutoPlay.plantList[idx]=(idx==0)?couldPlant:AutoPlay.plantList[idx>2?1:0];
+  //AutoPlay.info("(re)planting " + AutoPlay.plantDependencies[AutoPlay.plantList[idx]][0] + " onto " + idx);
+  return true;
+}
+
+AutoPlay.planting = function(game) {
+  if(!game.plants["meddleweed"].unlocked) return; // wait for meddleweed to appear
+  if(!game.plants["crumbspore"].unlocked || !game.plants["brownMold"].unlocked) { // use meddleweed to get them
+    for(var x=0;x<6;x++) for(var y=0;y<6;y++) if(game.isTileUnlocked(x,y)) AutoPlay.plantSeed("meddleweed",x,y);
+	return;
+  }
+  if(!AutoPlay.findPlants(game,0)) { AutoPlay.plantList=[0,0,0,0]; for(var i=0; i<4; i++) AutoPlay.plantSector(i,'','','dummy'); return; }
+  if(Game.Objects["Farm"].level<4) {
+    AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,2); AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],3,3);
+	if(game.isTileUnlocked(3,4)) AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,4);
+	return;
+  }
+  AutoPlay.findPlants(game,1);
+  if(Game.Objects["Farm"].level==4) { // now we are at level 4
+    if(AutoPlay.plantList[1]==0) { AutoPlay.info("Warning: Do not know what to plant in sector 2."); return; } // should never happen
+    AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],4,2); 
+	AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],4,3); 
+	AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],4,4); 
+    AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[1]][1],1,2); 
+	AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[1]][2],1,3); 
+	AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[1]][1],1,4); 
+	return;
+  }
+  AutoPlay.findPlants(game,2); AutoPlay.findPlants(game,3); // now we have four areas to build
+  for(var sector=0; sector<4; sector++) {
+	var dep=AutoPlay.plantDependencies[AutoPlay.plantList[sector]];
+	AutoPlay.plantSector(sector, dep[1], dep[2], dep[0]);
+  }
+}
+
+AutoPlay.plantSector = function(sector,plant1,plant2,plant0) { // The plants will be synchronized due to night mode
+  var X=(sector%2)?0:3;
+  var Y=(sector>1)?0:3;
+  if(plant0=="dummy") {
+	var thePlant=AutoPlay.seedCalendar();
+    //AutoPlay.info("plantSector " + sector + " with " + thePlant);
+	for(var x = X; x < X+3; x++) for(var y = Y; y < Y+3; y++) { AutoPlay.plantSeed(thePlant,x,y); }
+    return;	
+  }
+  if(plant0=="queenbeetLump") {
+	for (var y = Y; y < Y+3; y++) { AutoPlay.plantSeed(plant1,X,y); AutoPlay.plantSeed(plant2,X+2,y); } 
+	AutoPlay.plantSeed(plant1,X+1,Y); AutoPlay.plantSeed(plant2,X+1,Y+2);
+	return;
+  }
+  if(plant0=="everdaisy") {
+	for (var y = Y; y < Y+3; y++) { AutoPlay.plantSeed(plant1,X,y); AutoPlay.plantSeed(plant2,X+2,y); } 
+	return;
+  }
+  AutoPlay.plantSeed(plant1,X+1,Y); AutoPlay.plantSeed(plant2,X+1,Y+1); AutoPlay.plantSeed(plant1,X+1,Y+2);
+}
+
+AutoPlay.plantSeed = function(seed,whereX,whereY) {
+  var g=Game.Objects["Farm"].minigame;
+  if(!g.isTileUnlocked(whereX,whereY)) return; // do not plant onto locked tiles
+  var oldPlant=(g.getTile(whereX,whereY))[0];
+  if (oldPlant!=0) { // slot is already planted, try to get rid of it
+    if(g.plantsById[oldPlant-1].key!=seed) AutoPlay.cleanSeed(g,whereX,whereY);
+	return;
+  }
+  if(!g.canPlant(g.plants[seed])) return;
+  //AutoPlay.info("planting seed ...");
+  FireEvent(g.plants[seed].l,"click");
+  g.clickTile(whereX,whereY);
+}
+
+AutoPlay.seedCalendar = function() {
+  var g=Game.Objects["Farm"].minigame;
+  if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) return "bakerWheat";
+  if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) return "elderwort";
+  if(!Game.Upgrades["Bakeberry cookies"].bought && g.plants["bakeberry"].unlocked) return "bakeberry";
+  if(!Game.Upgrades["Fern tea"].bought && g.plants["drowsyfern"].unlocked) return "drowsyfern";
+  if(!Game.Upgrades["Duketater cookies"].bought && g.plants["duketater"].unlocked) return "duketater";
+  if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) return "greenRot";
+  if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) return "ichorpuff";
+  //use garden to get cps and sugarlumps
+  return "bakerWheat";
+}
+
+AutoPlay.cleaningGarden = function(game) {
+  if(Game.Objects["Farm"].level<4) {
+	if(AutoPlay.plantList[0]==0) return;
+    for(var y=2;y<5;y++) { AutoPlay.cleanSeed(game,2,y); AutoPlay.cleanSeed(game,4,y); }
+  } else {
+    for(var sector=0; sector<4; sector++) AutoPlay.cleanSector(game,sector,AutoPlay.plantDependencies[AutoPlay.plantList[sector]][0]);
+  }
+}
+
+AutoPlay.cleanSector = function(game,sector,plant0) {
+  if(plant0=="dummy") return; // do not clean when we are at work
+  var X=(sector%2)?0:3;
+  var Y=(sector>1)?0:3;
+  if(plant0=="queenbeetLump") { AutoPlay.cleanSeed(game,X+1,Y+1); return; }
+  if(plant0=="everdaisy") { 
+    for (var y = Y; y < Y+3; y++) AutoPlay.cleanSeed(game,X+1,y);
+	return;
+  }
+  for(var y=Y;y<Y+3;y++) { AutoPlay.cleanSeed(game,X,y); AutoPlay.cleanSeed(game,X+2,y); }
+}
+
+AutoPlay.cleanSeed = function(g,x,y) {
+  if(!g.isTileUnlocked(x,y)) return;
+  var tile=g.getTile(x,y);
+  if (tile[0] == 0) return;
+  if ((!g.plantsById[tile[0]-1].unlocked) && (tile[1]<=g.plantsById[tile[0]-1].mature)) return;
+  g.harvest(x,y);
+}
+
+AutoPlay.harvesting = function(game) {
+  AutoPlay.cleaningGarden(game);
+  AutoPlay.plantPending=false;
+  for(var x=0;x<6;x++) for(var y=0;y<6;y++) if(game.isTileUnlocked(x,y)) {
+    var tile=game.getTile(x,y);
+	if(tile[0]) {
+      var plant=game.plantsById[tile[0]-1];
+	  if(!plant.unlocked) { AutoPlay.plantPending=true; /*AutoPlay.info(plant.name + " is still growing, do not disturb!");*/ }
+      if (tile[0] != 0) { // some plant in this slot
+        //if (tile[1]>g.plantsById[tile[0]-1].mature) g.harvest(x,y); // is mature
+        if (plant.ageTick+plant.ageTickR+tile[1] > 100) game.harvest(x,y); // would die in next round
+	  } } }
 }
 
 AutoPlay.assignSpirit = function(slot, god, force) {
@@ -287,6 +498,7 @@ AutoPlay.handleAscend = function() {
   if (Game.OnAscend) { AutoPlay.doReincarnate(); AutoPlay.findNextAchievement(); return; }
   if (Game.ascensionMode==1 && !AutoPlay.canContinue()) AutoPlay.doAscend("reborn mode did not work, retry.",0);
   if (AutoPlay.preNightMode()) return; //do not ascend right before the night
+  if (AutoPlay.plantPending) return; // do not ascend when we wait for a plant to mature
   var ascendDays=10;
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) || ((Game.prestige+Game.ascendMeterLevel)%1000==777))) 
@@ -352,7 +564,7 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 12, 89, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 332];
+AutoPlay.wantedAchievements = [82, 12, 89, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 372, 373, 374, 375, 390, 391, 366];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
@@ -494,6 +706,7 @@ function range(start, end) {
 
 //===================== Init & Start ==========================
 
+AutoPlay.info("Pre-release for gardening."); 
 if (AutoPlay.autoPlayer) { AutoPlay.info("replacing old version of autoplay"); clearInterval(AutoPlay.autoPlayer); }
 AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
 AutoPlay.findNextAchievement();
