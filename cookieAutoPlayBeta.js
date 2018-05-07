@@ -333,6 +333,7 @@ AutoPlay.planting = function(game) {
 	return;
   }
   if(!AutoPlay.findPlants(game,0)) { AutoPlay.plantList=[0,0,0,0]; for(var i=0; i<4; i++) AutoPlay.plantSector(i,'','','dummy'); return; }
+  AutoPlay.switchSoil('woodchips'); // want many mutations
   if(Game.Objects["Farm"].level<4) {
     AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,2); AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],3,3);
 	if(game.isTileUnlocked(3,4)) AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,4);
@@ -377,6 +378,8 @@ AutoPlay.plantSector = function(sector,plant1,plant2,plant0) { // The plants wil
   AutoPlay.plantSeed(plant1,X+1,Y); AutoPlay.plantSeed(plant2,X+1,Y+1); AutoPlay.plantSeed(plant1,X+1,Y+2);
 }
 
+AutoPlay.plantCookies = false;
+
 AutoPlay.plantSeed = function(seed,whereX,whereY) {
   var g=Game.Objects["Farm"].minigame;
   if(!g.isTileUnlocked(whereX,whereY)) return; // do not plant onto locked tiles
@@ -393,13 +396,16 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
 
 AutoPlay.seedCalendar = function() {
   var g=Game.Objects["Farm"].minigame;
-  if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) return "bakerWheat";
-  if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) return "elderwort";
-  if(!Game.Upgrades["Bakeberry cookies"].bought && g.plants["bakeberry"].unlocked) return "bakeberry";
-  if(!Game.Upgrades["Fern tea"].bought && g.plants["drowsyfern"].unlocked) return "drowsyfern";
-  if(!Game.Upgrades["Duketater cookies"].bought && g.plants["duketater"].unlocked) return "duketater";
-  if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) return "greenRot";
-  if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) return "ichorpuff";
+  AutoPlay.plantCookies = true;
+  if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "bakerWheat"; }
+  if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "elderwort"; }
+  if(!Game.Upgrades["Bakeberry cookies"].bought && g.plants["bakeberry"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "bakeberry"; }
+  if(!Game.Upgrades["Fern tea"].bought && g.plants["drowsyfern"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "drowsyfern"; }
+  if(!Game.Upgrades["Duketater cookies"].bought && g.plants["duketater"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "duketater"; }
+  if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "greenRot"; }
+  if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "ichorpuff"; }
+  AutoPlay.plantCookies = false;
+  AutoPlay.switchSoil('clay'); 
   //use garden to get cps and sugarlumps
   return "bakerWheat";
 }
@@ -442,9 +448,14 @@ AutoPlay.harvesting = function(game) {
       var plant=game.plantsById[tile[0]-1];
 	  if(!plant.unlocked) { AutoPlay.plantPending=true; /*AutoPlay.info(plant.name + " is still growing, do not disturb!");*/ }
       if (tile[0] != 0) { // some plant in this slot
-        //if (tile[1]>g.plantsById[tile[0]-1].mature) g.harvest(x,y); // is mature
+        if (AutoPlay.plantCookies && tile[1]>game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
         if (plant.ageTick+plant.ageTickR+tile[1] > 100) game.harvest(x,y); // would die in next round
 	  } } }
+}
+
+AutoPlay.switchSoil = function(which) { // 'dirt','fertilizer','clay','pebbles','woodchips'
+// cannot buy if (M.freeze || M.soil==me.id || M.nextSoil>Date.now() || M.parent.bought<me.req){return false;}
+  FireEvent(l('gardenSoil-'+Game.Objects["Farm"].minigame.soils[which].id),'click');
 }
 
 AutoPlay.assignSpirit = function(slot, god, force) {
