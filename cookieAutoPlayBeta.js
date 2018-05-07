@@ -246,6 +246,9 @@ AutoPlay.handleMinigames = function() {
     var g=Game.Objects["Farm"].minigame;
 	AutoPlay.planting(g);
 	AutoPlay.harvesting(g);
+	if(!Game.Achievements["Seedless to nay"].won && Game.Objects["Farm"].level>8 && !AutoPlay.plantCookies) { // have all plants and all cookies
+	  g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); //convert garden
+	}
   }
 }
 
@@ -304,7 +307,7 @@ AutoPlay.findPlants = function(game,idx) {
 	var plant=AutoPlay.plantDependencies[i][0];
 	if(!game.plants[plant].unlocked && game.plants[AutoPlay.plantDependencies[i][1]].unlocked && game.plants[AutoPlay.plantDependencies[i][2]].unlocked) { // want to get the plant
 	  if(AutoPlay.plantList.includes(i)) couldPlant=i; // it is already in another slot - remember it
-	  else { AutoPlay.plantList[idx]=i; /*AutoPlay.info("planting " + plant + " onto " + idx);*/ return true; }
+	  else { AutoPlay.plantList[idx]=i; AutoPlay.info("planting " + plant + " onto " + idx); return true; }
     }
   }
   if(!couldPlant) { // did not find any more normal plants to handle, check expensive methods
@@ -312,22 +315,22 @@ AutoPlay.findPlants = function(game,idx) {
 	if(!game.isTileUnlocked(chkx,chky)) return false; // only plant if the spot is big enough
     if(!game.plants["queenbeetLump"].unlocked) { 
 	  if(AutoPlay.plantList.includes(1)) couldPlant=1; 
-	  else { AutoPlay.plantList[idx]=1; /*AutoPlay.info("expensive planting queenbeetLump onto " + idx);*/ return true; }
+	  else { AutoPlay.plantList[idx]=1; AutoPlay.info("expensive planting queenbeetLump onto " + idx); return true; }
 	}
     if(!game.plants["everdaisy"].unlocked) { 
 	  if(AutoPlay.plantList.includes(2)) couldPlant=2;
-	  else { AutoPlay.plantList[idx]=2;  /*AutoPlay.info("expensive planting everdaisy onto " + idx);*/ return true; }
+	  else { AutoPlay.plantList[idx]=2; AutoPlay.info("expensive planting everdaisy onto " + idx); return true; }
 	}
 	if(!couldPlant) return false;
   }
   // did not find anything else to do, join one of the others
   AutoPlay.plantList[idx]=(idx==0)?couldPlant:AutoPlay.plantList[idx>2?1:0];
-  //AutoPlay.info("(re)planting " + AutoPlay.plantDependencies[AutoPlay.plantList[idx]][0] + " onto " + idx);
+  AutoPlay.info("(re)planting " + AutoPlay.plantDependencies[AutoPlay.plantList[idx]][0] + " onto " + idx);
   return true;
 }
 
 AutoPlay.planting = function(game) {
-  if(!game.plants["meddleweed"].unlocked) return; // wait for meddleweed to appear
+  if(!game.plants["meddleweed"].unlocked) { AutoPlay.switchSoil('fertilizer'); return; } // wait for meddleweed to appear
   if(!game.plants["crumbspore"].unlocked || !game.plants["brownMold"].unlocked) { // use meddleweed to get them
     for(var x=0;x<6;x++) for(var y=0;y<6;y++) if(game.isTileUnlocked(x,y)) AutoPlay.plantSeed("meddleweed",x,y);
 	return;
