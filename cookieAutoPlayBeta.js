@@ -200,7 +200,7 @@ AutoPlay.masterLoadCopy=0;
 AutoPlay.copyCount=100;
 
 // golden sugar lumps = 1 in 2000 (ordinary) -> about 5 years
-AutoPlay.farmGoldenSugarLumps = function(age) { // //this is tested and it works (some kind of cheating) - do this only in endgame
+AutoPlay.farmGoldenSugarLumps = function(age) { // this is tested and it works (some kind of cheating) - do this only in endgame
   if(Game.Achievements["All-natural cane sugar"].won) return;
   if(AutoPlay.nextAchievement!=Game.Achievements["All-natural cane sugar"].id) return;
   if (AutoPlay.masterSaveCopy) { AutoPlay.debugInfo("back to save master"); Game.LoadSave(AutoPlay.masterSaveCopy); AutoPlay.masterSaveCopy=0; return; }
@@ -246,8 +246,9 @@ AutoPlay.handleMinigames = function() {
     var g=Game.Objects["Farm"].minigame;
 	AutoPlay.planting(g);
 	AutoPlay.harvesting(g);
-	if(!Game.Achievements["Seedless to nay"].won && Game.Objects["Farm"].level>8 && !AutoPlay.plantCookies) { // have all plants and all cookies
-	  g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); //convert garden
+	if(Game.Objects["Farm"].level>8 && !AutoPlay.plantCookies) { // have all plants and all cookies
+	  if(/*!Game.Achievements["Seedless to nay"].won &&*/ !AutoPlay.finished)
+		g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); //convert garden in order to get more sugar lumps
 	}
   }
 }
@@ -336,7 +337,7 @@ AutoPlay.planting = function(game) {
 	return;
   }
   if(!AutoPlay.findPlants(game,0)) { AutoPlay.plantList=[0,0,0,0]; for(var i=0; i<4; i++) AutoPlay.plantSector(i,'','','dummy'); return; }
-  AutoPlay.switchSoil('woodchips'); // want many mutations
+  AutoPlay.switchSoil(AutoPlay.plantPending?'fertilizer':'woodchips'); // want many mutations
   if(Game.Objects["Farm"].level<4) {
     AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,2); AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],3,3);
 	if(game.isTileUnlocked(3,4)) AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,4);
@@ -408,9 +409,12 @@ AutoPlay.seedCalendar = function() {
   if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "greenRot"; }
   if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "ichorpuff"; }
   AutoPlay.plantCookies = false;
-  AutoPlay.switchSoil('clay'); 
+  AutoPlay.switchSoil('clay'); //only when mature, otherwise it should be fertilizer
   //use garden to get cps and sugarlumps
-  return "bakerWheat";
+  return "whiskerbloom"; // approx. 1.5% cps add. - should use with nursetulip in the middle
+/* even better: chocoroot has only 1% cps, but also gets 3 mins of cps - harvest on high cps - predictable growth, put on fertilizer first, then on clay, keep them synchronized
+plant something meaningful at night
+*/
 }
 
 AutoPlay.cleaningGarden = function(game) {
@@ -451,7 +455,7 @@ AutoPlay.harvesting = function(game) {
       var plant=game.plantsById[tile[0]-1];
 	  if(!plant.unlocked) { AutoPlay.plantPending=true; /*AutoPlay.info(plant.name + " is still growing, do not disturb!");*/ }
       if (tile[0] != 0) { // some plant in this slot
-        if (AutoPlay.plantCookies && tile[1]>game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
+        if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
         if (plant.ageTick+plant.ageTickR+tile[1] > 100) game.harvest(x,y); // would die in next round
 	  } } }
 }
@@ -567,6 +571,7 @@ AutoPlay.doAscend = function(str,log) {
 //  if(AutoPlay.checkAllAchievementsOK(false)) { AutoPlay.logging(); return; } // do not ascend when we are finished
   if(Game.wrinklers.some(function(w) { return w.close; } )) AutoPlay.assignSpirit(0,"scorn",1);
   Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp=0; } ); // pop all wrinklers
+  if (Game.isMinigameReady(Game.Objects["Farm"])) Game.Objects["Farm"].minigame.harvestAll(); // harvest garden
   if (Game.Upgrades["Chocolate egg"].unlocked && !Game.Upgrades["Chocolate egg"].bought) {
     if (Game.dragonLevel>=9) { // setting first aura to earth shatterer
       Game.specialTab="dragon"; Game.SetDragonAura(5,0); 
@@ -595,7 +600,7 @@ AutoPlay.findNextAchievement = function() {
 AutoPlay.checkAllAchievementsOK = function(log) { // could remove the parameter ...
   for (var i in Game.Achievements) {
     var me=Game.Achievements[i];
-    if (!me.won && me.pool!="dungeon") { // missing achievement
+    if (!me.won && me.pool!="dungeon" && me.id!=367) { // missing achievement, but do not stop for legacy of one year
       if(log) AutoPlay.info("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
 	  if(log) AutoPlay.nextAchievement=me.id; 
 	  return false;
@@ -608,6 +613,12 @@ AutoPlay.checkAllAchievementsOK = function(log) { // could remove the parameter 
 	  if(log) Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); 
 	  return false;
   } }
+  if(!Game.Achievements["So much to do so much to see"].won) { //wait until the end of the year
+    var me=Game.Achievements["So much to do so much to see"];
+    if(log) AutoPlay.info("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
+	if(log) AutoPlay.nextAchievement=me.id; 
+	return false;
+  }
   // finished with playing: idle further
   AutoPlay.finished=true;
   if(log) AutoPlay.info("My job is done here, have a nice day. I am still idling along.");
