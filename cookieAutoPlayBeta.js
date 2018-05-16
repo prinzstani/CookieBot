@@ -45,9 +45,10 @@ AutoPlay.nightMode = function() {
         AutoPlay.removeSpirit(1,"asceticism");
 //        AutoPlay.assignSpirit(1,"decadence",0);
 //        AutoPlay.assignSpirit(2,"labor",0);
-      } 
+      }
 	  gs.buy();
 	}
+	AutoPlay.nightAtGarden(false);
     return false;
   }
   if (AutoPlay.night) return true; //really sleep now
@@ -65,6 +66,7 @@ AutoPlay.nightMode = function() {
       AutoPlay.assignSpirit(2,"industry",1);
     }
   }
+  AutoPlay.nightAtGarden(true);
   AutoPlay.night=true;
   return true;
 }
@@ -253,6 +255,11 @@ AutoPlay.handleMinigames = function() {
   }
 }
 
+AutoPlay.nightAtGarden = function(on) {
+  if(!Game.isMinigameReady(Game.Objects["Farm"])) return;
+  if(on!=Game.Objects["Farm"].minigame.freeze) FireEvent(l('gardenTool-2'),'click'); // (un)freeze garden
+}
+
 AutoPlay.plantDependencies = [ 
 ['dummy','dummy','dummy'], // just to fill index 0
 ['queenbeetLump','queenbeet','queenbeet'], // need to know its index
@@ -294,7 +301,7 @@ AutoPlay.plantDependencies = [
 ['ichorpuff','crumbspore','elderwort']
 ];
 
-AutoPlay.plantList=[0,0,0,0];
+if(!AutoPlay.plantList) AutoPlay.plantList=[0,0,0,0];
 AutoPlay.plantPending=false; // Is there a plant we want and that is not mature yet?
 
 AutoPlay.findPlants = function(game,idx) {
@@ -311,21 +318,21 @@ AutoPlay.findPlants = function(game,idx) {
 	  else { AutoPlay.plantList[idx]=i; AutoPlay.info("planting " + plant + " onto " + idx); return true; }
     }
   }
-  if(!couldPlant) { // did not find any more normal plants to handle, check expensive methods
-    var chkx=(idx%2)?0:5; var chky=(idx>1)?0:5;
-	if(!game.isTileUnlocked(chkx,chky)) return false; // only plant if the spot is big enough
-    if(!game.plants["queenbeetLump"].unlocked) { 
-	  if(AutoPlay.plantList.includes(1)) couldPlant=1; 
-	  else { AutoPlay.plantList[idx]=1; AutoPlay.info("expensive planting queenbeetLump onto " + idx); return true; }
-	}
+  var chkx=(idx%2)?0:5; var chky=(idx>1)?0:5; // did not find any more normal plants to handle, check expensive methods
+  if(game.isTileUnlocked(chkx,chky)) { // only plant if the spot is big enough
     if(!game.plants["everdaisy"].unlocked) { 
 	  if(AutoPlay.plantList.includes(2)) couldPlant=2;
 	  else { AutoPlay.plantList[idx]=2; AutoPlay.info("expensive planting everdaisy onto " + idx); return true; }
 	}
-	if(!couldPlant) return false;
+    if(!game.plants["queenbeetLump"].unlocked) { 
+	  if(AutoPlay.plantList.includes(1)) couldPlant=1; 
+	  else { AutoPlay.plantList[idx]=1; AutoPlay.info("expensive planting queenbeetLump onto " + idx); return true; }
+	}
   }
+  if(!couldPlant) return false;
   // did not find anything else to do, join one of the others
-  AutoPlay.plantList[idx]=(idx==0)?couldPlant:AutoPlay.plantList[idx>2?1:0];
+  //AutoPlay.plantList[idx]=(idx==0)?couldPlant:AutoPlay.plantList[idx>2?1:0];
+  AutoPlay.plantList[idx]=couldPlant;
   AutoPlay.info("(re)planting " + AutoPlay.plantDependencies[AutoPlay.plantList[idx]][0] + " onto " + idx);
   return true;
 }
@@ -414,6 +421,7 @@ AutoPlay.seedCalendar = function() {
   return "whiskerbloom"; // approx. 1.5% cps add. - should use with nursetulip in the middle
 /* even better: chocoroot has only 1% cps, but also gets 3 mins of cps - harvest on high cps - predictable growth, put on fertilizer first, then on clay, keep them synchronized
 plant something meaningful at night
+bakeberry also 1%cps and good harvest
 */
 }
 
@@ -433,6 +441,10 @@ AutoPlay.cleanSector = function(game,sector,plant0) {
   if(plant0=="queenbeetLump") { AutoPlay.cleanSeed(game,X+1,Y+1); return; }
   if(plant0=="everdaisy") { 
     for (var y = Y; y < Y+3; y++) AutoPlay.cleanSeed(game,X+1,y);
+	return;
+  }
+  if(plant0=="all") { 
+    for(var x=X;x<X+3;x++) for(var y=Y;y<Y+3;y++) { AutoPlay.cleanSeed(game,x,y); }
 	return;
   }
   for(var y=Y;y<Y+3;y++) { AutoPlay.cleanSeed(game,X,y); AutoPlay.cleanSeed(game,X+2,y); }
@@ -456,8 +468,15 @@ AutoPlay.harvesting = function(game) {
 	  if(!plant.unlocked) { AutoPlay.plantPending=true; /*AutoPlay.info(plant.name + " is still growing, do not disturb!");*/ }
       if (tile[0] != 0) { // some plant in this slot
         if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
-        if (plant.ageTick+plant.ageTickR+tile[1] > 100) game.harvest(x,y); // would die in next round
+        if (plant.ageTick+plant.ageTickR+tile[1] > 100) AutoPlay.harvest(game,x,y); // would die in next round
 	  } } }
+}
+
+AutoPlay.harvest = function(game,x,y) {
+  game.harvest(x,y);
+  var sector = ((x<3)?1:0)+((y<3)?2:0);
+  var deps=AutoPlay.plantDependencies[AutoPlay.plantList[sector]];
+  if(deps[1] == deps[2]) AutoPlay.cleanSector(game,sector,"all");
 }
 
 AutoPlay.switchSoil = function(which) { // 'dirt','fertilizer','clay','pebbles','woodchips'
