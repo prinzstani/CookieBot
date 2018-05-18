@@ -1,15 +1,9 @@
 //cookie bot: auto-play-through cookie clicker
 
-//TODO for version2.0106
-// handle soil
-// handle Upgrades dropped by garden plants
-// use garden for sugarlumps and cps
-// throw away plants only after level 9
-
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.01+"
+AutoPlay.version = "2.01"
 AutoPlay.gameVersion = "2.0045";
 AutoPlay.robotName="Automated ";
 AutoPlay.delay=0;
@@ -338,13 +332,13 @@ AutoPlay.findPlants = function(game,idx) {
 }
 
 AutoPlay.planting = function(game) {
-  if(!game.plants["meddleweed"].unlocked) { AutoPlay.switchSoil('fertilizer'); return; } // wait for meddleweed to appear
+  if(!game.plants["meddleweed"].unlocked) { AutoPlay.switchSoil(0,'fertilizer'); return; } // wait for meddleweed to appear
   if(!game.plants["crumbspore"].unlocked || !game.plants["brownMold"].unlocked) { // use meddleweed to get them
     for(var x=0;x<6;x++) for(var y=0;y<6;y++) if(game.isTileUnlocked(x,y)) AutoPlay.plantSeed("meddleweed",x,y);
 	return;
   }
   if(!AutoPlay.findPlants(game,0)) { AutoPlay.plantList=[0,0,0,0]; for(var i=0; i<4; i++) AutoPlay.plantSector(i,'','','dummy'); return; }
-  AutoPlay.switchSoil(AutoPlay.plantPending?'fertilizer':'woodchips'); // want many mutations
+  AutoPlay.switchSoil(0,AutoPlay.plantPending?'fertilizer':'woodchips'); // want many mutations
   if(Game.Objects["Farm"].level<4) {
     AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,2); AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],3,3);
 	if(game.isTileUnlocked(3,4)) AutoPlay.plantSeed(AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,4);
@@ -372,7 +366,7 @@ AutoPlay.plantSector = function(sector,plant1,plant2,plant0) { // The plants wil
   var X=(sector%2)?0:3;
   var Y=(sector>1)?0:3;
   if(plant0=="dummy") {
-	var thePlant=AutoPlay.seedCalendar();
+	var thePlant=AutoPlay.seedCalendar(sector);
     //AutoPlay.info("plantSector " + sector + " with " + thePlant);
 	for(var x = X; x < X+3; x++) for(var y = Y; y < Y+3; y++) { AutoPlay.plantSeed(thePlant,x,y); }
     return;	
@@ -405,18 +399,18 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
   g.clickTile(whereX,whereY);
 }
 
-AutoPlay.seedCalendar = function() {
+AutoPlay.seedCalendar = function(sector) {
   var g=Game.Objects["Farm"].minigame;
   AutoPlay.plantCookies = true;
-  if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "bakerWheat"; }
-  if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "elderwort"; }
-  if(!Game.Upgrades["Bakeberry cookies"].bought && g.plants["bakeberry"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "bakeberry"; }
-  if(!Game.Upgrades["Fern tea"].bought && g.plants["drowsyfern"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "drowsyfern"; }
-  if(!Game.Upgrades["Duketater cookies"].bought && g.plants["duketater"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "duketater"; }
-  if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "greenRot"; }
-  if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) { AutoPlay.switchSoil('fertilizer'); return "ichorpuff"; }
+  if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "bakerWheat"; }
+  if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "elderwort"; }
+  if(!Game.Upgrades["Bakeberry cookies"].bought && g.plants["bakeberry"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "bakeberry"; }
+  if(!Game.Upgrades["Fern tea"].bought && g.plants["drowsyfern"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "drowsyfern"; }
+  if(!Game.Upgrades["Duketater cookies"].bought && g.plants["duketater"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "duketater"; }
+  if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "greenRot"; }
+  if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "ichorpuff"; }
   AutoPlay.plantCookies = false;
-  AutoPlay.switchSoil('clay'); //only when mature, otherwise it should be fertilizer
+  AutoPlay.switchSoil(sector,'clay'); //only when mature, otherwise it should be fertilizer
   //use garden to get cps and sugarlumps
   return "whiskerbloom"; // approx. 1.5% cps add. - should use with nursetulip in the middle
 /* even better: chocoroot has only 1% cps, but also gets 3 mins of cps - harvest on high cps - predictable growth, put on fertilizer first, then on clay, keep them synchronized
@@ -479,8 +473,9 @@ AutoPlay.harvest = function(game,x,y) {
   if(deps[1] == deps[2]) AutoPlay.cleanSector(game,sector,"all");
 }
 
-AutoPlay.switchSoil = function(which) { // 'dirt','fertilizer','clay','pebbles','woodchips'
+AutoPlay.switchSoil = function(sector,which) { // 'dirt','fertilizer','clay','pebbles','woodchips'
 // cannot buy if (M.freeze || M.soil==me.id || M.nextSoil>Date.now() || M.parent.bought<me.req){return false;}
+  if(sector) return;
   FireEvent(l('gardenSoil-'+Game.Objects["Farm"].minigame.soils[which].id),'click');
 }
 
