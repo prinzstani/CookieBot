@@ -4,7 +4,7 @@ var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
 AutoPlay.version = "2.01"
-AutoPlay.gameVersion = "2.0045";
+AutoPlay.gameVersion = "2.0106";
 AutoPlay.robotName="Automated ";
 AutoPlay.delay=0;
 AutoPlay.night=false;
@@ -506,9 +506,10 @@ AutoPlay.handleSmallAchievements = function() {
   if(!Game.Achievements["Tabloid addiction"].won) { for (i = 0; i < 50; i++) { Game.tickerL.click(); } }
   if(!Game.Achievements["Here you go"].won) Game.Achievements["Here you go"].click();
   if(!Game.Achievements["Tiny cookie"].won) Game.ClickTinyCookie();
+  var bakeryName = Game.bakeryName;
   if(!Game.Achievements["God complex"].won) { Game.bakeryName = "Orteil"; Game.bakeryNamePrompt(); Game.ConfirmPrompt(); }
   if(!Game.Achievements["What's in a name"].won || Game.bakeryName.slice(0,AutoPlay.robotName.length)!=AutoPlay.robotName) { 
-    Game.bakeryName = AutoPlay.robotName+Game.bakeryName; Game.bakeryNamePrompt(); Game.ConfirmPrompt(); 
+    Game.bakeryName = AutoPlay.robotName+bakeryName; Game.bakeryNamePrompt(); Game.ConfirmPrompt(); 
   }
   if(AutoPlay.endPhase() && !Game.Achievements["Cheated cookies taste awful"].won) Game.Win("Cheated cookies taste awful"); // only take this at the end, after all is done
   if(!Game.Achievements["Third-party"].won) Game.Win("Third-party"); // cookie bot is a third party itself
