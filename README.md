@@ -23,6 +23,10 @@ Cookie Bot plays through the complete game of Cookie Clicker. This will take abo
 * Step 8: get all the level 10 buildings: about two years
 * Step 9: get the golden sugar lump: about three more years
 
+Currently, the step 6 is extended with many more levels, so it will take longer than that.
+The timing has changed with the introduction of the garden, so the strategy is likely to be changed.
+As far as the garden is concerned, it will collect all plants, and then all garden cookies, and then convert frequently in order to get max sugar lumps. This reduces the time for steps 8 and 9.
+
 With the current design of the game, the first 7 steps take about two months. The last two steps take together five years on average, and two years minimum.
 This is considered not good in terms of game dynamics, and therefore the playthrough will cheat sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing). In particular, it will divide the ripening time for sugar lumps by 600. This way the ripening time is a few minutes instead of hours. With this cheat, the last two steps will take less than one month.
 
@@ -49,6 +53,7 @@ If (for some reason) the above doesn't work, try pasting everything after the <c
 ## Beta Version
 
 You can also try the beta version. No guarantees whatsoever. Copy this code and save it as a bookmark. Paste it in the URL section. To activate, click the bookmark when the Cookie Clicker game is open.
+Currently, the beta is providing more functionality related to gardens.
 
 ```javascript
 javascript: (function () {
