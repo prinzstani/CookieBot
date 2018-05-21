@@ -10,7 +10,7 @@ Cookie Bot will start wherever you are in your game and continue to a complete p
 You can see the current version, and a full history of all versions and what they changed by consulting the [releases page](https://github.com/prinzstani/CookieBot/releases).
 
 ## What it does
-Cookie Bot plays through the complete game of Cookie Clicker. This will take about two months, depending a lot on randomness in the game itself. See also the [FAQ] https://github.com/prinzstani/CookieBot/blob/master/FAQ.mdfor more details.
+Cookie Bot plays through the complete game of Cookie Clicker. This will take about two months, depending a lot on randomness in the game itself. See also the [FAQ](https://github.com/prinzstani/CookieBot/blob/master/FAQ.md) for more details.
 
 ## Limitations
 
