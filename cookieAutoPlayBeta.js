@@ -153,17 +153,19 @@ AutoPlay.seasonFinished = function(s) {
 
 //===================== Handle Sugarlumps ==========================
 AutoPlay.level1Order=[2,6,7]; // unlocking in this order for the minigames
-AutoPlay.level10Order=[2,7,14,13,12,11]; // finishing in this order
+AutoPlay.level10Order=[2,7]; // finishing in this order
+AutoPlay.minLumps=AutoPlay.level1Order.length+55*AutoPlay.level10Order.length;
 AutoPlay.levelAchievements=range(307,320).concat([336]);
 AutoPlay.lumpRelatedAchievements=range(266,272).concat(AutoPlay.levelAchievements);
 
 AutoPlay.handleSugarLumps = function() {
   if (!Game.canLumps()) return; //do not work with sugar lumps before enabled
   var age=Date.now()-Game.lumpT;
-  if (age>=Game.lumpMatureAge && Game.lumpCurrentType==0 && !Game.Achievements["Hand-picked"].won) AutoPlay.harvestLump();
+  if (age>=Game.lumpMatureAge && Game.lumpCurrentType==0 && Game.lumpsTotal>AutoPlay.minLumps && !Game.Achievements["Hand-picked"].won) AutoPlay.harvestLump();
 //  if(Game.lumpCurrentType==0) AutoPlay.farmGoldenSugarLumps(age); // not needed now, because we cheat sugar lumps
   if (age>=Game.lumpRipeAge) AutoPlay.harvestLump(); // normal harvesting, should check !masterCopy
   AutoPlay.cheatSugarLumps(age);
+  AutoPlay.useLump();
   AutoPlay.handleMinigames();
 }
 
@@ -184,6 +186,7 @@ AutoPlay.harvestLump = function() {
 }
 
 AutoPlay.useLump = function() { // recursive call just needed if we have many sugar lumps
+  if(!Game.lumps) return;
   for(i in AutoPlay.level1Order) { var me = Game.ObjectsById[AutoPlay.level1Order[i]]; if(!me.level && Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; } };
   for(i in AutoPlay.level10Order) { var me = Game.ObjectsById[AutoPlay.level10Order[i]]; if(me.level<10) { if(me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); } return; } };
   for(i = Game.ObjectsById.length-1; i >= 0; i--) { var me = Game.ObjectsById[i]; if(me.level<10 && me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; } }; 
@@ -746,9 +749,13 @@ function range(start, end) {
 
 //===================== Init & Start ==========================
 
+AutoPlay.whatTheBotIsDoing = function() {
+  return "this is a very very very very very very very very very very very very very very very very very very very very very very very very very long test.";
+}
 AutoPlay.info("Pre-release for gardening."); 
 if (AutoPlay.autoPlayer) { AutoPlay.info("replacing old version of autoplay"); clearInterval(AutoPlay.autoPlayer); }
 AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
 AutoPlay.findNextAchievement();
 l('versionNumber').innerHTML='v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
+l('versionNumber').innerHTML='<div '+Game.getDynamicTooltip('AutoPlay.whatTheBotIsDoing','this')+'>'+'v. '+Game.version+" (with autoplay v."+AutoPlay.version+")"+'</div>';
 if (Game.version != AutoPlay.gameVersion) AutoPlay.info("Warning: cookieBot is last tested with cookie clicker version " + AutoPlay.gameVersion);
