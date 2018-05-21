@@ -10,25 +10,7 @@ Cookie Bot will start wherever you are in your game and continue to a complete p
 You can see the current version, and a full history of all versions and what they changed by consulting the [releases page](https://github.com/prinzstani/CookieBot/releases).
 
 ## What it does
-
-Cookie Bot plays through the complete game of Cookie Clicker. This will take about two months, depending a lot on randomness in the game itself. The following steps are taken, and if you start somewhere in the middle, the procedure is adapted accordingly.
-
-* Step 1: keep quiet until hardcore and neverclick, then buy everything until all grandma achievements are there: this takes about two days.
-* Step 2: get 100 quintillion cookies, i.e. about 300 legacy, develop the dragon with kitten aura, get the first permanent slot with maximum cursors: this takes about one more day.
-* Step 3: get 100 antimatter condensers, get the season switcher: this takes about 2-3 days
-* Step 4: complete christmas, then easter and valentine, then halloween: about 2-3 days
-* Step 5: with five permanent slots: get 1000 ascends; until then continue with step 6: about 2 days
-* Step 6: get all "bake xx cookies" achievements & all building achievements: about one month
-* Step 7: get all shadow achievements and all the remaining achievements: about one month
-* Step 8: get all the level 10 buildings: about two years
-* Step 9: get the golden sugar lump: about three more years
-
-Currently, the step 6 is extended with many more levels, so it will take longer than that.
-The timing has changed with the introduction of the garden, so the strategy is likely to be changed.
-As far as the garden is concerned, it will collect all plants, and then all garden cookies, and then convert frequently in order to get max sugar lumps. This reduces the time for steps 8 and 9.
-
-With the current design of the game, the first 7 steps take about two months. The last two steps take together five years on average, and two years minimum.
-This is considered not good in terms of game dynamics, and therefore the playthrough will cheat sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing). In particular, it will divide the ripening time for sugar lumps by 600. This way the ripening time is a few minutes instead of hours. With this cheat, the last two steps will take less than one month.
+Cookie Bot plays through the complete game of Cookie Clicker. This will take about two months, depending a lot on randomness in the game itself. See also the [FAQ] https://github.com/prinzstani/CookieBot/blob/master/FAQ.mdfor more details.
 
 ## Limitations
 
@@ -66,6 +48,11 @@ javascript: (function () {
 Any bug or suggestion should be **created as an issue** [in the repository](https://github.com/prinzstani/CookieBot) for easier tracking. This allows to follow the status of the issue.
 
 All suggestions are welcome, even the smallest ones.
+
+Before submitting a bug report, please reload the bot, as it is continuously improved. Maybe the bug is already fixed. When you do report a bug, please make sure to include the following information.
+* Version number of Cookie Clicker and of Cookie Bot, also indicating whether you use the beta or not.
+* Description of the Problem
+* Export save of the status when the problem arises.
 
 # Contributors
 
