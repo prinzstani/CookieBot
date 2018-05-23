@@ -10,10 +10,10 @@ Upgrades are bought whenever possible. There is no saving strategy for the next 
 ### What is the next plant to be bought?
 The plant buying strategy is provided by the plant selection algorithm. It is assumed that there are enough cookies to buy what is wanted.
 
-## Strategy
+## Game Strategy
 ### What is the playthrough strategy?
 The following steps are taken, and if you start somewhere in the middle, the procedure is adapted accordingly.
-* Step 1: keep quiet until hardcore and neverclick, then buy everything until all grandma achievements are there: this takes about four days.
+* Step 1: keep quiet until hardcore and neverclick, then buy everything until all grandma achievements are there: this takes about six days.
 * Step 2: get 100 quintillion cookies, i.e. about 300 legacy, develop the dragon with kitten aura, get the first permanent slot with maximum cursors: this takes about one more day (???).
 * Step 3: get 100 antimatter condensers, get the season switcher: this takes about 2-3 days (???)
 * Step 4: complete christmas, then easter and valentine, then halloween: about 2-3 days (???)
@@ -30,6 +30,13 @@ As far as the garden is concerned, it will collect all plants, and then all gard
 With the current design of the game, the first 7 steps take about two months. The last two steps take together five years on average, and two years minimum.
 This is considered not good in terms of game dynamics, and therefore the playthrough will cheat sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing). In particular, it will divide the ripening time for sugar lumps by 600. This way the ripening time is a few minutes instead of hours. With this cheat, the last two steps will take less than one month.
 
+### What is the wrinkler strategy?
+Wrinklers are normally left alone unless we need them to get easter eggs or other droppings. In the endphase, wrinklers are dropped in order to get the shiny wrinkler.
+
+### What is the chocolate egg handling?
+The chocolate egg is kept as long as possible. It will be bought right before the next ascension. Before that, all buildings are sold with maximum profit.
+
+## Minigame Strategy
 ### What is the strategy for the garden?
 * Step 1: Enable the garden minigame.
 * Step 2: Wait for MeddleWeed.
