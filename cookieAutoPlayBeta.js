@@ -11,6 +11,7 @@ AutoPlay.night=false;
 AutoPlay.finished=false;
 
 AutoPlay.run = function () {
+  AutoPlay.activities = AutoPlay.mainActivity;
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   if (AutoPlay.nightMode()) { var age=Date.now()-Game.lumpT; AutoPlay.cheatSugarLumps(age); return; }
@@ -32,6 +33,7 @@ AutoPlay.preNightMode = function() { var h=(new Date).getHours(); return(h>=22);
 AutoPlay.nightMode = function() { 
   var h=(new Date).getHours();
   if(h>=7 && h<23) { // be active
+    AutoPlay.addActivity('Daytime! The bot is working.');
     if (AutoPlay.night) AutoPlay.useLump();
     AutoPlay.night=false;
     var gs=Game.Upgrades["Golden switch [on]"]; if(gs.unlocked) {
@@ -45,7 +47,8 @@ AutoPlay.nightMode = function() {
 	AutoPlay.nightAtGarden(false);
     return false;
   }
-  if (AutoPlay.night) return true; //really sleep now
+  if (AutoPlay.night) { AutoPlay.addActivity('The bot is sleeping.'); return true; } //really sleep now
+  AutoPlay.addActivity('Preparing for the night.');
   var gs=Game.Upgrades["Golden switch [off]"]; if(gs.unlocked) {
     AutoPlay.handleGoldenCookies();
     var buffCount=0;
@@ -75,8 +78,8 @@ AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or re
 } }
 
 AutoPlay.handleClicking = function() {
-  if (!Game.Achievements["Neverclick"].won && (Game.cookieClicks<=15) ) return;
-  if (Game.ascensionMode==1 && AutoPlay.endPhase() && !Game.Achievements["True Neverclick"].won && (!Game.cookieClicks) ) return;
+  if (!Game.Achievements["Neverclick"].won && (Game.cookieClicks<=15) ) { AutoPlay.addActivity('Waiting for neverclick.'); return; }
+  if (Game.ascensionMode==1 && AutoPlay.endPhase() && !Game.Achievements["True Neverclick"].won && (!Game.cookieClicks) ) { AutoPlay.addActivity('Waiting for true neverclick.'); return; }
   if(!Game.Achievements["Uncanny clicker"].won) { for(i=1; i<6; i++) setTimeout(Game.ClickCookie, 50*i); }
   if (Game.ascensionMode==1 && Game.Achievements["Hardcore"].won) setTimeout(Game.ClickCookie, 150);
   Game.ClickCookie();
@@ -128,7 +131,7 @@ AutoPlay.handleSeasons = function() {
 	  case "easter": Game.Upgrades["Lovesick biscuit"].buy(); break; // go to valentine
 	  case "valentines": Game.Upgrades["Ghostly biscuit"].buy(); break; // go to halloween
 	  default: Game.Upgrades["Festive biscuit"].buy(); break; // go to christmas
-  } }
+  } } else AutoPlay.addActivity('Waiting for all results in '+Game.season+'.'); 
   if (Game.Upgrades["A festive hat"].bought && ! Game.Upgrades["Santa's dominion"].unlocked) { // develop santa
     Game.specialTab="santa"; Game.UpgradeSanta(); Game.ToggleSpecialMenu(0);
 } }
@@ -174,6 +177,7 @@ AutoPlay.cheatSugarLumps = function(age) { // divide lump ripe time by 600, maki
   if(AutoPlay.finished) return;
   for(a in Game.AchievementsById) { var me=Game.AchievementsById[a]; if (!(me.won || me.pool=="dungeon" || AutoPlay.lumpRelatedAchievements.indexOf(me.id)>=0)) return; }
   AutoPlay.cheatLumps=true; // after checking that only lump related achievements are missing
+  AutoPlay.addActivity('Cheating sugar lumps.');
   var cheatReduction=60*10;
   var cheatDelay=Game.lumpRipeAge/cheatReduction;
   if(age<Game.lumpRipeAge-cheatDelay) Game.lumpT-=cheatDelay*(cheatReduction-1);
@@ -301,10 +305,17 @@ AutoPlay.plantDependencies = [
 if(!AutoPlay.plantList) AutoPlay.plantList=[0,0,0,0];
 AutoPlay.plantPending=false; // Is there a plant we want and that is not mature yet?
 
+AutoPlay.sectorText = function(sector) {
+  if(Game.Objects["Farm"].level>4) return (sector%2?'right ':'left ')+(sector<2?'bottom':'top');
+  else if (Game.Objects["Farm"].level==4) return (sector%2?'right ':'left ');
+  else return 'middle';
+}
+
 AutoPlay.findPlants = function(game,idx) {
   var couldPlant=0;
   if(AutoPlay.plantList[idx]!=0) {// already used
     var oldPlant=AutoPlay.plantDependencies[AutoPlay.plantList[idx]][0];
+    AutoPlay.addActivity("trying to get plant " + oldPlant + " on sector " + AutoPlay.sectorText(idx) + '.'); 
 //	AutoPlay.info("currently we have " + oldPlant + " and it is unlocked " + game.plants[oldPlant].unlocked);
     if(game.plants[oldPlant].unlocked) AutoPlay.plantList[idx]=0; else return true;
   }
@@ -335,8 +346,9 @@ AutoPlay.findPlants = function(game,idx) {
 }
 
 AutoPlay.planting = function(game) {
-  if(!game.plants["meddleweed"].unlocked) { AutoPlay.switchSoil(0,'fertilizer'); return; } // wait for meddleweed to appear
+  if(!game.plants["meddleweed"].unlocked) { AutoPlay.addActivity("waiting for meddleweed."); AutoPlay.switchSoil(0,'fertilizer'); return; } // wait for meddleweed to appear
   if(!game.plants["crumbspore"].unlocked || !game.plants["brownMold"].unlocked) { // use meddleweed to get them
+    AutoPlay.addActivity("Trying to get crumbspore and brown mold."); 
     for(var x=0;x<6;x++) for(var y=0;y<6;y++) if(game.isTileUnlocked(x,y)) AutoPlay.plantSeed("meddleweed",x,y);
 	return;
   }
@@ -405,13 +417,13 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
 AutoPlay.seedCalendar = function(sector) {
   var g=Game.Objects["Farm"].minigame;
   AutoPlay.plantCookies = true;
-  if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "bakerWheat"; }
-  if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "elderwort"; }
-  if(!Game.Upgrades["Bakeberry cookies"].bought && g.plants["bakeberry"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "bakeberry"; }
-  if(!Game.Upgrades["Fern tea"].bought && g.plants["drowsyfern"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "drowsyfern"; }
-  if(!Game.Upgrades["Duketater cookies"].bought && g.plants["duketater"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "duketater"; }
-  if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "greenRot"; }
-  if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); return "ichorpuff"; }
+  if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Wheat slims."); return "bakerWheat"; }
+  if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Elderwort cookies."); return "elderwort"; }
+  if(!Game.Upgrades["Bakeberry cookies"].bought && g.plants["bakeberry"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Bakeberry cookies."); return "bakeberry"; }
+  if(!Game.Upgrades["Fern tea"].bought && g.plants["drowsyfern"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Fern tea."); return "drowsyfern"; }
+  if(!Game.Upgrades["Duketater cookies"].bought && g.plants["duketater"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Duketater cookies."); return "duketater"; }
+  if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Green yeast digestives."); return "greenRot"; }
+  if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Ichor syrup."); return "ichorpuff"; }
   AutoPlay.plantCookies = false;
   AutoPlay.switchSoil(sector,'clay'); //only when mature, otherwise it should be fertilizer
   //use garden to get cps and sugarlumps
@@ -500,6 +512,7 @@ AutoPlay.handleWrinklers = function() {
   var doPop = (((Game.season == "easter") || (Game.season == "halloween")) && !AutoPlay.seasonFinished(Game.season));
   doPop = doPop || (Game.Upgrades["Unholy bait"].bought && !Game.Achievements["Moistburster"].won);
   doPop = doPop || (AutoPlay.endPhase() && !Game.Achievements["Last Chance to See"].won);
+  if (doPop) AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
   if (doPop) Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
 }
 
@@ -606,11 +619,21 @@ AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
 
+AutoPlay.mainActivity="doing nothing in particular";
+
+AutoPlay.setMainActivity = function(str) {
+  AutoPlay.mainActivity=str;
+  AutoPlay.debugInfo(str); 
+}
+
 AutoPlay.findNextAchievement = function() {
   AutoPlay.handleSmallAchievements();
   for(i = 0; i < AutoPlay.wantedAchievements.length; i++) {
-    if (!(Game.AchievementsById[AutoPlay.wantedAchievements[i]].won)) 
-	{ AutoPlay.nextAchievement = AutoPlay.wantedAchievements[i]; AutoPlay.debugInfo("trying to get achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].desc); return; }
+    if (!(Game.AchievementsById[AutoPlay.wantedAchievements[i]].won)) { 
+	  AutoPlay.nextAchievement = AutoPlay.wantedAchievements[i]; 
+	  AutoPlay.setMainActivity("trying to get achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].desc);
+	  return; 
+	}
   }
   AutoPlay.checkAllAchievementsOK(true);
 }
@@ -619,7 +642,7 @@ AutoPlay.checkAllAchievementsOK = function(log) { // could remove the parameter 
   for (var i in Game.Achievements) {
     var me=Game.Achievements[i];
     if (!me.won && me.pool!="dungeon" && me.id!=367) { // missing achievement, but do not stop for legacy of one year
-      if(log) AutoPlay.info("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
+      if(log) AutoPlay.setMainActivity("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
 	  if(log) AutoPlay.nextAchievement=me.id; 
 	  return false;
   } }
@@ -627,22 +650,24 @@ AutoPlay.checkAllAchievementsOK = function(log) { // could remove the parameter 
     var me=Game.Upgrades[i];
     if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
       if(log) AutoPlay.nextAchievement=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
-      if(log) AutoPlay.info("Prestige upgrade " + me.name + " is missing, waiting to buy it.");
+      if(log) AutoPlay.setMainActivity("Prestige upgrade " + me.name + " is missing, waiting to buy it.");
 	  if(log) Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); 
 	  return false;
   } }
-  if(!Game.Achievements["So much to do so much to see"].won) { //wait until the end of the year
+  if(!Game.Achievements["So much to do so much to see"].won) { //wait until the end of the year - achievement 367
     var me=Game.Achievements["So much to do so much to see"];
-    if(log) AutoPlay.info("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
+    if(log) AutoPlay.setMainActivity("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
 	if(log) AutoPlay.nextAchievement=me.id; 
 	return false;
   }
   // finished with playing: idle further
   AutoPlay.finished=true;
-  if(log) AutoPlay.info("My job is done here, have a nice day. I am still idling along.");
-  if(log) AutoPlay.nextAchievement=99; 
+  if(log) AutoPlay.setMainActivity("My job is done here, have a nice day. I am still idling along.");
+  if(log) AutoPlay.nextAchievement=99; // follow the white rabbit (from dungeons)
   return false;
-  
+}
+
+AutoPlay.leaveGame = function() {
   clearInterval(AutoPlay.autoPlayer); //stop autoplay: 
   AutoPlay.info("My job is done here, have a nice day.");
   if(Game.bakeryName.slice(0,AutoPlay.robotName.length)==AutoPlay.robotName) { 
@@ -750,12 +775,21 @@ function range(start, end) {
 //===================== Init & Start ==========================
 
 AutoPlay.whatTheBotIsDoing = function() {
-  return "this is a very very very very very very very very very very very very very very very very very very very very very very very very very long test.";
+  return '<div style="padding:8px;width:400px;font-size:11px;text-align:center;">'+
+    '<span style="color:#6f6;font-size:18px"> What is the bot doing?</span>'+
+    '<div class="line"></div>'+
+    AutoPlay.activities+
+	'</div>';
 }
+
+AutoPlay.addActivity = function(str) {
+  AutoPlay.activities+= '<div class="line"></div>'+str;
+}
+
 AutoPlay.info("Pre-release for gardening."); 
 if (AutoPlay.autoPlayer) { AutoPlay.info("replacing old version of autoplay"); clearInterval(AutoPlay.autoPlayer); }
 AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
 AutoPlay.findNextAchievement();
 l('versionNumber').innerHTML='v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
-l('versionNumber').innerHTML='<div '+Game.getDynamicTooltip('AutoPlay.whatTheBotIsDoing','this')+'>'+'v. '+Game.version+" (with autoplay v."+AutoPlay.version+")"+'</div>';
+l('versionNumber').innerHTML='v. '+Game.version+' <span '+Game.getDynamicTooltip('AutoPlay.whatTheBotIsDoing','this')+">(with autoplay v."+AutoPlay.version+")"+'</span>';
 if (Game.version != AutoPlay.gameVersion) AutoPlay.info("Warning: cookieBot is last tested with cookie clicker version " + AutoPlay.gameVersion);
