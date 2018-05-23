@@ -1,4 +1,8 @@
 # Cookie Bot Frequently Asked Questions
+##General Questions
+### What is the bot aiming at right now?
+You can see the current steps the bot is working on by hovering over the version information of the bot (bottom left of game screen).
+
 ## Buying Algorithm
 ### What is the next building to be bought?
 The next building is the cheapest building that gives at least 50% of the max possible gain in cpc per cookie invested.
