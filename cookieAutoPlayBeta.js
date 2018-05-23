@@ -47,7 +47,7 @@ AutoPlay.nightMode = function() {
 	AutoPlay.nightAtGarden(false);
     return false;
   }
-  if (AutoPlay.night) { AutoPlay.addActivity('The bot is sleeping.'); return true; } //really sleep now
+  if (AutoPlay.night) { AutoPlay.activities='The bot is sleeping.'; return true; } //really sleep now
   AutoPlay.addActivity('Preparing for the night.');
   var gs=Game.Upgrades["Golden switch [off]"]; if(gs.unlocked) {
     AutoPlay.handleGoldenCookies();
@@ -76,6 +76,13 @@ AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or re
     if((s.type!="golden") || (s.life<Game.fps) || (!Game.Achievements["Early bird"].won)) { s.pop(); return; }
     if((s.life/Game.fps)<(s.dur-2) && (Game.Achievements["Fading luck"].won)) { s.pop(); return; }
 } }
+
+AutoPlay.cheatGoldenCookies = function(level) { // level is from 0 to 10
+  AutoPlay.addActivity('Cheating golden cookies at level ' + level + '.');
+  var levelTime=Game.shimmerTypes.golden.maxTime*level/10;
+  if(Game.shimmerTypes.golden.time<levelTime) Game.shimmerTypes.golden.time=levelTime;
+//golden cookie with building special: var newShimmer=new Game.shimmer("golden");newShimmer.force="building special";
+}
 
 AutoPlay.handleClicking = function() {
   if (!Game.Achievements["Neverclick"].won && (Game.cookieClicks<=15) ) { AutoPlay.addActivity('Waiting for neverclick.'); return; }
@@ -767,10 +774,6 @@ function range(start, end) {
   for (var i = start; i <= end; i++) { foo.push(i); }
   return foo;
 }
-
-//===================== Cheats for Testing ==========================
-//create golden cookie: Game.shimmerTypes.golden.time = Game.shimmerTypes.golden.maxTime; or new Game.shimmer("golden")
-//golden cookie with building special: var newShimmer=new Game.shimmer("golden");newShimmer.force="building special";
 
 //===================== Init & Start ==========================
 
