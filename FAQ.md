@@ -17,15 +17,14 @@ The plant buying strategy is provided by the plant selection algorithm. It is as
 ## Game Strategy
 ### What is the playthrough strategy?
 The following steps are taken, and if you start somewhere in the middle, the procedure is adapted accordingly.
-* Step 1: keep quiet until hardcore and neverclick, then buy everything until all grandma achievements are there: this takes about six days.
-* Step 2: get 100 quintillion cookies, i.e. about 300 legacy, develop the dragon with kitten aura, get the first permanent slot with maximum cursors: this takes about one more day.
-* Step 3: get 100 antimatter condensers, get the season switcher: this takes about 2-3 days (???)
-* Step 4: complete christmas, then easter and valentine, then halloween: about 2-3 days (???)
-* Step 5: with five permanent slots: get 1000 ascends; until then continue with step 6: about 2 days (???)
-* Step 6: get all "bake xx cookies" achievements & all building achievements: about one month (???)
-* Step 7: get all shadow achievements and all the remaining achievements: about one month (???)
-* Step 8: get all the level 10 buildings: about two years (???)
-* Step 9: get the golden sugar lump: about three more years (???)
+* Step 1: keep quiet until hardcore and neverclick, then buy everything until all grandma achievements are there, maybe get the first permanent slot with maximum cursors: this takes about 6 days.
+* Step 2: get 100 antimatter condensers, develop the dragon with kitten aura, get the season switcher: this takes about 3 days (???)
+* Step 3: complete christmas, then easter and valentine, then halloween: about 2-3 days (???)
+* Step 4: with five permanent slots: get 1000 ascends; until then continue with step 6: about 2 days (???)
+* Step 5: get all "bake xx cookies" achievements & all building achievements: about one month (???)
+* Step 6: get all shadow achievements and all the remaining achievements: about one month (???)
+* Step 7: get all the level 10 buildings: about two years (???)
+* Step 8: get the golden sugar lump: about three more years (???)
 
 Currently, the step 6 is extended with many more levels, so it will take longer than that.
 When one achievement takes longer than 10 days, then the bot will gradually increase the chance of getting golden cookies (small cheat).

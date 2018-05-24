@@ -33,7 +33,6 @@ AutoPlay.preNightMode = function() { var h=(new Date).getHours(); return(h>=22);
 AutoPlay.nightMode = function() { 
   var h=(new Date).getHours();
   if(h>=7 && h<23) { // be active
-    AutoPlay.addActivity('Daytime! The bot is working.');
     if (AutoPlay.night) AutoPlay.useLump();
     AutoPlay.night=false;
     AutoPlay.nightAtTemple(false);
@@ -326,7 +325,7 @@ AutoPlay.findPlants = function(game,idx) {
   var couldPlant=0;
   if(AutoPlay.plantList[idx]!=0) {// already used
     var oldPlant=AutoPlay.plantDependencies[AutoPlay.plantList[idx]][0];
-    AutoPlay.addActivity("trying to get plant " + oldPlant + " on sector " + AutoPlay.sectorText(idx) + '.'); 
+    AutoPlay.addActivity("Trying to get plant " + oldPlant + " on sector " + AutoPlay.sectorText(idx) + '.'); 
 //	AutoPlay.info("currently we have " + oldPlant + " and it is unlocked " + game.plants[oldPlant].unlocked);
     if(game.plants[oldPlant].unlocked) AutoPlay.plantList[idx]=0; else return true;
   }
@@ -357,7 +356,7 @@ AutoPlay.findPlants = function(game,idx) {
 }
 
 AutoPlay.planting = function(game) {
-  if(!game.plants["meddleweed"].unlocked) { AutoPlay.addActivity("waiting for meddleweed."); AutoPlay.switchSoil(0,'fertilizer'); return; } // wait for meddleweed to appear
+  if(!game.plants["meddleweed"].unlocked) { AutoPlay.addActivity("Waiting for meddleweed."); AutoPlay.switchSoil(0,'fertilizer'); return; } // wait for meddleweed to appear
   if(!game.plants["crumbspore"].unlocked || !game.plants["brownMold"].unlocked) { // use meddleweed to get them
     AutoPlay.addActivity("Trying to get crumbspore and brown mold."); 
     for(var x=0;x<6;x++) for(var y=0;y<6;y++) if(game.isTileUnlocked(x,y)) AutoPlay.plantSeed("meddleweed",x,y);
@@ -630,12 +629,12 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 12, 89, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 372, 373, 374, 375, 390, 391, 366];
+AutoPlay.wantedAchievements = [82, 89, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 372, 373, 374, 375, 390, 391, 366];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
 
-AutoPlay.mainActivity="doing nothing in particular";
+AutoPlay.mainActivity="Doing nothing in particular.";
 
 AutoPlay.setMainActivity = function(str) {
   AutoPlay.mainActivity=str;
@@ -647,7 +646,7 @@ AutoPlay.findNextAchievement = function() {
   for(i = 0; i < AutoPlay.wantedAchievements.length; i++) {
     if (!(Game.AchievementsById[AutoPlay.wantedAchievements[i]].won)) { 
 	  AutoPlay.nextAchievement = AutoPlay.wantedAchievements[i]; 
-	  AutoPlay.setMainActivity("trying to get achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].desc);
+	  AutoPlay.setMainActivity("Trying to get achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].desc);
 	  return; 
 	}
   }
