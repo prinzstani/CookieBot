@@ -496,8 +496,11 @@ AutoPlay.harvest = function(game,x,y) {
 }
 
 AutoPlay.switchSoil = function(sector,which) { // 'dirt','fertilizer','clay','pebbles','woodchips'
-// cannot buy if (M.freeze || M.soil==me.id || M.nextSoil>Date.now() || M.parent.bought<me.req){return false;}
   if(sector) return;
+  var g=Game.Objects["Farm"].minigame;
+  if(g.nextSoil>Date.now()) return;
+  var me=g.soils[which];
+  if(g.soil==me.id || g.parent.bought<me.req) return;
   FireEvent(l('gardenSoil-'+Game.Objects["Farm"].minigame.soils[which].id),'click');
 }
 
