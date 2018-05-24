@@ -18,7 +18,7 @@ The plant buying strategy is provided by the plant selection algorithm. It is as
 ### What is the playthrough strategy?
 The following steps are taken, and if you start somewhere in the middle, the procedure is adapted accordingly.
 * Step 1: keep quiet until hardcore and neverclick, then buy everything until all grandma achievements are there: this takes about six days.
-* Step 2: get 100 quintillion cookies, i.e. about 300 legacy, develop the dragon with kitten aura, get the first permanent slot with maximum cursors: this takes about one more day (???).
+* Step 2: get 100 quintillion cookies, i.e. about 300 legacy, develop the dragon with kitten aura, get the first permanent slot with maximum cursors: this takes about one more day.
 * Step 3: get 100 antimatter condensers, get the season switcher: this takes about 2-3 days (???)
 * Step 4: complete christmas, then easter and valentine, then halloween: about 2-3 days (???)
 * Step 5: with five permanent slots: get 1000 ascends; until then continue with step 6: about 2 days (???)
