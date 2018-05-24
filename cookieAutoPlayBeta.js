@@ -470,7 +470,9 @@ AutoPlay.cleanSeed = function(g,x,y) {
   if(!g.isTileUnlocked(x,y)) return;
   var tile=g.getTile(x,y);
   if (tile[0] == 0) return;
-  if ((!g.plantsById[tile[0]-1].unlocked) && (tile[1]<=g.plantsById[tile[0]-1].mature)) return;
+  var plant=g.plantsById[tile[0]-1];
+  if ((!plant.unlocked) && (tile[1]<=plant.mature)) return;
+  if (plant.name=="Juicy queenbeet") return; // do not clean juicy queenbeets
   g.harvest(x,y);
 }
 
@@ -481,7 +483,7 @@ AutoPlay.harvesting = function(game) {
     var tile=game.getTile(x,y);
 	if(tile[0]) {
       var plant=game.plantsById[tile[0]-1];
-	  if(!plant.unlocked) { AutoPlay.plantPending=true; /*AutoPlay.info(plant.name + " is still growing, do not disturb!");*/ }
+	  if(!plant.unlocked || plant.name=="Juicy queenbeet") { AutoPlay.plantPending=true; /*AutoPlay.info(plant.name + " is still growing, do not disturb!");*/ }
       if (tile[0] != 0) { // some plant in this slot
         if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
         if (plant.ageTick+plant.ageTickR+tile[1] > 100) AutoPlay.harvest(game,x,y); // would die in next round
