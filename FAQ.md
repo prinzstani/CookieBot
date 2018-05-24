@@ -28,6 +28,8 @@ The following steps are taken, and if you start somewhere in the middle, the pro
 * Step 9: get the golden sugar lump: about three more years (???)
 
 Currently, the step 6 is extended with many more levels, so it will take longer than that.
+When one achievement takes longer than 10 days, then the bot will gradually increase the chance of getting golden cookies (small cheat).
+
 The timing has changed with the introduction of the garden, so the strategy is likely to be changed.
 As far as the garden is concerned, it will collect all plants, and then all garden cookies, and then convert frequently in order to get max sugar lumps. This reduces the time for steps 8 and 9.
 
@@ -39,6 +41,12 @@ Wrinklers are normally left alone unless we need them to get easter eggs or othe
 
 ### What is the chocolate egg handling?
 The chocolate egg is kept as long as possible. It will be bought right before the next ascension. Before that, all buildings are sold with maximum profit.
+
+### What is the Grandmapocalypse strategy?
+In the first possible round, the bot will complete the Grandmapocalypse in order to get all the achievements.
+After all the Grandmapocalypse achievements are in place, the bot will not buy the Communal brainsweep.
+
+In order to maximize cps, the bot will save the Arcane sugar (which is after the Communal brainsweep) into the fifth permanent slot.
 
 ## Minigame Strategy
 ### What is the strategy for the garden?
