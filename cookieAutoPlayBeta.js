@@ -36,14 +36,8 @@ AutoPlay.nightMode = function() {
     AutoPlay.addActivity('Daytime! The bot is working.');
     if (AutoPlay.night) AutoPlay.useLump();
     AutoPlay.night=false;
-    var gs=Game.Upgrades["Golden switch [on]"]; if(gs.unlocked) {
-      if (Game.isMinigameReady(Game.Objects["Temple"])) {
-        AutoPlay.removeSpirit(1,"asceticism");
-//        AutoPlay.assignSpirit(1,"decadence",0);
-//        AutoPlay.assignSpirit(2,"labor",0);
-      }
-	  gs.buy();
-	}
+    AutoPlay.nightAtTemple(false);
+    var gs=Game.Upgrades["Golden switch [on]"]; if(gs.unlocked) { gs.buy(); }
 	AutoPlay.nightAtGarden(false);
     return false;
   }
@@ -55,14 +49,8 @@ AutoPlay.nightMode = function() {
     for (var i in Game.buffs) { if(Game.buffs[i].time>=0) buffCount++; }
 	if((buffCount==1 && Game.hasBuff("Clot")) || h<7) gs.buy();
 	if(!gs.bought) return true; // do not activate spirits before golden switch
-    if (Game.isMinigameReady(Game.Objects["Temple"])) {
-//	  AutoPlay.assignSpirit(0,"mother",1); 
-      AutoPlay.removeSpirit(1,"decadence");
-      AutoPlay.removeSpirit(2,"labor");
-      AutoPlay.assignSpirit(1,"asceticism",1);
-      AutoPlay.assignSpirit(2,"industry",1);
-    }
   }
+  AutoPlay.nightAtTemple(true);
   AutoPlay.nightAtGarden(true);
   AutoPlay.night=true;
   return true;
@@ -260,6 +248,18 @@ AutoPlay.handleMinigames = function() {
 	  if(/*!Game.Achievements["Seedless to nay"].won &&*/ !AutoPlay.finished)
 		g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); //convert garden in order to get more sugar lumps
 	}
+  }
+}
+
+AutoPlay.nightAtTemple = function(on) {
+  if(!Game.isMinigameReady(Game.Objects["Temple"])) return;
+  if(on) {
+    AutoPlay.removeSpirit(1,"decadence");
+    AutoPlay.removeSpirit(2,"labor");
+    AutoPlay.assignSpirit(1,"asceticism",1);
+    AutoPlay.assignSpirit(2,"industry",1);
+  } else {
+    AutoPlay.removeSpirit(1,"asceticism");
   }
 }
 
