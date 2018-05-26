@@ -27,7 +27,7 @@ The following steps are taken, and if you start somewhere in the middle, the pro
 * Step 8: get the golden sugar lump: about three more years (???)
 
 Currently, the step 6 is extended with many more levels, so it will take longer than that.
-When one achievement takes longer than 10 days, then the bot will gradually increase the chance of getting golden cookies (small cheat).
+When one achievement takes longer than 10 days to achieve, then the bot will gradually increase the chance of getting golden cookies (small cheat). This cheat is still in the experiment phase and not always switched on.
 
 The timing has changed with the introduction of the garden, so the strategy is likely to be changed.
 As far as the garden is concerned, it will collect all plants, and then all garden cookies, and then convert frequently in order to get max sugar lumps. This reduces the time for steps 8 and 9.
