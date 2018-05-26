@@ -64,8 +64,9 @@ AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or re
     if((s.life/Game.fps)<(s.dur-2) && (Game.Achievements["Fading luck"].won)) { s.pop(); return; }
   }
   var daysInRun=(Date.now()-Game.startDate)/1000/60/60/24;
-  if (daysInRun > 10) // more than 10 days in this run - need more (golden) cookies
+  if (daysInRun > 10) { // more than 10 days in this run - need more (golden) cookies
     AutoPlay.cheatGoldenCookies(daysInRun/10);
+  }
 }
 
 AutoPlay.cheatGoldenCookies = function(level) { // level is from 0 to 10
