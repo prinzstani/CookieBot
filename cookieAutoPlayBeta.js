@@ -420,9 +420,10 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
 	return;
   }
   if(!g.canPlant(g.plants[seed])) return;
-  AutoPlay.info("planting seed ...");
-  FireEvent(g.plants[seed].l,"click");
-  g.clickTile(whereX,whereY);
+  //AutoPlay.info("planting seed ...");
+  //FireEvent(g.plants[seed].l,"click");
+  //g.clickTile(whereX,whereY);
+  g.useTool(g.plants[seed].id,whereX,whereY)
 }
 
 AutoPlay.seedCalendar = function(sector) {
