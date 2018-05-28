@@ -420,7 +420,7 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
 	return;
   }
   if(!g.canPlant(g.plants[seed])) return;
-  //AutoPlay.info("planting seed ...");
+  AutoPlay.info("planting seed ...");
   FireEvent(g.plants[seed].l,"click");
   g.clickTile(whereX,whereY);
 }
@@ -630,7 +630,7 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 89, 130, 108, 223, 224, 225, 226, 227, 228, 229, 230, 279, 280, 372, 373, 374, 375, 390, 391, 366];
+AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 228, 229, 230, 279, 280, 372, 373, 374, 375, 390, 391, 366];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
