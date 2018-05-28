@@ -20,7 +20,7 @@ The following steps are taken, and if you start somewhere in the middle, the pro
 * Step 1: keep quiet until hardcore and neverclick, then buy everything until all grandma achievements are there, maybe get the first permanent slot with maximum cursors: this takes about 6 days.
 * Step 2: get 100 antimatter condensers, develop the dragon with kitten aura, get the season switcher: this takes about 3 days
 * Step 3: complete christmas, easter, valentine, and halloween: about 2 days
-* Step 4: with five permanent slots: get 1000 ascends; until then continue with step 5: about 2 days (???)
+* Step 4: with five permanent slots: get 1000 ascends; until then continue with step 5: about 2 days
 * Step 5: get all "bake xx cookies" achievements & all building achievements: about one month (???)
 * Step 6: get all shadow achievements and all the remaining achievements: about one month (???)
 * Step 7: get all the level 10 buildings: about two years (???)
