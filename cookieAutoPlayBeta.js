@@ -258,7 +258,7 @@ AutoPlay.gardenUpgrades = range(470,476);
 
 AutoPlay.gardenReady = function(g) { // have all plants and all cookies
   return (Game.Objects["Farm"].level>8) &&
-    (M.plantsUnlockedN==M.plantsN) &&
+    (g.plantsUnlockedN==g.plantsN) &&
     AutoPlay.allUnlocked(AutoPlay.gardenUpgrades);
 }
 
