@@ -248,11 +248,18 @@ AutoPlay.handleMinigames = function() {
     var g=Game.Objects["Farm"].minigame;
 	AutoPlay.planting(g);
 	AutoPlay.harvesting(g);
-	if(Game.Objects["Farm"].level>8 && !AutoPlay.plantCookies) { // have all plants and all cookies
-	  if(/*!Game.Achievements["Seedless to nay"].won &&*/ !AutoPlay.finished)
-		g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); //convert garden in order to get more sugar lumps
+    if(AutoPlay.gardenReady(g) && !AutoPlay.finished) {
+	  g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); //convert garden in order to get more sugar lumps
 	}
   }
+}
+
+AutoPlay.gardenUpgrades = range(470,476);
+
+AutoPlay.gardenReady = function(g) { // have all plants and all cookies
+  return (Game.Objects["Farm"].level>8) &&
+    (M.plantsUnlockedN==M.plantsN) &&
+    AutoPlay.allUnlocked(AutoPlay.gardenUpgrades);
 }
 
 AutoPlay.nightAtTemple = function(on) {
