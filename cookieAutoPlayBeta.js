@@ -638,7 +638,7 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 228, 229, 230, 279, 280, 372, 373, 374, 375, 390, 391, 366];
+AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 230, 279, 280, 372, 373, 374, 375, 390, 391, 366];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
@@ -713,11 +713,11 @@ AutoPlay.findMissingAchievements = function() { // just for testing purposes
 } } }
 
 //===================== Handle Heavenly Upgrades ==========================
-AutoPlay.prioUpgrades = [363,323,411,412,413,264,265,266,267,268,181,282,283,284,291,393,394]; // legacy, dragon, lucky upgrades, permanent slots, season switcher, better golden cookies, kittens, synergies, 
-AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442];
+AutoPlay.prioUpgrades = [363,323,411,412,413,264,265,266,267,268,181,282,283,284,291,393,394]; // legacy, dragon, lucky upgrades, permanent slots, season switcher, better golden cookies, kittens, synergies
+AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462];
 AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189];
 AutoPlay.chancemakers = [416,417,418,419,420,421,422,423,441];
-AutoPlay.butterBiscuits = [334,335,336,337,400];
+AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479];
 
 AutoPlay.buyHeavenlyUpgrades = function() {
   AutoPlay.prioUpgrades.forEach(function(id) { var e=Game.UpgradesById[id]; if (e.canBePurchased && !e.bought && e.buy(true)) { AutoPlay.info("buying "+e.name); } });
