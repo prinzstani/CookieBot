@@ -457,6 +457,8 @@ AutoPlay.cleaningGarden = function(game) {
   if(Game.Objects["Farm"].level<4) {
 	if(AutoPlay.plantList[0]==0) return;
     for(var y=2;y<5;y++) { AutoPlay.cleanSeed(game,2,y); AutoPlay.cleanSeed(game,4,y); }
+  } else if(Game.Objects["Farm"].level==4) {
+    for(var y=2;y<5;y++) { AutoPlay.cleanSeed(game,2,y); AutoPlay.cleanSeed(game,3,y); }
   } else {
     for(var sector=0; sector<4; sector++) AutoPlay.cleanSector(game,sector,AutoPlay.plantDependencies[AutoPlay.plantList[sector]][0]);
   }
