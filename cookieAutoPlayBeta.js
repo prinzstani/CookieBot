@@ -12,6 +12,7 @@ AutoPlay.finished=false;
 
 AutoPlay.run = function () {
   AutoPlay.activities = AutoPlay.mainActivity;
+  if(AutoPlay.plantPending) AutoPlay.addActivity("Do not ascend now, since we wait for plants to harvest!");
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   if (AutoPlay.nightMode()) { var age=Date.now()-Game.lumpT; AutoPlay.cheatSugarLumps(age); return; }
@@ -130,7 +131,7 @@ AutoPlay.handleSeasons = function() {
 	  case "easter": Game.Upgrades["Lovesick biscuit"].buy(); break; // go to valentine
 	  case "valentines": Game.Upgrades["Ghostly biscuit"].buy(); break; // go to halloween
 	  default: Game.Upgrades["Festive biscuit"].buy(); break; // go to christmas
-  } } else AutoPlay.addActivity('Waiting for all results in '+Game.season+'.'); 
+  } } else if (!(AutoPlay.allUnlocked(AutoPlay.allSeasonUpgrades))) AutoPlay.addActivity('Waiting for all results in '+Game.season+'.'); 
   if (Game.Upgrades["A festive hat"].bought && ! Game.Upgrades["Santa's dominion"].unlocked) { // develop santa
     Game.specialTab="santa"; Game.UpgradeSanta(); Game.ToggleSpecialMenu(0);
 } }
@@ -324,8 +325,8 @@ if(!AutoPlay.plantList) AutoPlay.plantList=[0,0,0,0];
 AutoPlay.plantPending=false; // Is there a plant we want and that is not mature yet?
 
 AutoPlay.sectorText = function(sector) {
-  if(Game.Objects["Farm"].level>4) return (sector%2?'right ':'left ')+(sector<2?'bottom':'top');
-  else if (Game.Objects["Farm"].level==4) return (sector%2?'right ':'left ');
+  if(Game.Objects["Farm"].level>4) return (sector%2?'left ':'right ')+(sector<2?'bottom':'top');
+  else if (Game.Objects["Farm"].level==4) return (sector%2?'left':'right');
   else return 'middle';
 }
 
@@ -497,7 +498,7 @@ AutoPlay.harvesting = function(game) {
     var tile=game.getTile(x,y);
 	if(tile[0]) {
       var plant=game.plantsById[tile[0]-1];
-	  if(!plant.unlocked || plant.name=="Juicy queenbeet") { AutoPlay.plantPending=true; /*AutoPlay.info(plant.name + " is still growing, do not disturb!");*/ }
+	  if(!plant.unlocked || plant.name=="Juicy queenbeet") { AutoPlay.plantPending=true; AutoPlay.addActivity(plant.name + " is still growing, do not disturb!");}
       if (tile[0] != 0) { // some plant in this slot
         if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
         if (plant.ageTick+plant.ageTickR+tile[1] > 100) AutoPlay.harvest(game,x,y); // would die in next round
@@ -537,7 +538,7 @@ AutoPlay.removeSpirit = function(slot, god) {
 AutoPlay.handleWrinklers = function() {
   var doPop = (((Game.season == "easter") || (Game.season == "halloween")) && !AutoPlay.seasonFinished(Game.season));
   doPop = doPop || (Game.Upgrades["Unholy bait"].bought && !Game.Achievements["Moistburster"].won);
-  doPop = doPop || (AutoPlay.endPhase() && !Game.Achievements["Last Chance to See"].won);
+  doPop = doPop || (AutoPlay.grinding() && !Game.Achievements["Last Chance to See"].won);
   if (doPop) AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
   if (doPop) Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
 }
@@ -575,7 +576,7 @@ AutoPlay.handleAscend = function() {
   if (AutoPlay.preNightMode()) return; //do not ascend right before the night
   if (AutoPlay.plantPending) return; // do not ascend when we wait for a plant to mature
   var ascendDays=10;
-  if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
+  if (AutoPlay.grinding() && !Game.Achievements["Endless cycle"].won && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) || ((Game.prestige+Game.ascendMeterLevel)%1000==777))) 
 	{ AutoPlay.doAscend("go for 1000 ascends",0); }
   }
@@ -640,10 +641,12 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 366];
+AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 372, 373, 374, 375, 390, 391, 366];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
+
+AutoPlay.grinding = function() { return Game.AchievementsById[373].won /*&& !Game.AchievementsById[391].won*/; }
 
 AutoPlay.mainActivity="Doing nothing in particular.";
 
