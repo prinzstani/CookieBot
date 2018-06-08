@@ -396,7 +396,7 @@ AutoPlay.planting = function(game) {
   }
 }
 
-AutoPlay.plantSector = function(sector,plant1,plant2,plant0) { // The plants will be synchronized due to night mode
+AutoPlay.plantSector = function(sector,plant1,plant2,plant0) {
   var X=(sector%2)?0:3;
   var Y=(sector>1)?0:3;
   if(plant0=="dummy") {
@@ -437,13 +437,14 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
 AutoPlay.seedCalendar = function(sector) {
   var g=Game.Objects["Farm"].minigame;
   AutoPlay.plantCookies = true;
-  if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Wheat slims."); return "bakerWheat"; }
-  if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Elderwort cookies."); return "elderwort"; }
-  if(!Game.Upgrades["Bakeberry cookies"].bought && g.plants["bakeberry"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Bakeberry cookies."); return "bakeberry"; }
-  if(!Game.Upgrades["Fern tea"].bought && g.plants["drowsyfern"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Fern tea."); return "drowsyfern"; }
-  if(!Game.Upgrades["Duketater cookies"].bought && g.plants["duketater"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Duketater cookies."); return "duketater"; }
-  if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Green yeast digestives."); return "greenRot"; }
-  if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); AutoPlay.addActivity("Trying to get Ichor syrup."); return "ichorpuff"; }
+  var doPrint = (sector==0) || (sector==1 && Game.Objects["Farm"].level==7) || (sector==2 && Game.Objects["Farm"].level==8);
+  if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Wheat slims."); return "bakerWheat"; }
+  if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Elderwort cookies."); return "elderwort"; }
+  if(!Game.Upgrades["Bakeberry cookies"].bought && g.plants["bakeberry"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Bakeberry cookies."); return "bakeberry"; }
+  if(!Game.Upgrades["Fern tea"].bought && g.plants["drowsyfern"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Fern tea."); return "drowsyfern"; }
+  if(!Game.Upgrades["Duketater cookies"].bought && g.plants["duketater"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Duketater cookies."); return "duketater"; }
+  if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Green yeast digestives."); return "greenRot"; }
+  if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Ichor syrup."); return "ichorpuff"; }
   AutoPlay.plantCookies = false;
   AutoPlay.switchSoil(sector,'clay'); //only when mature, otherwise it should be fertilizer
   //use garden to get cps and sugarlumps
@@ -535,12 +536,25 @@ AutoPlay.removeSpirit = function(slot, god) {
 }  
 
 //===================== Handle Wrinklers ==========================
+AutoPlay.nextWrinkler=0;
+AutoPlay.wrinklerTime=0;
+
 AutoPlay.handleWrinklers = function() {
   var doPop = (((Game.season == "easter") || (Game.season == "halloween")) && !AutoPlay.seasonFinished(Game.season));
   doPop = doPop || (Game.Upgrades["Unholy bait"].bought && !Game.Achievements["Moistburster"].won);
   doPop = doPop || (AutoPlay.grinding() && !Game.Achievements["Last Chance to See"].won);
-  if (doPop) AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
-  if (doPop) Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
+  if (doPop) {
+    AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
+    Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
+  } else if(AutoPlay.grinding()) {
+    AutoPlay.addActivity("Popping one wrinkler per 2 hours.");
+	if(Date.now()-AutoPlay.wrinklerTime >= 2*60*60*1000) {
+      var w=Game.wrinklers[AutoPlay.nextWrinkler];
+	  if (w.close==1) w.hp = 0;
+	  AutoPlay.wrinklerTime=Date.now();
+	  AutoPlay.nextWrinkler=(AutoPlay.nextWrinkler+1)%Game.getWrinklersMax();
+	}
+  }
 }
 
 //===================== Handle Small Achievements ==========================
@@ -768,6 +782,134 @@ AutoPlay.handleDragon = function() {
     Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
 } }
 
+//===================== Menu ==========================
+// menu: can access values with AutoPlay.Config.NightMode
+//somehow the toggle off goes away after some short period.
+
+AutoPlay.Backup = {};
+AutoPlay.Config = {};
+AutoPlay.ConfigData = {};
+AutoPlay.Disp = {};
+
+AutoPlay.ConfigPrefix = 'autoplayConfig';
+
+AutoPlay.SaveConfig = function(config) {
+	localStorage.setItem(AutoPlay.ConfigPrefix, JSON.stringify(config));
+}
+
+AutoPlay.LoadConfig = function() {
+	if (localStorage.getItem(AutoPlay.ConfigPrefix) != null) {
+		AutoPlay.Config = JSON.parse(localStorage.getItem(AutoPlay.ConfigPrefix));
+
+		// Check values
+		var mod = false;
+		for (var i in AutoPlay.ConfigDefault) {
+			if (typeof AutoPlay.Config[i] === 'undefined' || AutoPlay.Config[i] < 0 || AutoPlay.Config[i] >= AutoPlay.ConfigData[i].label.length) {
+				mod = true;
+				AutoPlay.Config[i] = AutoPlay.ConfigDefault[i];
+			}
+		}
+		if (mod) AutoPlay.SaveConfig(AutoPlay.Config);
+	}
+	else { // Default values
+		AutoPlay.RestoreDefault();
+	}
+}
+
+AutoPlay.RestoreDefault = function() {
+	AutoPlay.Config = {};
+	AutoPlay.SaveConfig(AutoPlay.ConfigDefault);
+	AutoPlay.LoadConfig();
+	Game.UpdateMenu();
+}
+
+AutoPlay.ToggleConfig = function(config) {
+	AutoPlay.ToggleConfigUp(config);
+	if (AutoPlay.Config[config] == 0) {
+		l(AutoPlay.ConfigPrefix + config).className = 'option off';
+	}
+	else {
+		l(AutoPlay.ConfigPrefix + config).className = 'option';
+	}
+}
+
+AutoPlay.WaitConfig = function(config) {
+}
+
+AutoPlay.ToggleConfigUp = function(config) {
+	AutoPlay.Config[config]++;
+	if (AutoPlay.Config[config] == AutoPlay.ConfigData[config].label.length) {
+		AutoPlay.Config[config] = 0;
+	}
+	l(AutoPlay.ConfigPrefix + config).innerHTML = AutoPlay.Disp.GetConfigDisplay(config);
+	AutoPlay.SaveConfig(AutoPlay.Config);
+}
+
+AutoPlay.ConfigData.NightMode = {label: ['OFF', 'AUTO', 'ON'], desc: 'Handling of night mode'};
+AutoPlay.ConfigData.ClickMode = {label: ['OFF', 'AUTO', 'DOUBLE', 'TRIPLE'], desc: 'Clicking speed'};
+AutoPlay.ConfigData.CheatLumps = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of sugar lumps'};
+AutoPlay.ConfigData.CheatGolden = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of golden cookies'};
+
+AutoPlay.ConfigDefault = {NightMode: 1, ClickMode: 1, CheatLumps: 1, CheatGolden: 1}; // default
+
+AutoPlay.LoadConfig();
+
+AutoPlay.Disp.GetConfigDisplay = function(config) {
+	return AutoPlay.ConfigData[config].label[AutoPlay.Config[config]];
+}
+
+AutoPlay.Disp.AddMenuPref = function() {
+	var header = function(text) {
+		var div = document.createElement('div');
+		div.className = 'listing';
+		div.style.padding = '5px 16px';
+		div.style.opacity = '0.7';
+		div.style.fontSize = '17px';
+		div.style.fontFamily = '\"Kavoon\", Georgia, serif';
+		div.textContent = text;
+		return div;
+	}
+
+	var frag = document.createDocumentFragment();
+
+	var div = document.createElement('div');
+	div.className = 'title ' + AutoPlay.Disp.colorTextPre + AutoPlay.Disp.colorBlue;
+	div.textContent = 'Cookiebot Options';
+	
+	frag.appendChild(div);
+
+	var listing = function(config,disabled) {
+		var div = document.createElement('div');
+		div.className = 'listing';
+		var a = document.createElement('a');
+		a.className = 'option';
+		if (AutoPlay.ConfigData[config].toggle && AutoPlay.Config[config] == 0) a.className = 'option off';
+		a.id = AutoPlay.ConfigPrefix + config;
+		a.onclick = function() { AutoPlay.ToggleConfig(config); };
+		if(disabled) a.onclick = function() { AutoPlay.WaitConfig(config); };
+		a.textContent = AutoPlay.Disp.GetConfigDisplay(config);
+		div.appendChild(a);
+		var label = document.createElement('label');
+		label.textContent = AutoPlay.ConfigData[config].desc;
+		div.appendChild(label);
+		return div;
+	}
+
+	frag.appendChild(listing('NightMode',true));
+	frag.appendChild(listing('ClickMode',true));
+	frag.appendChild(header('Cheating'));
+	frag.appendChild(listing('CheatLumps',true));
+	frag.appendChild(listing('CheatGolden',true));
+
+	l('menu').childNodes[2].insertBefore(frag, l('menu').childNodes[2].childNodes[l('menu').childNodes[2].childNodes.length - 1]);
+}
+
+AutoPlay.Backup.UpdateMenu = Game.UpdateMenu;
+Game.UpdateMenu = function() {
+	AutoPlay.Backup.UpdateMenu();
+	AutoPlay.Disp.AddMenuPref();
+}
+
 //===================== Auxiliary ==========================
 
 AutoPlay.info = function(s) { console.log("### "+s); Game.Notify("Automatic Playthrough",s,1,100); }
@@ -798,6 +940,14 @@ function range(start, end) {
 }
 
 //===================== Init & Start ==========================
+
+/* use something similar for loading the beta version
+AutoPlay.Disp.AddJscolor = function() {
+	AutoPlay.Disp.Jscolor = document.createElement('script');
+	AutoPlay.Disp.Jscolor.type = 'text/javascript';
+	AutoPlay.Disp.Jscolor.setAttribute('src', 'https://aktanusa.github.io/CookieMonster/jscolor/jscolor.js');
+	document.head.appendChild(AutoPlay.Disp.Jscolor);
+}*/
 
 AutoPlay.whatTheBotIsDoing = function() {
   return '<div style="padding:8px;width:400px;font-size:11px;text-align:center;">'+
