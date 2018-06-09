@@ -437,7 +437,7 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
 AutoPlay.seedCalendar = function(sector) {
   var g=Game.Objects["Farm"].minigame;
   AutoPlay.plantCookies = true;
-  var doPrint = (sector==0) || (sector==1 && Game.Objects["Farm"].level==7) || (sector==2 && Game.Objects["Farm"].level==8);
+  var doPrint = (sector==0) || (sector!=3 && Game.Objects["Farm"].level==sector+6);
   if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Wheat slims."); return "bakerWheat"; }
   if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Elderwort cookies."); return "elderwort"; }
   if(!Game.Upgrades["Bakeberry cookies"].bought && g.plants["bakeberry"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Bakeberry cookies."); return "bakeberry"; }
@@ -907,7 +907,9 @@ AutoPlay.Disp.AddMenuPref = function() {
 AutoPlay.Backup.UpdateMenu = Game.UpdateMenu;
 Game.UpdateMenu = function() {
 	AutoPlay.Backup.UpdateMenu();
-	AutoPlay.Disp.AddMenuPref();
+	if (Game.onMenu == 'prefs') {
+		AutoPlay.Disp.AddMenuPref();
+	}
 }
 
 //===================== Auxiliary ==========================
