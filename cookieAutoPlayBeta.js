@@ -660,7 +660,7 @@ AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
 
-AutoPlay.grinding = function() { return Game.AchievementsById[373].won /*&& !Game.AchievementsById[391].won*/; }
+AutoPlay.grinding = function() { return Game.AchievementsById[279].won /*&& !Game.AchievementsById[391].won*/; }
 
 AutoPlay.mainActivity="Doing nothing in particular.";
 
