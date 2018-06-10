@@ -542,7 +542,7 @@ AutoPlay.wrinklerTime=0;
 AutoPlay.handleWrinklers = function() {
   var doPop = (((Game.season == "easter") || (Game.season == "halloween")) && !AutoPlay.seasonFinished(Game.season));
   doPop = doPop || (Game.Upgrades["Unholy bait"].bought && !Game.Achievements["Moistburster"].won);
-  doPop = doPop || (AutoPlay.grinding() && !Game.Achievements["Last Chance to See"].won);
+  doPop = doPop || (AutoPlay.endPhase() && !Game.Achievements["Last Chance to See"].won);
   if (doPop) {
     AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
