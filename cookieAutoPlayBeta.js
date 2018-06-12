@@ -436,7 +436,7 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
 
 AutoPlay.seedCalendar = function(sector) {
   var g=Game.Objects["Farm"].minigame;
-  AutoPlay.plantCookies = true;
+  AutoPlay.plantCookies = (sector==0);
   var doPrint = (sector==0) || (sector!=3 && Game.Objects["Farm"].level==sector+6);
   if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Wheat slims."); return "bakerWheat"; }
   if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Elderwort cookies."); return "elderwort"; }
@@ -499,11 +499,13 @@ AutoPlay.harvesting = function(game) {
     var tile=game.getTile(x,y);
 	if(tile[0]) {
       var plant=game.plantsById[tile[0]-1];
-	  if(!plant.unlocked || plant.name=="Juicy queenbeet") { AutoPlay.plantPending=true; AutoPlay.addActivity(plant.name + " is still growing, do not disturb!");}
-      if (tile[0] != 0) { // some plant in this slot
-        if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
-        if (plant.ageTick+plant.ageTickR+tile[1] > 100) AutoPlay.harvest(game,x,y); // would die in next round
-	  } } }
+	  if(!plant.unlocked || plant.name=="Juicy queenbeet") {
+	    AutoPlay.plantPending=true; AutoPlay.addActivity(plant.name + " is still growing, do not disturb!");
+        if (tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature
+	  }
+      if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
+      if (plant.ageTick+plant.ageTickR+tile[1] >= 100) AutoPlay.harvest(game,x,y); // would die in next round
+  } }
 }
 
 AutoPlay.harvest = function(game,x,y) {
@@ -590,7 +592,7 @@ AutoPlay.handleAscend = function() {
   if (AutoPlay.preNightMode()) return; //do not ascend right before the night
   if (AutoPlay.plantPending) return; // do not ascend when we wait for a plant to mature
   var ascendDays=10;
-  if (AutoPlay.grinding() && !Game.Achievements["Endless cycle"].won && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
+  if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) || ((Game.prestige+Game.ascendMeterLevel)%1000==777))) 
 	{ AutoPlay.doAscend("go for 1000 ascends",0); }
   }
