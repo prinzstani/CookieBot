@@ -33,15 +33,59 @@ javascript: (function () {
 
 If (for some reason) the above doesn't work, try pasting everything after the <code>javascript:</code> bit into your browser's console.
 
-## Beta Version
-
-You can also try the beta version. No guarantees whatsoever. Copy this code and save it as a bookmark. Paste it in the URL section. To activate, click the bookmark when the Cookie Clicker game is open.
-Currently, the beta is providing more functionality related to gardens.
+You can also try the beta version with the following code (No guarantees whatsoever).
 
 ```javascript
 javascript: (function () {
 	Game.LoadMod('https://prinzstani.github.io/CookieBot/cookieAutoPlayBeta.js');
 }());
+```
+
+## Userscript
+
+Cookie Bot can also be activated via script in *Tampermonkey* (or *Greasemonkey*). This script will automatically load *Cookie Monster* every time the original game loads. Check your browsers/plugin's documentation for how to add a userscript. This script is courtesy of **[SearchAndDestroy](https://github.com/SearchAndDestroy)**.
+
+```javascript
+// ==UserScript==
+// @name Cookie Monster
+// @namespace Cookie
+// @include http://orteil.dashnet.org/cookieclicker/
+// @version 1
+// @grant none
+// ==/UserScript==
+
+var code = "(" + (function() {
+    var checkReady = setInterval(function() {
+        if (typeof Game.ready !== 'undefined' && Game.ready) {
+            Game.LoadMod('https://aktanusa.github.io/CookieMonster/CookieMonster.js');
+            clearInterval(checkReady);
+        }
+    }, 1000);
+}).toString() + ")()";
+
+window.eval(code);
+```
+If you are using the beta, use this instead:
+
+```javascript
+// ==UserScript==
+// @name Cookie Monster Beta
+// @namespace Cookie
+// @include http://orteil.dashnet.org/cookieclicker/beta/
+// @version 1
+// @grant none
+// ==/UserScript==
+
+var code = "(" + (function() {
+    var checkReady = setInterval(function() {
+        if (typeof Game.ready !== 'undefined' && Game.ready) {
+            Game.LoadMod('https://aktanusa.github.io/CookieMonster/CookieMonsterBeta.js');
+            clearInterval(checkReady);
+        }
+    }, 1000);
+}).toString() + ")()";
+
+window.eval(code);
 ```
 
 # Bugs and suggestions
@@ -58,3 +102,4 @@ Before submitting a bug report, please reload the bot, as it is continuously imp
 # Contributors
 
 * **[Prinz Stani](https://github.com/prinzstani)**: Original author and current maintainer
+* **[SearchAndDestroy](https://github.com/SearchAndDestroy)**: Tampermonkey script
