@@ -29,11 +29,12 @@ AutoPlay.run = function () {
 }
 
 //===================== Night Mode ==========================
-AutoPlay.preNightMode = function() { var h=(new Date).getHours(); return(h>=22); }
+AutoPlay.preNightMode = function() { if(AutoPlay.Config.NightMode!=1) return false; var h=(new Date).getHours(); return(h>=22); }
 
 AutoPlay.nightMode = function() { 
+  if(AutoPlay.Config.NightMode==0) return false;
   var h=(new Date).getHours();
-  if(h>=7 && h<23) { // be active
+  if(AutoPlay.Config.NightMode==1 && h>=7 && h<23) { // be active
     if (AutoPlay.night) AutoPlay.useLump();
     AutoPlay.night=false;
     AutoPlay.nightAtTemple(false);
@@ -785,10 +786,9 @@ AutoPlay.handleDragon = function() {
 } }
 
 //===================== Menu ==========================
-// menu: can access values with AutoPlay.Config.NightMode
 //somehow the toggle off goes away after some short period.
 
-AutoPlay.Backup = {};
+if(!AutoPlay.Backup) AutoPlay.Backup = {};
 AutoPlay.Config = {};
 AutoPlay.ConfigData = {};
 AutoPlay.Disp = {};
@@ -898,7 +898,7 @@ AutoPlay.Disp.AddMenuPref = function() {
 		return div;
 	}
 
-	frag.appendChild(listing('NightMode',true));
+	frag.appendChild(listing('NightMode',false));
 	frag.appendChild(listing('ClickMode',true));
 	frag.appendChild(listing('GoldenClickMode',true));
 	frag.appendChild(header('Cheating'));
@@ -908,7 +908,8 @@ AutoPlay.Disp.AddMenuPref = function() {
 	l('menu').childNodes[2].insertBefore(frag, l('menu').childNodes[2].childNodes[l('menu').childNodes[2].childNodes.length - 1]);
 }
 
-AutoPlay.Backup.UpdateMenu = Game.UpdateMenu;
+if(!AutoPlay.Backup.UpdateMenu) { console.log("new update menu"); AutoPlay.Backup.UpdateMenu = Game.UpdateMenu; }
+
 Game.UpdateMenu = function() {
 	AutoPlay.Backup.UpdateMenu();
 	if (Game.onMenu == 'prefs') {
