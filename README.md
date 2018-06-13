@@ -47,17 +47,18 @@ Cookie Bot can also be activated via script in *Tampermonkey* (or *Greasemonkey*
 
 ```javascript
 // ==UserScript==
-// @name Cookie Monster
-// @namespace Cookie
-// @include http://orteil.dashnet.org/cookieclicker/
-// @version 1
-// @grant none
+// @name        Cookie Bot
+// @namespace   https://github.com/prinzstani/CookieBot
+// @include     http://orteil.dashnet.org/cookieclicker/
+// @version     2.01
+// @author      prinzstani
+// @grant       none
 // ==/UserScript==
-
+    
 var code = "(" + (function() {
     var checkReady = setInterval(function() {
         if (typeof Game.ready !== 'undefined' && Game.ready) {
-            Game.LoadMod('https://aktanusa.github.io/CookieMonster/CookieMonster.js');
+            Game.LoadMod('https://prinzstani.github.io/CookieBot/cookieAutoPlay.js');
             clearInterval(checkReady);
         }
     }, 1000);
@@ -65,21 +66,23 @@ var code = "(" + (function() {
 
 window.eval(code);
 ```
+
 If you are using the beta, use this instead:
 
 ```javascript
 // ==UserScript==
-// @name Cookie Monster Beta
-// @namespace Cookie
-// @include http://orteil.dashnet.org/cookieclicker/beta/
-// @version 1
-// @grant none
+// @name        Cookie Bot Beta
+// @namespace   https://github.com/prinzstani/CookieBot
+// @include     http://orteil.dashnet.org/cookieclicker/
+// @version     2.01
+// @author      prinzstani
+// @grant       none
 // ==/UserScript==
-
+    
 var code = "(" + (function() {
     var checkReady = setInterval(function() {
         if (typeof Game.ready !== 'undefined' && Game.ready) {
-            Game.LoadMod('https://aktanusa.github.io/CookieMonster/CookieMonsterBeta.js');
+            Game.LoadMod('https://prinzstani.github.io/CookieBot/cookieAutoPlayBeta.js');
             clearInterval(checkReady);
         }
     }, 1000);

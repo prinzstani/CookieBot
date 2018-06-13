@@ -848,11 +848,12 @@ AutoPlay.ToggleConfigUp = function(config) {
 }
 
 AutoPlay.ConfigData.NightMode = {label: ['OFF', 'AUTO', 'ON'], desc: 'Handling of night mode'};
-AutoPlay.ConfigData.ClickMode = {label: ['OFF', 'AUTO', 'DOUBLE', 'TRIPLE'], desc: 'Clicking speed'};
+AutoPlay.ConfigData.ClickMode = {label: ['OFF', 'AUTO', 'DOUBLE', 'TRIPLE', 'LUDICROUS'], desc: 'Clicking speed'};
+AutoPlay.ConfigData.GoldenClickMode = {label: ['OFF', 'AUTO', 'ALL'], desc: 'Golden Cookie clicking speed'};
 AutoPlay.ConfigData.CheatLumps = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of sugar lumps'};
 AutoPlay.ConfigData.CheatGolden = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of golden cookies'};
 
-AutoPlay.ConfigDefault = {NightMode: 1, ClickMode: 1, CheatLumps: 1, CheatGolden: 1}; // default
+AutoPlay.ConfigDefault = {NightMode: 1, ClickMode: 1, GoldenClickMode: 1, CheatLumps: 1, CheatGolden: 1}; // default
 
 AutoPlay.LoadConfig();
 
@@ -899,6 +900,7 @@ AutoPlay.Disp.AddMenuPref = function() {
 
 	frag.appendChild(listing('NightMode',true));
 	frag.appendChild(listing('ClickMode',true));
+	frag.appendChild(listing('GoldenClickMode',true));
 	frag.appendChild(header('Cheating'));
 	frag.appendChild(listing('CheatLumps',true));
 	frag.appendChild(listing('CheatGolden',true));
