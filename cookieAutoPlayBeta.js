@@ -59,11 +59,12 @@ AutoPlay.nightMode = function() {
 
 //===================== Handle Cookies and Golden Cookies ==========================
 AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or reindeer
+  if(AutoPlay.Config.GoldenClickMode==0) return;
   if(Game.shimmerTypes['golden'].n>=4 && !Game.Achievements['Four-leaf cookie'].won) return;
   for(sx in Game.shimmers) {
     var s=Game.shimmers[sx];
     if((s.type!="golden") || (s.life<Game.fps) || (!Game.Achievements["Early bird"].won)) { s.pop(); return; }
-    if((s.life/Game.fps)<(s.dur-2) && (Game.Achievements["Fading luck"].won)) { s.pop(); return; }
+    if((s.life/Game.fps)<(s.dur-2) && (Game.Achievements["Fading luck"].won)) { s.pop(); if(AutoPlay.Config.GoldenClickMode==1) return; }
   }
   var daysInRun=(Date.now()-Game.startDate)/1000/60/60/24;
   if (daysInRun > 10) { // more than 10 days in this run - need more (golden) cookies
@@ -848,10 +849,10 @@ AutoPlay.ToggleConfigUp = function(config) {
 }
 
 AutoPlay.ConfigData.NightMode = {label: ['OFF', 'AUTO', 'ON'], desc: 'Handling of night mode'};
-AutoPlay.ConfigData.ClickMode = {label: ['OFF', 'AUTO', 'DOUBLE', 'TRIPLE', 'LUDICROUS'], desc: 'Clicking speed'};
-AutoPlay.ConfigData.GoldenClickMode = {label: ['OFF', 'AUTO', 'ALL'], desc: 'Golden Cookie clicking speed'};
-AutoPlay.ConfigData.CheatLumps = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of sugar lumps'};
-AutoPlay.ConfigData.CheatGolden = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of golden cookies'};
+AutoPlay.ConfigData.ClickMode = {label: ['OFF', 'AUTO', 'DOUBLE', 'TRIPLE', 'LUDICROUS'], desc: 'Clicking speed (not implemented yet)'};
+AutoPlay.ConfigData.GoldenClickMode = {label: ['OFF', 'AUTO', 'ALL'], desc: 'Golden Cookie clicking mode'};
+AutoPlay.ConfigData.CheatLumps = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of sugar lumps (not implemented yet)'};
+AutoPlay.ConfigData.CheatGolden = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of golden cookies (not implemented yet)'};
 
 AutoPlay.ConfigDefault = {NightMode: 1, ClickMode: 1, GoldenClickMode: 1, CheatLumps: 1, CheatGolden: 1}; // default
 
@@ -900,7 +901,7 @@ AutoPlay.Disp.AddMenuPref = function() {
 
 	frag.appendChild(listing('NightMode',false));
 	frag.appendChild(listing('ClickMode',true));
-	frag.appendChild(listing('GoldenClickMode',true));
+	frag.appendChild(listing('GoldenClickMode',false));
 	frag.appendChild(header('Cheating'));
 	frag.appendChild(listing('CheatLumps',true));
 	frag.appendChild(listing('CheatGolden',true));
