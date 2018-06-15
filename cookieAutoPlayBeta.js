@@ -80,11 +80,19 @@ AutoPlay.cheatGoldenCookies = function(level) { // level is from 0 to 10
 }
 
 AutoPlay.handleClicking = function() {
+  if (AutoPlay.Config.ClickMode==0) return;
   if (!Game.Achievements["Neverclick"].won && (Game.cookieClicks<=15) ) { AutoPlay.addActivity('Waiting for neverclick.'); return; }
   if (Game.ascensionMode==1 && AutoPlay.endPhase() && !Game.Achievements["True Neverclick"].won && (!Game.cookieClicks) ) { AutoPlay.addActivity('Waiting for true neverclick.'); return; }
   if(!Game.Achievements["Uncanny clicker"].won) { for(i=1; i<6; i++) setTimeout(Game.ClickCookie, 50*i); }
-  if (Game.ascensionMode==1 && Game.Achievements["Hardcore"].won) setTimeout(Game.ClickCookie, 150);
+  if (Game.ascensionMode==1 && Game.Achievements["Hardcore"].won) setTimeout(Game.ClickCookie, 150); // extra clicking when born again for speed baking
+  if(AutoPlay.Config.ClickMode>1) { for(i=1; i<10; i++) setTimeout(AutoPlay.speedClicking, 30*i); }
   Game.ClickCookie();
+}
+
+AutoPlay.speedClicking = function() {
+  Game.ClickCookie();
+  var clickCount=1<<(10*(AutoPlay.Config.ClickMode-2));
+  Game.ClickCookie(0,clickCount);
 }
 
 //===================== Handle Upgrades ==========================
@@ -336,7 +344,7 @@ AutoPlay.findPlants = function(game,idx) {
   var couldPlant=0;
   if(AutoPlay.plantList[idx]!=0) {// already used
     var oldPlant=AutoPlay.plantDependencies[AutoPlay.plantList[idx]][0];
-    AutoPlay.addActivity("Trying to get plant " + oldPlant + " on sector " + AutoPlay.sectorText(idx) + '.'); 
+    AutoPlay.addActivity("Trying to get plant " + game.plants[oldPlant].name + " on sector " + AutoPlay.sectorText(idx) + '.'); 
 //	AutoPlay.info("currently we have " + oldPlant + " and it is unlocked " + game.plants[oldPlant].unlocked);
     if(game.plants[oldPlant].unlocked) AutoPlay.plantList[idx]=0; else return true;
   }
@@ -849,7 +857,7 @@ AutoPlay.ToggleConfigUp = function(config) {
 }
 
 AutoPlay.ConfigData.NightMode = {label: ['OFF', 'AUTO', 'ON'], desc: 'Handling of night mode'};
-AutoPlay.ConfigData.ClickMode = {label: ['OFF', 'AUTO', 'DOUBLE', 'TRIPLE', 'LUDICROUS'], desc: 'Clicking speed (not implemented yet)'};
+AutoPlay.ConfigData.ClickMode = {label: ['OFF', 'AUTO', 'LIGHT SPEED', 'RIDICULOUS SPEED', 'LUDICROUS SPEED'], desc: 'Clicking speed'};
 AutoPlay.ConfigData.GoldenClickMode = {label: ['OFF', 'AUTO', 'ALL'], desc: 'Golden Cookie clicking mode'};
 AutoPlay.ConfigData.CheatLumps = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of sugar lumps (not implemented yet)'};
 AutoPlay.ConfigData.CheatGolden = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of golden cookies (not implemented yet)'};
@@ -900,7 +908,7 @@ AutoPlay.Disp.AddMenuPref = function() {
 	}
 
 	frag.appendChild(listing('NightMode',false));
-	frag.appendChild(listing('ClickMode',true));
+	frag.appendChild(listing('ClickMode',false));
 	frag.appendChild(listing('GoldenClickMode',false));
 	frag.appendChild(header('Cheating'));
 	frag.appendChild(listing('CheatLumps',true));
@@ -947,16 +955,6 @@ function range(start, end) {
   return foo;
 }
 
-//===================== Init & Start ==========================
-
-/* use something similar for loading the beta version
-AutoPlay.Disp.AddJscolor = function() {
-	AutoPlay.Disp.Jscolor = document.createElement('script');
-	AutoPlay.Disp.Jscolor.type = 'text/javascript';
-	AutoPlay.Disp.Jscolor.setAttribute('src', 'https://aktanusa.github.io/CookieMonster/jscolor/jscolor.js');
-	document.head.appendChild(AutoPlay.Disp.Jscolor);
-}*/
-
 AutoPlay.whatTheBotIsDoing = function() {
   return '<div style="padding:8px;width:400px;font-size:11px;text-align:center;">'+
     '<span style="color:#6f6;font-size:18px"> What is the bot doing?</span>'+
@@ -968,6 +966,16 @@ AutoPlay.whatTheBotIsDoing = function() {
 AutoPlay.addActivity = function(str) {
   AutoPlay.activities+= '<div class="line"></div>'+str;
 }
+
+//===================== Init & Start ==========================
+
+/* use something similar for loading the beta version
+AutoPlay.Disp.AddJscolor = function() {
+	AutoPlay.Disp.Jscolor = document.createElement('script');
+	AutoPlay.Disp.Jscolor.type = 'text/javascript';
+	AutoPlay.Disp.Jscolor.setAttribute('src', 'https://aktanusa.github.io/CookieMonster/jscolor/jscolor.js');
+	document.head.appendChild(AutoPlay.Disp.Jscolor);
+}*/
 
 AutoPlay.info("Pre-release for gardening."); 
 if (AutoPlay.autoPlayer) { AutoPlay.info("replacing old version of autoplay"); clearInterval(AutoPlay.autoPlayer); }
