@@ -438,7 +438,7 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
 
 AutoPlay.seedCalendar = function(sector) {
   var g=Game.Objects["Farm"].minigame;
-  AutoPlay.plantCookies = (sector==0);
+  if(sector==0) AutoPlay.plantCookies = true;
   var doPrint = (sector==0) || (sector!=3 && Game.Objects["Farm"].level==sector+6);
   if(!Game.Upgrades["Wheat slims"].bought && g.plants["bakerWheat"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Wheat slims."); return "bakerWheat"; }
   if(!Game.Upgrades["Elderwort biscuits"].bought && g.plants["elderwort"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Elderwort cookies."); return "elderwort"; }
