@@ -92,7 +92,7 @@ AutoPlay.handleClicking = function() {
 AutoPlay.speedClicking = function() {
   Game.ClickCookie();
   var clickCount=1<<(10*(AutoPlay.Config.ClickMode-2));
-  Game.ClickCookie(0,clickCount);
+  Game.ClickCookie(0,clickCount*Game.computedMouseCps);
 }
 
 //===================== Handle Upgrades ==========================
