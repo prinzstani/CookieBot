@@ -259,7 +259,8 @@ AutoPlay.handleMinigames = function() {
     var g=Game.Objects["Farm"].minigame;
 	AutoPlay.planting(g);
 	AutoPlay.harvesting(g);
-    if(AutoPlay.gardenReady(g) && !AutoPlay.finished) {
+    if(Game.lumps<11 && AutoPlay.gardenReady(g) && !AutoPlay.finished) {
+      AutoPlay.plantCookies = false;
 	  g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); //convert garden in order to get more sugar lumps
 	}
   }
@@ -345,6 +346,7 @@ AutoPlay.findPlants = function(game,idx) {
   if(AutoPlay.plantList[idx]!=0) {// already used
     var oldPlant=AutoPlay.plantDependencies[AutoPlay.plantList[idx]][0];
     AutoPlay.addActivity("Trying to get plant " + game.plants[oldPlant].name + " on sector " + AutoPlay.sectorText(idx) + '.'); 
+    AutoPlay.plantCookies = false;
 //	AutoPlay.info("currently we have " + oldPlant + " and it is unlocked " + game.plants[oldPlant].unlocked);
     if(game.plants[oldPlant].unlocked) AutoPlay.plantList[idx]=0; else return true;
   }
