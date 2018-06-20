@@ -73,6 +73,7 @@ AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or re
 }
 
 AutoPlay.cheatGoldenCookies = function(level) { // level is from 0 to 10
+  return; // disable cheating golden cookies for the moment
   AutoPlay.addActivity('Cheating golden cookies at level ' + level + '.');
   var levelTime=Game.shimmerTypes.golden.maxTime*level/10;
   if(Game.shimmerTypes.golden.time<levelTime) Game.shimmerTypes.golden.time=levelTime;
