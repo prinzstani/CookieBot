@@ -360,11 +360,11 @@ AutoPlay.findPlants = function(game,idx) {
   }
   var chkx=(idx%2)?0:5; var chky=(idx>1)?0:5; // did not find any more normal plants to handle, check expensive methods
   if(game.isTileUnlocked(chkx,chky)) { // only plant if the spot is big enough
-    if(!game.plants["everdaisy"].unlocked) { 
+    if(!game.plants['everdaisy'].unlocked && game.plants['elderwort'].unlocked && game.plants['tidygrass'].unlocked) { 
 	  if(AutoPlay.plantList.includes(2)) couldPlant=2;
 	  else { AutoPlay.plantList[idx]=2; AutoPlay.info("expensive planting everdaisy onto " + idx); return true; }
 	}
-    if(!game.plants["queenbeetLump"].unlocked) { 
+    if(!game.plants['queenbeetLump'].unlocked && game.plants['queenbeet'].unlocked) { 
 	  if(AutoPlay.plantList.includes(1)) couldPlant=1; 
 	  else { AutoPlay.plantList[idx]=1; AutoPlay.info("expensive planting queenbeetLump onto " + idx); return true; }
 	}
