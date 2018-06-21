@@ -15,7 +15,6 @@ AutoPlay.run = function () {
   if(AutoPlay.plantPending) AutoPlay.addActivity("Do not ascend now, since we wait for plants to harvest!");
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
-  if (AutoPlay.nightMode()) { var age=Date.now()-Game.lumpT; AutoPlay.cheatSugarLumps(age); return; }
   AutoPlay.handleClicking();
   AutoPlay.handleGoldenCookies();
   AutoPlay.handleBuildings();
@@ -169,8 +168,7 @@ AutoPlay.seasonFinished = function(s) {
 AutoPlay.level1Order=[2,6,7]; // unlocking in this order for the minigames
 AutoPlay.level10Order=[2,7]; // finishing in this order
 AutoPlay.minLumps=AutoPlay.level1Order.length+55*AutoPlay.level10Order.length;
-AutoPlay.levelAchievements=range(307,320).concat([336]);
-AutoPlay.lumpRelatedAchievements=range(266,272).concat(AutoPlay.levelAchievements);
+AutoPlay.lumpRelatedAchievements=range(307,320).concat([336,268,271]);
 
 AutoPlay.handleSugarLumps = function() {
   if (!Game.canLumps()) return; //do not work with sugar lumps before enabled
@@ -183,16 +181,20 @@ AutoPlay.handleSugarLumps = function() {
   AutoPlay.handleMinigames();
 }
 
-AutoPlay.cheatLumps=false;
-AutoPlay.cheatSugarLumps = function(age) { // divide lump ripe time by 600, making hours into few minutes
-  if(AutoPlay.finished) return;
-  for(a in Game.AchievementsById) { var me=Game.AchievementsById[a]; if (!(me.won || me.pool=="dungeon" || AutoPlay.lumpRelatedAchievements.indexOf(me.id)>=0)) return; }
-  AutoPlay.cheatLumps=true; // after checking that only lump related achievements are missing
+AutoPlay.cheatSugarLumps = function(age) {
+  AutoPlay.cheatLumps=false;
+  if(AutoPlay.Config.CheatLumps==0) return;
+  if(AutoPlay.Config.CheatLumps==1) {
+	if(AutoPlay.finished) return;
+    for(a in Game.AchievementsById) { var me=Game.AchievementsById[a]; if (!(me.won || me.pool=="dungeon" || AutoPlay.lumpRelatedAchievements.indexOf(me.id)>=0)) return; }
+  }
+  AutoPlay.cheatLumps=true; // after checking that only heavy lump related achievements are missing
   AutoPlay.addActivity('Cheating sugar lumps.');
-  var cheatReduction=60*10;
+  var cheatReduction=60*10; // divide lump ripe time, making hours into minutes or seconds
+  if (AutoPlay.Config.CheatLumps==2) cheatReduction=10;
+  if (AutoPlay.Config.CheatLumps==4) cheatReduction=60*cheatReduction;
   var cheatDelay=Game.lumpRipeAge/cheatReduction;
   if(age<Game.lumpRipeAge-cheatDelay) Game.lumpT-=cheatDelay*(cheatReduction-1);
-  if (AutoPlay.nightMode() && age>Game.lumpRipeAge) { Game.lumpT-=60*60*1000; }
 }
 
 AutoPlay.harvestLump = function() { 
@@ -862,7 +864,7 @@ AutoPlay.ToggleConfigUp = function(config) {
 AutoPlay.ConfigData.NightMode = {label: ['OFF', 'AUTO', 'ON'], desc: 'Handling of night mode'};
 AutoPlay.ConfigData.ClickMode = {label: ['OFF', 'AUTO', 'LIGHT SPEED', 'RIDICULOUS SPEED', 'LUDICROUS SPEED'], desc: 'Clicking speed'};
 AutoPlay.ConfigData.GoldenClickMode = {label: ['OFF', 'AUTO', 'ALL'], desc: 'Golden Cookie clicking mode'};
-AutoPlay.ConfigData.CheatLumps = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of sugar lumps (not implemented yet)'};
+AutoPlay.ConfigData.CheatLumps = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of sugar lumps'};
 AutoPlay.ConfigData.CheatGolden = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of golden cookies (not implemented yet)'};
 
 AutoPlay.ConfigDefault = {NightMode: 1, ClickMode: 1, GoldenClickMode: 1, CheatLumps: 1, CheatGolden: 1}; // default
@@ -914,7 +916,7 @@ AutoPlay.Disp.AddMenuPref = function() {
 	frag.appendChild(listing('ClickMode',false));
 	frag.appendChild(listing('GoldenClickMode',false));
 	frag.appendChild(header('Cheating'));
-	frag.appendChild(listing('CheatLumps',true));
+	frag.appendChild(listing('CheatLumps',false));
 	frag.appendChild(listing('CheatGolden',true));
 
 	l('menu').childNodes[2].insertBefore(frag, l('menu').childNodes[2].childNodes[l('menu').childNodes[2].childNodes.length - 1]);
