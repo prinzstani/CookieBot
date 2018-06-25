@@ -70,16 +70,16 @@ AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or re
 
 AutoPlay.cheatGoldenCookies = function() {
   if (AutoPlay.Config.CheatGolden==0) return;
-  var level=1+3*(AutoPlay.Config.CheatGolden-1);
+  var level=10+30*(AutoPlay.Config.CheatGolden-1);
   if (AutoPlay.Config.CheatGolden==1) {
 	if(!AutoPlay.grinding() || AutoPlay.endPhase()) return; // only cheat in grinding
-    var daysInRun=(Date.now()-Game.startDate)/1000/60/60/24;
+    var daysInRun=10*(Date.now()-Game.startDate)/1000/60/60/24;
     if (daysInRun < 10) return; // cheat only after 10 days
-    level=daysInRun/10;
+    level=(daysInRun/10)<<0;
   }
-  if(level>10) level=10;
+  if(level>100) level=100;
   AutoPlay.addActivity('Cheating golden cookies at level ' + level + '.');
-  var levelTime=Game.shimmerTypes.golden.maxTime*level/14;
+  var levelTime=Game.shimmerTypes.golden.maxTime*level/140;
   if(Game.shimmerTypes.golden.time<levelTime) Game.shimmerTypes.golden.time=levelTime;
 //golden cookie with building special: var newShimmer=new Game.shimmer("golden");newShimmer.force="building special";
 }
@@ -195,9 +195,9 @@ AutoPlay.cheatSugarLumps = function(age) {
   }
   AutoPlay.cheatLumps=true; // after checking that only heavy lump related achievements are missing
   AutoPlay.addActivity('Cheating sugar lumps.');
-  var cheatReduction=60*10; // divide lump ripe time, making hours into minutes or seconds
-  if (AutoPlay.Config.CheatLumps==2) cheatReduction=10;
-  if (AutoPlay.Config.CheatLumps==4) cheatReduction=60*cheatReduction;
+  var cheatReduction=25*25; // divide lump ripe time, making days into hours, minutes or seconds
+  if (AutoPlay.Config.CheatLumps==2) cheatReduction=25;
+  if (AutoPlay.Config.CheatLumps==4) cheatReduction=25*cheatReduction;
   var cheatDelay=Game.lumpRipeAge/cheatReduction;
   if(age<Game.lumpRipeAge-cheatDelay) Game.lumpT-=cheatDelay*(cheatReduction-1);
 }
@@ -256,7 +256,7 @@ AutoPlay.handleMinigames = function() {
   // temples: pantheon
   if (Game.isMinigameReady(Game.Objects["Temple"])) {
 	var age=Date.now()-Game.lumpT;
-    if(Game.lumpRipeAge-age < 61*60*1000 && !AutoPlay.cheatLumps) AutoPlay.assignSpirit(0,"order",0); 
+    if(Game.lumpRipeAge-age < 61*60*1000 && !AutoPlay.cheatLumps && Game.lumps<11) AutoPlay.assignSpirit(0,"order",0); 
 	else if (AutoPlay.preNightMode() && Game.lumpOverripeAge-age < 9*60*60*1000 && (new Date).getMinutes()==59 && !AutoPlay.cheatLumps) AutoPlay.assignSpirit(0,"order",0);
 	else AutoPlay.assignSpirit(0,"mother",0); 
     AutoPlay.assignSpirit(1,"decadence",0);
