@@ -22,19 +22,18 @@ The following steps are taken, and if you start somewhere in the middle, the pro
 * Step 3: complete christmas, easter, valentine, and halloween: about 2 days
 * Step 4: with five permanent slots: get 1000 ascends; until then continue with step 5: about 2 days
 * Step 5: get all "bake xx cookies" achievements & all building achievements: see below
-    - Step 5a: get all "bake xx cookies" achievements until 100 undecillion: about two weeks
-    - Step 5b: get "bake 100 duodecillion cookies" achievement: about one month
-    - Step 5b: get "bake 1 tredecillion cookies" achievement: about one month (???)
-    - Step 5c: get "bake 100 tredecillion cookies" achievement: about one month (???)
-    - Step 5d: get "bake 1 quattuordecillion cookies" achievement: about one month (???)
-    - Step 5e: get "bake 100 quattuordecillion cookies" achievement: about one month (???)
-    - Step 5f: get "bake 1 quindecillion cookies" achievement: about one month (???)
+    - Step 5a: get all "bake xx cookies" achievements until 1 tredecillion: about two months
+    - Step 5b: get "bake 100 tredecillion cookies" achievement: about one month (???)
+    - Step 5c: get "bake 1 quattuordecillion cookies" achievement: about one month (???)
+    - Step 5d: get "bake 100 quattuordecillion cookies" achievement: about one month (???)
+    - Step 5e: get "bake 1 quindecillion cookies" achievement: about one month (???)
 * Step 6: get all shadow achievements and all the remaining achievements: about one month (???)
 * Step 7: get all the level 10 buildings: about two years (???)
 * Step 8: get the golden sugar lump: about three more years (???)
 
-Currently, the step 6 is extended with many more levels, so it will take longer than that.
-When one achievement takes longer than 10 days to achieve, then the bot will gradually increase the chance of getting golden cookies (small cheat). This cheat is still in the experiment phase and not always switched on.
+Currently, step 5 has many long levels and will take very long (grinding phase). In order to reduce this time the bot will cheat a bit.
+After ten days of run, the bot will gradually increase the chance of getting golden cookies until golden cookies are coming all the time.
+In addition, the night mode will be switched off in the grinding phase.
 
 The timing has changed with the introduction of the garden, so the strategy is likely to be changed.
 As far as the garden is concerned, it will collect all plants, and then all garden cookies, and then convert frequently in order to get max sugar lumps. This reduces the time for steps 8 and 9.

@@ -677,12 +677,12 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 372, 373, 374, 375, 390, 391, 366];
+AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 366];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
 
-AutoPlay.grinding = function() { return Game.AchievementsById[279].won /*&& !Game.AchievementsById[391].won*/; }
+AutoPlay.grinding = function() { return Game.AchievementsById[373].won /*&& !Game.AchievementsById[391].won*/; }
 
 AutoPlay.mainActivity="Doing nothing in particular.";
 
