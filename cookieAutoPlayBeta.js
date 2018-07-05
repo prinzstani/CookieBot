@@ -568,7 +568,7 @@ AutoPlay.handleWrinklers = function() {
   if (doPop) {
     AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
-  } else if(AutoPlay.grinding()) {
+  } else if((((Date.now()-Game.startDate) > 10*24*60*60*1000) || AutoPlay.grinding()) && !AutoPlay.endPhase()) {
     AutoPlay.addActivity("Popping one wrinkler per 2 hours, last " + (((Date.now()-AutoPlay.wrinklerTime)/1000/60)>>0) + " minutes ago.");
 	if(Date.now()-AutoPlay.wrinklerTime >= 2*60*60*1000) {
       var w=Game.wrinklers[AutoPlay.nextWrinkler];

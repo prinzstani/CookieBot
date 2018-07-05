@@ -22,7 +22,7 @@ The following steps are taken, and if you start somewhere in the middle, the pro
 * Step 3: complete christmas, easter, valentine, and halloween: about 2 days
 * Step 4: with five permanent slots: get 1000 ascends; until then continue with step 5: about 2 days
 * Step 5: get all "bake xx cookies" achievements & all building achievements: see below
-    - Step 5a: get all "bake xx cookies" achievements until 1 tredecillion: about two months
+    - Step 5a: get all "bake xx cookies" achievements until 1 tredecillion: about 6 weeks
     - Step 5b: get "bake 100 tredecillion cookies" achievement: about one month (???)
     - Step 5c: get "bake 1 quattuordecillion cookies" achievement: about one month (???)
     - Step 5d: get "bake 100 quattuordecillion cookies" achievement: about one month (???)
