@@ -880,8 +880,10 @@ AutoPlay.ConfigData.ClickMode = {label: ['OFF', 'AUTO', 'LIGHT SPEED', 'RIDICULO
 AutoPlay.ConfigData.GoldenClickMode = {label: ['OFF', 'AUTO', 'ALL'], desc: 'Golden Cookie clicking mode'};
 AutoPlay.ConfigData.CheatLumps = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of sugar lumps'};
 AutoPlay.ConfigData.CheatGolden = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of golden cookies'};
+AutoPlay.ConfigData.CleanLog = {label: ['Clean Log'], desc: 'Cleaning the log'};
+AutoPlay.ConfigData.ShowLog = {label: ['Show Log'], desc: 'Showing the log'};
 
-AutoPlay.ConfigDefault = {NightMode: 1, ClickMode: 1, GoldenClickMode: 1, CheatLumps: 1, CheatGolden: 1}; // default
+AutoPlay.ConfigDefault = {NightMode: 1, ClickMode: 1, GoldenClickMode: 1, CheatLumps: 1, CheatGolden: 1, CleanLog: 0, ShowLog: 0}; // default
 
 AutoPlay.LoadConfig();
 
@@ -909,7 +911,7 @@ AutoPlay.Disp.AddMenuPref = function() {
 	
 	frag.appendChild(div);
 
-	var listing = function(config,disabled) {
+	var listing = function(config,clickFunc) {
 		var div = document.createElement('div');
 		div.className = 'listing';
 		var a = document.createElement('a');
@@ -917,7 +919,7 @@ AutoPlay.Disp.AddMenuPref = function() {
 		if (AutoPlay.ConfigData[config].toggle && AutoPlay.Config[config] == 0) a.className = 'option off';
 		a.id = AutoPlay.ConfigPrefix + config;
 		a.onclick = function() { AutoPlay.ToggleConfig(config); };
-		if(disabled) a.onclick = function() { AutoPlay.WaitConfig(config); };
+		if(clickFunc) a.onclick = clickFunc;
 		a.textContent = AutoPlay.Disp.GetConfigDisplay(config);
 		div.appendChild(a);
 		var label = document.createElement('label');
@@ -926,12 +928,15 @@ AutoPlay.Disp.AddMenuPref = function() {
 		return div;
 	}
 
-	frag.appendChild(listing('NightMode',false));
-	frag.appendChild(listing('ClickMode',false));
-	frag.appendChild(listing('GoldenClickMode',false));
+	frag.appendChild(listing('NightMode',null));
+	frag.appendChild(listing('ClickMode',null));
+	frag.appendChild(listing('GoldenClickMode',null));
 	frag.appendChild(header('Cheating'));
-	frag.appendChild(listing('CheatLumps',false));
-	frag.appendChild(listing('CheatGolden',false));
+	frag.appendChild(listing('CheatLumps',null));
+	frag.appendChild(listing('CheatGolden',null));
+	frag.appendChild(header('Logging'));
+	frag.appendChild(listing('CleanLog',AutoPlay.cleanLog));
+	frag.appendChild(listing('ShowLog',AutoPlay.showLog));
 
 	l('menu').childNodes[2].insertBefore(frag, l('menu').childNodes[2].childNodes[l('menu').childNodes[2].childNodes.length - 1]);
 }
@@ -957,10 +962,12 @@ AutoPlay.logging = function() {
   window.localStorage.setItem("autoplayLog",before+toAdd);
 }
 
-AutoPlay.saveLog = function() { // for testing and getting the log out
-  var text=window.localStorage.getItem("autoplayLog");
-  var blob=new Blob([text],{type:'text/plain;charset=utf-8'});
-  saveAs(blob,'autoPlaySave.txt');
+AutoPlay.cleanLog = function() {
+  window.localStorage.setItem("autoplayLog","");
+}
+
+AutoPlay.showLog = function() {
+  Game.Prompt('<h3>Cookie Bot Log</h3><div class="block">This is the log of the bot with saves at important stages.<br>Copy it and use it as you like.</div><div class="block"><textarea id="textareaPrompt" style="width:100%;height:128px;" readonly>'+window.localStorage.getItem("autoplayLog")+'</textarea></div>',['All done!']);
 }
 
 AutoPlay.handleNotes = function() {
