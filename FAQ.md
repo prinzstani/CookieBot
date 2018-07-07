@@ -33,7 +33,7 @@ The following steps are taken, and if you start somewhere in the middle, the pro
 
 Currently, step 5 has many long levels and will take very long (grinding phase). In order to reduce this time the bot will cheat a bit.
 After ten days of run, the bot will gradually increase the chance of getting golden cookies until golden cookies are coming all the time.
-In addition, the night mode will be switched off in the grinding phase.
+In addition, night mode is switched off in the grinding phase.
 
 The timing has changed with the introduction of the garden, so the strategy is likely to be changed.
 As far as the garden is concerned, it will collect all plants, and then all garden cookies, and then convert frequently in order to get max sugar lumps. This reduces the time for steps 8 and 9.

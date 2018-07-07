@@ -32,6 +32,7 @@ AutoPlay.preNightMode = function() { if(AutoPlay.Config.NightMode!=1) return fal
 
 AutoPlay.nightMode = function() { 
   if(AutoPlay.Config.NightMode==0) return false;
+  if(AutoPlay.grinding()) return false; //do not sleep while grinding
   var h=(new Date).getHours();
   if(AutoPlay.Config.NightMode==1 && h>=7 && h<23) { // be active
     if (AutoPlay.night) AutoPlay.useLump();
@@ -75,7 +76,7 @@ AutoPlay.cheatGoldenCookies = function() {
 	if(!AutoPlay.grinding() || AutoPlay.endPhase()) return; // only cheat in grinding
     var daysInRun=10*(Date.now()-Game.startDate)/1000/60/60/24;
     if (daysInRun < 10) return; // cheat only after 10 days
-    level=(daysInRun/10)<<0;
+    level=(3*daysInRun/10)<<0;
   }
   if(level>100) level=100;
   AutoPlay.addActivity('Cheating golden cookies at level ' + level + '.');
@@ -667,6 +668,7 @@ AutoPlay.doAscend = function(str,log) {
   AutoPlay.wantAscend=AutoPlay.plantPending;
   AutoPlay.addActivity("Preparing to ascend.");
   if (AutoPlay.plantPending) return; // do not ascend when we wait for a plant to mature
+  // for (var i in Game.buffs) { if(Game.buffs[i].time>=0) return; } // do not ascend while we have buffs - does not work well with cheating golden
   AutoPlay.debugInfo(str);
   AutoPlay.loggingInfo=log?str:0; 
 //  if(AutoPlay.checkAllAchievementsOK(false)) { AutoPlay.logging(); return; } // do not ascend when we are finished
@@ -684,7 +686,7 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 366];
+AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 389, 366];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
