@@ -73,6 +73,7 @@ AutoPlay.cheatGoldenCookies = function() {
   if (AutoPlay.Config.CheatGolden==0) return;
   var level=10+30*(AutoPlay.Config.CheatGolden-1);
   if (AutoPlay.Config.CheatGolden==1) {
+    if(AutoPlay.wantAscend) return; // already cheated enough
 	if(!AutoPlay.grinding() || AutoPlay.endPhase()) return; // only cheat in grinding
     var daysInRun=10*(Date.now()-Game.startDate)/1000/60/60/24;
     if (daysInRun < 10) return; // cheat only after 10 days
@@ -469,7 +470,7 @@ AutoPlay.seedCalendar = function(sector) {
   if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Green yeast digestives."); return "greenRot"; }
   if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Ichor syrup."); return "ichorpuff"; }
   AutoPlay.plantCookies = false;
-  AutoPlay.switchSoil(sector,'clay'); //only when mature, otherwise it should be fertilizer
+  AutoPlay.switchSoil(sector,AutoPlay.plantPending?'fertilizer':'clay'); //only when mature, otherwise it should be fertilizer
   //use garden to get cps and sugarlumps
   return "whiskerbloom"; // approx. 1.5% cps add. - should use with nursetulip in the middle
 /* even better: chocoroot has only 1% cps, but also gets 3 mins of cps - harvest on high cps - predictable growth, put on fertilizer first, then on clay, keep them synchronized
