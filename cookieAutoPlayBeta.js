@@ -350,6 +350,7 @@ AutoPlay.sectorText = function(sector) {
 }
 
 AutoPlay.findPlants = function(game,idx) {
+  if(AutoPlay.wantAscend) return false; // do not plant before ascend
   var couldPlant=0;
   if(AutoPlay.plantList[idx]!=0) {// already used
     var oldPlant=AutoPlay.plantDependencies[AutoPlay.plantList[idx]][0];
@@ -455,6 +456,7 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
 }
 
 AutoPlay.seedCalendar = function(sector) {
+  if(AutoPlay.wantAscend) return 'bakerWheat'; // plant cheap before ascend
   var g=Game.Objects["Farm"].minigame;
   if(sector==0) AutoPlay.plantCookies = true;
   var doPrint = (sector==0) || (sector!=3 && Game.Objects["Farm"].level==sector+6);
@@ -502,13 +504,15 @@ AutoPlay.cleanSector = function(game,sector,plant0) {
   for(var y=Y;y<Y+3;y++) { AutoPlay.cleanSeed(game,X,y); AutoPlay.cleanSeed(game,X+2,y); }
 }
 
+AutoPlay.harvestable=['bakeberry','chocoroot','whiteChocoroot','queenbeet','queenbeetLump','duketater'];
+
 AutoPlay.cleanSeed = function(g,x,y) {
   if(!g.isTileUnlocked(x,y)) return;
   var tile=g.getTile(x,y);
   if (tile[0] == 0) return;
   var plant=g.plantsById[tile[0]-1];
   if ((!plant.unlocked) && (tile[1]<=plant.mature)) return;
-  if (plant.name=="Juicy queenbeet") return; // do not clean juicy queenbeets
+  if (AutoPlay.harvestable.indexOf(plant.key)>=0) return; // do not clean harvestable plants
   g.harvest(x,y);
 }
 
@@ -519,7 +523,7 @@ AutoPlay.harvesting = function(game) {
     var tile=game.getTile(x,y);
 	if(tile[0]) {
       var plant=game.plantsById[tile[0]-1];
-	  if(!plant.unlocked || plant.name=="Juicy queenbeet") {
+	  if(!plant.unlocked || AutoPlay.harvestable.indexOf(plant.key)>=0) {
 	    AutoPlay.plantPending=true; AutoPlay.addActivity(plant.name + " is still growing, do not disturb!");
         if (tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature
 	  }
@@ -605,12 +609,12 @@ AutoPlay.unDunk = function() {
 
 //===================== Handle Ascend ==========================
 AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
+AutoPlay.wantAscend=false;
 
 AutoPlay.handleAscend = function() {
   if (Game.OnAscend) { AutoPlay.doReincarnate(); AutoPlay.findNextAchievement(); return; }
   if (Game.ascensionMode==1 && !AutoPlay.canContinue()) AutoPlay.doAscend("reborn mode did not work, retry.",0);
   if (AutoPlay.preNightMode()) return; //do not ascend right before the night
-  if (AutoPlay.plantPending) return; // do not ascend when we wait for a plant to mature
   var ascendDays=10;
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) || ((Game.prestige+Game.ascendMeterLevel)%1000==777))) 
@@ -660,6 +664,9 @@ AutoPlay.doReincarnate = function() {
 AutoPlay.mustRebornAscend = function() { return !([78,93,94,95].every(function(a) { return Game.AchievementsById[a].won; })); }
 
 AutoPlay.doAscend = function(str,log) {
+  AutoPlay.wantAscend=AutoPlay.plantPending;
+  AutoPlay.addActivity("Preparing to ascend.");
+  if (AutoPlay.plantPending) return; // do not ascend when we wait for a plant to mature
   AutoPlay.debugInfo(str);
   AutoPlay.loggingInfo=log?str:0; 
 //  if(AutoPlay.checkAllAchievementsOK(false)) { AutoPlay.logging(); return; } // do not ascend when we are finished
@@ -974,7 +981,7 @@ AutoPlay.whatTheBotIsDoing = function() {
 }
 
 AutoPlay.addActivity = function(str) {
-  AutoPlay.activities+= '<div class="line"></div>'+str;
+  if(!AutoPlay.activities.includes(str)) AutoPlay.activities+= '<div class="line"></div>'+str;
 }
 
 //===================== Init & Start ==========================
