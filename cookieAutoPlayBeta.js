@@ -77,7 +77,7 @@ AutoPlay.cheatGoldenCookies = function() {
 	if(!AutoPlay.grinding() || AutoPlay.endPhase()) return; // only cheat in grinding
     var daysInRun=10*(Date.now()-Game.startDate)/1000/60/60/24;
     if (daysInRun < 10) return; // cheat only after 10 days
-    level=(3*daysInRun/10)<<0;
+    level=(2*daysInRun/10)<<0;
   }
   if(level>100) level=100;
   AutoPlay.addActivity('Cheating golden cookies at level ' + level + '.');
