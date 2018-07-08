@@ -3,7 +3,7 @@
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.01"
+AutoPlay.version = "2.0106"
 AutoPlay.gameVersion = "2.0106";
 AutoPlay.robotName="Automated ";
 AutoPlay.delay=0;
@@ -20,10 +20,10 @@ AutoPlay.run = function () {
   AutoPlay.handleBuildings();
   AutoPlay.handleUpgrades();
   AutoPlay.handleSeasons();
-  AutoPlay.handleSugarLumps();
   AutoPlay.handleDragon();
   AutoPlay.handleWrinklers();
   AutoPlay.handleAscend();
+  AutoPlay.handleSugarLumps();
   AutoPlay.handleNotes();
 }
 
@@ -574,7 +574,7 @@ AutoPlay.handleWrinklers = function() {
   if (doPop) {
     AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
-  } else if((((Date.now()-Game.startDate) > 10*24*60*60*1000) || AutoPlay.grinding()) && !AutoPlay.endPhase()) {
+  } else if((((Date.now()-Game.startDate) > 10*24*60*60*1000) || AutoPlay.grinding()) && !AutoPlay.endPhase() && !AutoPlay.wantAscend) {
     AutoPlay.addActivity("Popping one wrinkler per 2 hours, last " + (((Date.now()-AutoPlay.wrinklerTime)/1000/60)>>0) + " minutes ago.");
 	if(Date.now()-AutoPlay.wrinklerTime >= 2*60*60*1000) {
       var w=Game.wrinklers[AutoPlay.nextWrinkler];
@@ -619,10 +619,14 @@ AutoPlay.handleAscend = function() {
   if (AutoPlay.preNightMode()) return; //do not ascend right before the night
   var ascendDays=10;
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
+    AutoPlay.addActivity("Going for 1000 ascends.");
+	AutoPlay.wantAscend=true; //avoid byuing plants
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) || ((Game.prestige+Game.ascendMeterLevel)%1000==777))) 
 	{ AutoPlay.doAscend("go for 1000 ascends",0); }
   }
   if (Game.Upgrades["Permanent upgrade slot V"].bought && !Game.Achievements["Reincarnation"].won) { // this costs 3+2 minute per 2 ascend
+    AutoPlay.addActivity("Going for 100 ascends.");
+	AutoPlay.wantAscend=true; //avoid byuing plants
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) )) 
 	{ AutoPlay.doAscend("go for 100 ascends",0); }
   }
@@ -635,6 +639,7 @@ AutoPlay.handleAscend = function() {
   if (!Game.Upgrades["Lucky payout"].bought && Game.ascendMeterLevel>0 && AutoPlay.endPhase() && (Game.heavenlyChips > 77777777) && (newPrestige <= 777777) && (newPrestige >= 777777-Game.ascendMeterLevel)) {
     AutoPlay.doAscend("ascend for lucky payout.",0);
   }
+  // could addActivity here to state what the bot is trying
   if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
 	var date=new Date();
 	date.setTime(Date.now()-Game.startDate);
@@ -702,6 +707,7 @@ AutoPlay.setMainActivity = function(str) {
 }
 
 AutoPlay.findNextAchievement = function() {
+  AutoPlay.wantAscend=false;
   AutoPlay.handleSmallAchievements();
   for(i = 0; i < AutoPlay.wantedAchievements.length; i++) {
     if (!(Game.AchievementsById[AutoPlay.wantedAchievements[i]].won)) { 
