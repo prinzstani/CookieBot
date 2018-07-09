@@ -272,6 +272,7 @@ AutoPlay.handleMinigames = function() {
     if(Game.lumps<11 && AutoPlay.gardenReady(g) && !AutoPlay.finished) {
       AutoPlay.plantCookies = false;
 	  g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); //convert garden in order to get more sugar lumps
+	  AutoPlay.plantList=[0,0,0,0];
 	}
   }
 }
