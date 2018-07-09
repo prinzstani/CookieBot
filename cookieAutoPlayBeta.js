@@ -12,7 +12,7 @@ AutoPlay.finished=false;
 
 AutoPlay.run = function () {
   AutoPlay.activities = AutoPlay.mainActivity;
-  if(AutoPlay.plantPending) AutoPlay.addActivity("Do not ascend now, since we wait for plants to harvest!");
+  if(AutoPlay.plantPending || AutoPlay.harvestPlant) AutoPlay.addActivity("Do not ascend now, since we wait for plants to harvest!");
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   AutoPlay.handleClicking();
@@ -345,6 +345,7 @@ AutoPlay.plantDependencies = [
 
 if(!AutoPlay.plantList) AutoPlay.plantList=[0,0,0,0];
 AutoPlay.plantPending=false; // Is there a plant we want and that is not mature yet?
+AutoPlay.harvestPlant=false; // Is there a plant that gives things when harvesting?
 
 AutoPlay.sectorText = function(sector) {
   if(Game.Objects["Farm"].level>4) return (sector%2?'left ':'right ')+(sector<2?'bottom':'top');
@@ -515,20 +516,25 @@ AutoPlay.cleanSeed = function(g,x,y) {
   if (tile[0] == 0) return;
   var plant=g.plantsById[tile[0]-1];
   if ((!plant.unlocked) && (tile[1]<=plant.mature)) return;
-  if (AutoPlay.harvestable.indexOf(plant.key)>=0) return; // do not clean harvestable plants
+  if ((AutoPlay.harvestable.indexOf(plant.key)>=0) && (tile[1]<=plant.mature))return; // do not clean harvestable plants
   g.harvest(x,y);
 }
 
 AutoPlay.harvesting = function(game) {
   AutoPlay.cleaningGarden(game);
   AutoPlay.plantPending=false;
+  AutoPlay.harvestPlant=false;
   for(var x=0;x<6;x++) for(var y=0;y<6;y++) if(game.isTileUnlocked(x,y)) {
     var tile=game.getTile(x,y);
 	if(tile[0]) {
       var plant=game.plantsById[tile[0]-1];
-	  if(!plant.unlocked || AutoPlay.harvestable.indexOf(plant.key)>=0) {
-	    AutoPlay.plantPending=true; AutoPlay.addActivity(plant.name + " is still growing, do not disturb!");
+	  if(!plant.unlocked) {
+	    AutoPlay.plantPending=true;
+		AutoPlay.addActivity(plant.name + " is still growing, do not disturb!");
         if (tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature
+	  } else if(AutoPlay.harvestable.indexOf(plant.key)>=0) {
+	    AutoPlay.harvestPlant=true;
+	    AutoPlay.addActivity("Waiting to harvest " + plant.name + ".");
 	  }
       if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
       if (plant.ageTick+plant.ageTickR+tile[1] >= 100) AutoPlay.harvest(game,x,y); // would die in next round
@@ -672,9 +678,9 @@ AutoPlay.doReincarnate = function() {
 AutoPlay.mustRebornAscend = function() { return !([78,93,94,95].every(function(a) { return Game.AchievementsById[a].won; })); }
 
 AutoPlay.doAscend = function(str,log) {
-  AutoPlay.wantAscend=AutoPlay.plantPending;
+  AutoPlay.wantAscend=AutoPlay.plantPending || AutoPlay.harvestPlant;
   AutoPlay.addActivity("Preparing to ascend.");
-  if (AutoPlay.plantPending) return; // do not ascend when we wait for a plant to mature
+  if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant to mature
   // for (var i in Game.buffs) { if(Game.buffs[i].time>=0) return; } // do not ascend while we have buffs - does not work well with cheating golden
   AutoPlay.debugInfo(str);
   AutoPlay.loggingInfo=log?str:0; 
