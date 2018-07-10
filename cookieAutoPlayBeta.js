@@ -516,7 +516,7 @@ AutoPlay.cleanSeed = function(g,x,y) {
   if (tile[0] == 0) return;
   var plant=g.plantsById[tile[0]-1];
   if ((!plant.unlocked) && (tile[1]<=plant.mature)) return;
-  if ((AutoPlay.harvestable.indexOf(plant.key)>=0) && (tile[1]<=plant.mature))return; // do not clean harvestable plants
+  if ((AutoPlay.harvestable.indexOf(plant.key)>=0) && tile[1] && (tile[1]<=plant.mature))return; // do not clean harvestable plants
   g.harvest(x,y);
 }
 
