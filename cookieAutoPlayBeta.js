@@ -390,7 +390,7 @@ AutoPlay.findPlants = function(game,idx) {
 }
 
 AutoPlay.planting = function(game) {
-  if(!game.plants["meddleweed"].unlocked) { AutoPlay.addActivity("Waiting for meddleweed."); AutoPlay.switchSoil(0,'fertilizer'); return; } // wait for meddleweed to appear
+  if(!game.plants["meddleweed"].unlocked) { AutoPlay.plantList=[0,0,0,0]; AutoPlay.addActivity("Waiting for meddleweed."); AutoPlay.switchSoil(0,'fertilizer'); return; } // wait for meddleweed to appear
   if(!game.plants["crumbspore"].unlocked || !game.plants["brownMold"].unlocked) { // use meddleweed to get them
     AutoPlay.addActivity("Trying to get crumbspore and brown mold."); 
     for(var x=0;x<6;x++) for(var y=0;y<6;y++) if(game.isTileUnlocked(x,y)) AutoPlay.plantSeed("meddleweed",x,y);
