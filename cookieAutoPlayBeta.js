@@ -1017,7 +1017,6 @@ AutoPlay.Disp.AddJscolor = function() {
 	document.head.appendChild(AutoPlay.Disp.Jscolor);
 }*/
 
-AutoPlay.info("Pre-release for gardening."); 
 if (AutoPlay.autoPlayer) { AutoPlay.info("replacing old version of autoplay"); clearInterval(AutoPlay.autoPlayer); }
 AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
 AutoPlay.findNextAchievement();
