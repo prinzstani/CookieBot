@@ -15,6 +15,7 @@ AutoPlay.run = function () {
   if(AutoPlay.plantPending || AutoPlay.harvestPlant) AutoPlay.addActivity("Do not ascend now, since we wait for plants to harvest!");
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
+  if (AutoPlay.nightMode()) { var age=Date.now()-Game.lumpT; AutoPlay.cheatSugarLumps(age); return; }
   AutoPlay.handleClicking();
   AutoPlay.handleGoldenCookies();
   AutoPlay.handleBuildings();
