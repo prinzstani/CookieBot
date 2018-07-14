@@ -502,7 +502,7 @@ AutoPlay.cleanSector = function(game,sector,plant0) {
 	return;
   }
   if(plant0=="all") { 
-    for(var x=X;x<X+3;x++) for(var y=Y;y<Y+3;y++) { AutoPlay.cleanSeed(game,x,y); }
+    for(var x=X;x<X+3;x++) for(var y=Y;y<Y+3;y++) { if((x!=X+1)||(y!=Y+1)) game.harvest(x,y); }
 	return;
   }
   for(var y=Y;y<Y+3;y++) { AutoPlay.cleanSeed(game,X,y); AutoPlay.cleanSeed(game,X+2,y); }
@@ -544,8 +544,7 @@ AutoPlay.harvesting = function(game) {
 AutoPlay.harvest = function(game,x,y) {
   game.harvest(x,y);
   var sector = ((x<3)?1:0)+((y<3)?2:0);
-  var deps=AutoPlay.plantDependencies[AutoPlay.plantList[sector]];
-  if(deps[1] == deps[2]) AutoPlay.cleanSector(game,sector,"all");
+  if(AutoPlay.plantList[sector] == 1) AutoPlay.cleanSector(game,sector,"all");
 }
 
 AutoPlay.switchSoil = function(sector,which) { // 'dirt','fertilizer','clay','pebbles','woodchips'
