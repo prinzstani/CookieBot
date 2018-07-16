@@ -270,7 +270,7 @@ AutoPlay.handleMinigames = function() {
     var g=Game.Objects["Farm"].minigame;
 	AutoPlay.planting(g);
 	AutoPlay.harvesting(g);
-    if(Game.lumps<11 && AutoPlay.gardenReady(g) && !AutoPlay.finished) {
+    if(Game.lumps<11 && AutoPlay.gardenReady(g) && !AutoPlay.finished && !AutoPlay.harvestPlant) {
       AutoPlay.plantCookies = false;
 	  g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); //convert garden in order to get more sugar lumps
 	  AutoPlay.plantList=[0,0,0,0];
@@ -517,7 +517,7 @@ AutoPlay.cleanSeed = function(g,x,y) {
   if (tile[0] == 0) return;
   var plant=g.plantsById[tile[0]-1];
   if ((!plant.unlocked) && (tile[1]<=plant.mature)) return;
-  if ((AutoPlay.harvestable.indexOf(plant.key)>=0) && tile[1] && (tile[1]<=plant.mature))return; // do not clean harvestable plants
+  if ((AutoPlay.harvestable.indexOf(plant.key)>=0) && tile[1] && (tile[1]<=plant.mature)) return; // do not clean harvestable plants
   g.harvest(x,y);
 }
 
