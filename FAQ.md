@@ -28,8 +28,8 @@ The following steps are taken, and if you start somewhere in the middle, the pro
     - Step 5d: get "bake 100 quattuordecillion cookies" achievement: about one month (???)
     - Step 5e: get "bake 1 quindecillion cookies" achievement: about one month (???)
 * Step 6: get all shadow achievements and all the remaining achievements: about one month (???)
-* Step 7: get all the level 10 buildings: about two years (???)
-* Step 8: get the golden sugar lump: about three more years (???)
+* Step 7: get all the level 10 buildings: about one year
+* Step 8: get the golden sugar lump: more than three more years
 
 Currently, step 5 has many long levels and will take very long (grinding phase). In order to reduce this time the bot will cheat a bit.
 After ten days of run, the bot will gradually increase the chance of getting golden cookies until golden cookies are coming all the time.
@@ -37,10 +37,10 @@ In addition, night mode is switched off in the grinding phase. This way, each st
 During grinding, also some cheating of sugar lumps is done.
 
 The timing has changed with the introduction of the garden, so the strategy is likely to be changed.
-As far as the garden is concerned, it will collect all plants, and then all garden cookies, and then convert frequently in order to get max sugar lumps. This reduces the time for steps 8 and 9.
+As far as the garden is concerned, it will collect all plants, and then all garden cookies, and then convert frequently in order to get max sugar lumps. This reduces the time for step 7 (but not for step 8).
 
-With the current design of the game, the first 7 steps take about two months. The last two steps take together five years on average, and two years minimum.
-This is considered not good in terms of game dynamics, and therefore the playthrough will cheat sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing). In particular, it will divide the ripening time for sugar lumps by 600. This way the ripening time is a few minutes instead of hours. With this cheat, the last two steps will take less than one month.
+With the current design of the game, the step five takes at least five years (grinding). The last two steps (sugar lumps) do also take together five years on average, and two years minimum. Both can of course be done in parallel.
+This long time is considered not good in terms of game dynamics, and therefore the playthrough will cheat golden cookies (see above) and sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing). In particular, it will divide the ripening time for sugar lumps by 600. This way the ripening time is a few minutes instead of hours. With this cheat, the last two steps will take less than one month.
 
 ### What is the wrinkler strategy?
 Wrinklers are normally left alone unless we need them to get easter eggs or other droppings. In the endphase, wrinklers are dropped in order to get the shiny wrinkler.
