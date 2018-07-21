@@ -24,7 +24,7 @@ The following steps are taken, and if you start somewhere in the middle, the pro
 * Step 5: get all "bake xx cookies" achievements & all building achievements: see below
     - Step 5a: get all "bake xx cookies" achievements until 1 tredecillion: about 6 weeks
     - Step 5b: get "bake 100 tredecillion cookies" achievement: about one month (???)
-    - Step 5c: get "bake 1 quattuordecillion cookies" achievement: about one month (???)
+    - Step 5c: get "bake 1 quattuordecillion cookies" achievement: about half a year
     - Step 5d: get "bake 100 quattuordecillion cookies" achievement: about one month (???)
     - Step 5e: get "bake 1 quindecillion cookies" achievement: about one month (???)
 * Step 6: get all shadow achievements and all the remaining achievements: about one month (???)
@@ -33,7 +33,8 @@ The following steps are taken, and if you start somewhere in the middle, the pro
 
 Currently, step 5 has many long levels and will take very long (grinding phase). In order to reduce this time the bot will cheat a bit.
 After ten days of run, the bot will gradually increase the chance of getting golden cookies until golden cookies are coming all the time.
-In addition, night mode is switched off in the grinding phase.
+In addition, night mode is switched off in the grinding phase. This way, each step takes around one month.
+During grinding, also some cheating of sugar lumps is done.
 
 The timing has changed with the introduction of the garden, so the strategy is likely to be changed.
 As far as the garden is concerned, it will collect all plants, and then all garden cookies, and then convert frequently in order to get max sugar lumps. This reduces the time for steps 8 and 9.
