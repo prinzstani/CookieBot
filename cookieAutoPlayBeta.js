@@ -473,7 +473,7 @@ AutoPlay.seedCalendar = function(sector) {
   if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Green yeast digestives."); return "greenRot"; }
   if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Ichor syrup."); return "ichorpuff"; }
   AutoPlay.plantCookies = false;
-  AutoPlay.switchSoil(sector,AutoPlay.plantPending?'fertilizer':'clay'); //only when mature, otherwise it should be fertilizer
+  AutoPlay.switchSoil(sector,(AutoPlay.plantPending || AutoPlay.harvestPlant)?'fertilizer':'clay'); //only when mature, otherwise it should be fertilizer
   //use garden to get cps and sugarlumps
   return "whiskerbloom"; // approx. 1.5% cps add. - should use with nursetulip in the middle
 /* even better: chocoroot has only 1% cps, but also gets 3 mins of cps - harvest on high cps - predictable growth, put on fertilizer first, then on clay, keep them synchronized
