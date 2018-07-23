@@ -575,6 +575,7 @@ AutoPlay.nextWrinkler=0;
 AutoPlay.wrinklerTime=0;
 
 AutoPlay.handleWrinklers = function() {
+  if(!Game.Upgrades["One mind"].bought) return;
   var doPop = (((Game.season == "easter") || (Game.season == "halloween")) && !AutoPlay.seasonFinished(Game.season));
   doPop = doPop || (Game.Upgrades["Unholy bait"].bought && !Game.Achievements["Moistburster"].won);
   doPop = doPop || (AutoPlay.endPhase() && !Game.Achievements["Last Chance to See"].won);
