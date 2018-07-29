@@ -325,7 +325,7 @@ AutoPlay.plantDependencies = [
 ['bakeberry','bakerWheat','bakerWheat'], //level 1
 ['wrinklegill','crumbspore','brownMold'], //level 1
 ['shriekbulb','wrinklegill','elderwort'], //level 7
-['ichorpuff','crumbspore','elderwort'] //level 7
+['ichorpuff','crumbspore','elderwort'], //level 7
 ['whiskerbloom','whiteChocoroot','shimmerlily'], //level 6
 ['chimerose','whiskerbloom','shimmerlily'], //level 7
 ['keenmoss','brownMold','greenRot'], //level 6
@@ -337,7 +337,7 @@ AutoPlay.plantDependencies = [
 ['goldenClover','bakerWheat','gildmillet'], //level 4
 ['greenRot','clover','whiteMildew'], //level 5
 ['cheapcap','crumbspore','shimmerlily'], //level 6
-['foolBolete','greenRot','doughshroom'], //level 6
+['foolBolete','greenRot','doughshroom'] //level 6
 ];
 
 if(!AutoPlay.plantList) AutoPlay.plantList=[0,0,0,0];
@@ -382,7 +382,7 @@ AutoPlay.findPlants = function(game,idx) {
   }
   for(i = 3; i < AutoPlay.plantDependencies.length; i++) { // try to plant normals plants now
 	var plant=AutoPlay.plantDependencies[i][0];
-	if(!game.plants[plant].unlocked && game.plants[AutoPlay.plantDependencies[i][1]].unlocked && game.plants[AutoPlay.plantDependencies[i][2]].unlocked) { // want to get the plant
+	if(!AutoPlay.havePlant(game,plant) && game.plants[AutoPlay.plantDependencies[i][1]].unlocked && game.plants[AutoPlay.plantDependencies[i][2]].unlocked) { // want to get the plant
 	  if(AutoPlay.plantList.includes(i)) couldPlant=i; // it is already in another slot - remember it
 	  else { AutoPlay.plantList[idx]=i; AutoPlay.info("planting " + plant + " onto " + idx); return true; }
     }
