@@ -383,7 +383,7 @@ AutoPlay.findPlants = function(game,idx) {
   for(i = 3; i < AutoPlay.plantDependencies.length; i++) { // try to plant normals plants now
 	var plant=AutoPlay.plantDependencies[i][0];
 	if(!AutoPlay.havePlant(game,plant) && game.plants[AutoPlay.plantDependencies[i][1]].unlocked && game.plants[AutoPlay.plantDependencies[i][2]].unlocked) { // want to get the plant
-	  if(AutoPlay.plantList.includes(i)) couldPlant=i; // it is already in another slot - remember it
+	  if(AutoPlay.plantList.includes(i)) { if(!couldPlant) couldPlant=i; } // it is already in another slot - remember it
 	  else { AutoPlay.plantList[idx]=i; AutoPlay.info("planting " + plant + " onto " + idx); return true; }
     }
   }
