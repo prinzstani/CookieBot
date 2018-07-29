@@ -308,40 +308,35 @@ AutoPlay.plantDependencies = [
 ['queenbeetLump','queenbeet','queenbeet'], // need to know its index
 ['everdaisy','elderwort','tidygrass'], // need to know its index
 // critical path
-['thumbcorn','bakerWheat','bakerWheat'],
-['cronerice','bakerWheat','thumbcorn'],
-['gildmillet','thumbcorn','cronerice'],
-['clover','bakerWheat','gildmillet'],
-['shimmerlily','gildmillet','clover'],
-['elderwort','cronerice','shimmerlily'],
-//level 1
-['chocoroot','bakerWheat','brownMold'],
-['wrinklegill','crumbspore','brownMold'],
-['whiteMildew','brownMold','brownMold'],
-['doughshroom','crumbspore','crumbspore'],
-['bakeberry','bakerWheat','bakerWheat'],
-//level 2
-['whiteChocoroot','chocoroot','whiteMildew'],
-['queenbeet','chocoroot','bakeberry'],
-//level 3
-['tidygrass','bakerWheat','whiteChocoroot'],
-//level 5
-['greenRot','clover','whiteMildew'],
-//level 6
-['whiskerbloom','whiteChocoroot','shimmerlily'],
-['keenmoss','brownMold','greenRot'],
-//endpoints
-['goldenClover','bakerWheat','gildmillet'],
-['glovemorel','thumbcorn','crumbspore'],
-['wardlichen','cronerice','whiteMildew'],
-['duketater','queenbeet','queenbeet'],
-['chimerose','whiskerbloom','shimmerlily'],
-['nursetulip','whiskerbloom','whiskerbloom'],
-['drowsyfern','chocoroot','keenmoss'],
-['cheapcap','crumbspore','shimmerlily'],
-['foolBolete','greenRot','doughshroom'],
-['shriekbulb','wrinklegill','elderwort'],
-['ichorpuff','crumbspore','elderwort']
+['thumbcorn','bakerWheat','bakerWheat'], //level 1
+['cronerice','bakerWheat','thumbcorn'], //level 2
+['gildmillet','thumbcorn','cronerice'], //level 3
+['clover','bakerWheat','gildmillet'], //level 4
+['shimmerlily','gildmillet','clover'], //level 5
+['elderwort','cronerice','shimmerlily'], //level 6
+//rest is given according to ripening times
+['drowsyfern','chocoroot','keenmoss'], //level 7
+['duketater','queenbeet','queenbeet'], //level 3
+['tidygrass','bakerWheat','whiteChocoroot'], //level 3
+['queenbeet','chocoroot','bakeberry'], //level 2
+['nursetulip','whiskerbloom','whiskerbloom'], //level 7
+['doughshroom','crumbspore','crumbspore'], //level 1
+['bakeberry','bakerWheat','bakerWheat'], //level 1
+['wrinklegill','crumbspore','brownMold'], //level 1
+['shriekbulb','wrinklegill','elderwort'], //level 7
+['ichorpuff','crumbspore','elderwort'] //level 7
+['whiskerbloom','whiteChocoroot','shimmerlily'], //level 6
+['chimerose','whiskerbloom','shimmerlily'], //level 7
+['keenmoss','brownMold','greenRot'], //level 6
+['wardlichen','cronerice','whiteMildew'], //level 3
+['glovemorel','thumbcorn','crumbspore'], //level 2
+['chocoroot','bakerWheat','brownMold'], //level 1
+['whiteChocoroot','chocoroot','whiteMildew'], //level 2
+['whiteMildew','brownMold','brownMold'], //level 1
+['goldenClover','bakerWheat','gildmillet'], //level 4
+['greenRot','clover','whiteMildew'], //level 5
+['cheapcap','crumbspore','shimmerlily'], //level 6
+['foolBolete','greenRot','doughshroom'], //level 6
 ];
 
 if(!AutoPlay.plantList) AutoPlay.plantList=[0,0,0,0];
@@ -349,7 +344,7 @@ AutoPlay.plantPending=false; // Is there a plant we want and that is not mature 
 AutoPlay.harvestPlant=false; // Is there a plant that gives things when harvesting?
 
 AutoPlay.sectorText = function(sector) {
-  if(Game.Objects["Farm"].level>4) return (sector%2?'left ':'right ')+(sector<2?'bottom':'top');
+  if(Game.Objects["Farm"].level>4) return (sector<2?'bottom':'top')+(sector%2?' left':' right');
   else if (Game.Objects["Farm"].level==4) return (sector%2?'left':'right');
   else return 'middle';
 }
@@ -364,14 +359,7 @@ AutoPlay.findPlants = function(game,idx) {
 //	AutoPlay.info("currently we have " + oldPlant + " and it is unlocked " + game.plants[oldPlant].unlocked);
     if(game.plants[oldPlant].unlocked) AutoPlay.plantList[idx]=0; else return true;
   }
-  for(i = 3; i < AutoPlay.plantDependencies.length; i++) {
-	var plant=AutoPlay.plantDependencies[i][0];
-	if(!game.plants[plant].unlocked && game.plants[AutoPlay.plantDependencies[i][1]].unlocked && game.plants[AutoPlay.plantDependencies[i][2]].unlocked) { // want to get the plant
-	  if(AutoPlay.plantList.includes(i)) couldPlant=i; // it is already in another slot - remember it
-	  else { AutoPlay.plantList[idx]=i; AutoPlay.info("planting " + plant + " onto " + idx); return true; }
-    }
-  }
-  var chkx=(idx%2)?0:5; var chky=(idx>1)?0:5; // did not find any more normal plants to handle, check expensive methods
+  var chkx=(idx%2)?0:5; var chky=(idx>1)?0:5; // try to plant expensive plants first (if possible) as they take longest time.
   if(game.isTileUnlocked(chkx,chky)) { // only plant if the spot is big enough
     if(!game.plants['everdaisy'].unlocked && game.plants['elderwort'].unlocked && game.plants['tidygrass'].unlocked) { 
 	  if(AutoPlay.plantList.includes(2)) couldPlant=2;
@@ -381,6 +369,13 @@ AutoPlay.findPlants = function(game,idx) {
 	  if(AutoPlay.plantList.includes(1)) couldPlant=1; 
 	  else { AutoPlay.plantList[idx]=1; AutoPlay.info("expensive planting queenbeetLump onto " + idx); return true; }
 	}
+  }
+  for(i = 3; i < AutoPlay.plantDependencies.length; i++) { // try to plant normals plants now
+	var plant=AutoPlay.plantDependencies[i][0];
+	if(!game.plants[plant].unlocked && game.plants[AutoPlay.plantDependencies[i][1]].unlocked && game.plants[AutoPlay.plantDependencies[i][2]].unlocked) { // want to get the plant
+	  if(AutoPlay.plantList.includes(i)) couldPlant=i; // it is already in another slot - remember it
+	  else { AutoPlay.plantList[idx]=i; AutoPlay.info("planting " + plant + " onto " + idx); return true; }
+    }
   }
   if(!couldPlant) return false;
   // did not find anything else to do, join one of the others
@@ -503,7 +498,10 @@ AutoPlay.cleanSector = function(game,sector,plant0) {
 	return;
   }
   if(plant0=="all") { 
-    for(var x=X;x<X+3;x++) for(var y=Y;y<Y+3;y++) { if((x!=X+1)||(y!=Y+1)) game.harvest(x,y); }
+    for(var x=X;x<X+3;x++) for(var y=Y;y<Y+3;y++) if((x!=X+1)||(y!=Y+1)) { 
+      var tile=g.getTile(x,y);
+	  if ((tile[0]>=1) && game.plantsById[tile[0]-1].unlocked) game.harvest(x,y); 
+	}
 	return;
   }
   for(var y=Y;y<Y+3;y++) { AutoPlay.cleanSeed(game,X,y); AutoPlay.cleanSeed(game,X+2,y); }
