@@ -267,6 +267,7 @@ AutoPlay.handleMinigames = function() {
   }
   // farms: garden
   if (Game.isMinigameReady(Game.Objects["Farm"])) {
+	// only check after each tick (wait until Date.now() > g.nextStep
     var g=Game.Objects["Farm"].minigame;
 	AutoPlay.planting(g);
 	AutoPlay.harvesting(g);
@@ -349,6 +350,15 @@ AutoPlay.sectorText = function(sector) {
   else return 'middle';
 }
 
+AutoPlay.havePlant = function(game,plant) {
+  if(game.plants[plant].unlocked) return true;
+  var plantID=game.plants[plant].id+1;
+  for(var x=0;x<6;x++) for(var y=0;y<6;y++) {
+    if((game.getTile(x,y))[0]==plantID) return true;
+  }
+  return false;
+}
+
 AutoPlay.findPlants = function(game,idx) {
   if(AutoPlay.wantAscend) return false; // do not plant before ascend
   var couldPlant=0;
@@ -357,15 +367,15 @@ AutoPlay.findPlants = function(game,idx) {
     AutoPlay.addActivity("Trying to get plant " + game.plants[oldPlant].name + " on sector " + AutoPlay.sectorText(idx) + '.'); 
     AutoPlay.plantCookies = false;
 //	AutoPlay.info("currently we have " + oldPlant + " and it is unlocked " + game.plants[oldPlant].unlocked);
-    if(game.plants[oldPlant].unlocked) AutoPlay.plantList[idx]=0; else return true;
+    if(AutoPlay.havePlant(game,oldPlant)) AutoPlay.plantList[idx]=0; else return true;
   }
   var chkx=(idx%2)?0:5; var chky=(idx>1)?0:5; // try to plant expensive plants first (if possible) as they take longest time.
   if(game.isTileUnlocked(chkx,chky)) { // only plant if the spot is big enough
-    if(!game.plants['everdaisy'].unlocked && game.plants['elderwort'].unlocked && game.plants['tidygrass'].unlocked) { 
+    if(!AutoPlay.havePlant(game,'everdaisy') && game.plants['elderwort'].unlocked && game.plants['tidygrass'].unlocked) { 
 	  if(AutoPlay.plantList.includes(2)) couldPlant=2;
 	  else { AutoPlay.plantList[idx]=2; AutoPlay.info("expensive planting everdaisy onto " + idx); return true; }
 	}
-    if(!game.plants['queenbeetLump'].unlocked && game.plants['queenbeet'].unlocked) { 
+    if(!AutoPlay.havePlant(game,'queenbeetLump') && game.plants['queenbeet'].unlocked) { 
 	  if(AutoPlay.plantList.includes(1)) couldPlant=1; 
 	  else { AutoPlay.plantList[idx]=1; AutoPlay.info("expensive planting queenbeetLump onto " + idx); return true; }
 	}
