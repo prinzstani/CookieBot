@@ -481,7 +481,7 @@ AutoPlay.seedCalendar = function(sector) {
   AutoPlay.switchSoil(sector,(AutoPlay.plantPending || AutoPlay.harvestPlant)?'fertilizer':'clay'); //only when mature, otherwise it should be fertilizer
   //use garden to get cps and sugarlumps
   if(g.plants['whiskerbloom'].unlocked) return 'whiskerbloom'; // approx. 1.5% cps add. - should use with nursetulip in the middle
-  return 'bakerwheat'; // nothing else works
+  return 'bakerWheat'; // nothing else works
 /* even better: chocoroot has only 1% cps, but also gets 3 mins of cps - harvest on high cps - predictable growth, put on fertilizer first, then on clay, keep them synchronized
 plant something meaningful at night
 bakeberry also 1%cps and good harvest
