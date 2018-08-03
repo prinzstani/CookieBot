@@ -180,6 +180,7 @@ AutoPlay.lumpRelatedAchievements=range(307,320).concat([336,268,271]);
 
 AutoPlay.handleSugarLumps = function() {
   if (!Game.canLumps()) return; //do not work with sugar lumps before enabled
+  if (Game.ascensionMode==1) return; //no sugar lumps in born again
   var age=Date.now()-Game.lumpT;
   if (age>=Game.lumpMatureAge && Game.lumpCurrentType==0 && Game.lumpsTotal>AutoPlay.minLumps && !Game.Achievements["Hand-picked"].won) AutoPlay.harvestLump();
 //  if(Game.lumpCurrentType==0) AutoPlay.farmGoldenSugarLumps(age); // not needed now, because we cheat sugar lumps
@@ -635,14 +636,14 @@ AutoPlay.handleAscend = function() {
   if (Game.ascensionMode==1 && !AutoPlay.canContinue()) AutoPlay.doAscend("reborn mode did not work, retry.",0);
   if (AutoPlay.preNightMode()) return; //do not ascend right before the night
   var ascendDays=10;
-  if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
-    AutoPlay.addActivity("Going for 1000 ascends.");
+  if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
+    AutoPlay.activities="Going for 1000 ascends.";
 	AutoPlay.wantAscend=true; //avoid byuing plants
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) || ((Game.prestige+Game.ascendMeterLevel)%1000==777))) 
 	{ AutoPlay.doAscend("go for 1000 ascends",0); }
   }
-  if (Game.Upgrades["Permanent upgrade slot V"].bought && !Game.Achievements["Reincarnation"].won) { // this costs 3+2 minute per 2 ascend
-    AutoPlay.addActivity("Going for 100 ascends.");
+  if (Game.Upgrades["Permanent upgrade slot V"].bought && !Game.Achievements["Reincarnation"].won && !Game.ascensionMode) { // this costs 3+2 minute per 2 ascend
+    AutoPlay.activities="Going for 100 ascends.";
 	AutoPlay.wantAscend=true; //avoid byuing plants
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) )) 
 	{ AutoPlay.doAscend("go for 100 ascends",0); }
@@ -667,12 +668,12 @@ AutoPlay.handleAscend = function() {
 } }
 
 AutoPlay.canContinue = function() {
-  if (!Game.Achievements["Neverclick"].won && Game.cookieClicks<=15) return true;
-  if (!Game.Achievements["True Neverclick"].won && Game.cookieClicks==0) return true;
-  if (!Game.Achievements["Hardcore"].won && Game.UpgradesOwned==0) return true;
-  if (!Game.Achievements["Speed baking I"].won && (Date.now()-Game.startDate <= 1000*60*35)) return true;
-  if (!Game.Achievements["Speed baking II"].won && (Date.now()-Game.startDate <= 1000*60*25)) return true;
-  if (!Game.Achievements["Speed baking III"].won && (Date.now()-Game.startDate <= 1000*60*15)) return true;
+  if (!Game.Achievements["Neverclick"].won && Game.cookieClicks<=15) { AutoPlay.activities="Trying to get achievement: Neverclick."; return true; }
+  if (!Game.Achievements["True Neverclick"].won && Game.cookieClicks==0) { AutoPlay.activities="Trying to get achievement: True Neverclick."; return true; }
+  if (!Game.Achievements["Hardcore"].won && Game.UpgradesOwned==0) { AutoPlay.activities="Trying to get achievement: Hardcore."; return true; }
+  if (!Game.Achievements["Speed baking I"].won && (Date.now()-Game.startDate <= 1000*60*35)) { AutoPlay.activities="Trying to get achievement: Speed baking I."; return true; }
+  if (!Game.Achievements["Speed baking II"].won && (Date.now()-Game.startDate <= 1000*60*25)) { AutoPlay.activities="Trying to get achievement: Speed baking II."; return true; }
+  if (!Game.Achievements["Speed baking III"].won && (Date.now()-Game.startDate <= 1000*60*15)) { AutoPlay.activities="Trying to get achievement: Speed baking III."; return true; }
   return false;
 }
 
