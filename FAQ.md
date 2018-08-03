@@ -1,7 +1,8 @@
 # Cookie Bot Frequently Asked Questions
 ##General Questions
 ### What is the bot aiming at right now?
-You can see the current steps the bot is working on by hovering over the version information of the bot (bottom left of game screen).
+You can see the current steps the bot is working on by hovering over the version information of the bot (bottom left of game screen). 
+Please note that bot has a main goal as displayed in the first line, and several activities it is pursuing just now.
 
 ## Buying Algorithm
 ### What is the next building to be bought?
@@ -36,6 +37,9 @@ This long time is considered not good in terms of game dynamics, and therefore t
 After ten days of run, the bot will gradually increase the chance of getting golden cookies until golden cookies are coming all the time.
 In addition, night mode is switched off in the grinding phase. This way, each sub-step of step 5 takes around one month.
 For the sugar lumps, the bot will divide the ripening time for sugar lumps by 625. This way the ripening time is a few minutes instead of hours. With this cheat, the last two steps will take less than one month.
+
+### What is the seasons strategy?
+After seasons are enabled, the bot will go through each of them and complete them. It always follows the order Christmas, Easter, Valentine, Halloween. After Halloween, the bot will stay at Christmas in order to get reindeers.
 
 ### What is the wrinkler strategy?
 Wrinklers are normally left alone unless we need them to get easter eggs or other droppings. In the endphase, wrinklers are dropped in order to get the shiny wrinkler. During grinding, oned wrinkler is popped per two hours to get more cookies for buying objects.
