@@ -3,8 +3,8 @@
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.0106"
-AutoPlay.gameVersion = "2.0106";
+AutoPlay.version = "2.0107"
+AutoPlay.gameVersion = "2.0109";
 AutoPlay.robotName="Automated ";
 AutoPlay.delay=0;
 AutoPlay.night=false;
@@ -511,7 +511,7 @@ AutoPlay.cleanSector = function(game,sector,plant0) {
   }
   if(plant0=="all") { 
     for(var x=X;x<X+3;x++) for(var y=Y;y<Y+3;y++) if((x!=X+1)||(y!=Y+1)) { 
-      var tile=g.getTile(x,y);
+      var tile=game.getTile(x,y);
 	  if ((tile[0]>=1) && game.plantsById[tile[0]-1].unlocked) game.harvest(x,y); 
 	}
 	return;
@@ -710,7 +710,7 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 389, 366];
+AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 389, 395];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
@@ -789,10 +789,10 @@ AutoPlay.findMissingAchievements = function() { // just for testing purposes
 
 //===================== Handle Heavenly Upgrades ==========================
 AutoPlay.prioUpgrades = [363,323,411,412,413,264,265,266,267,268,181,282,283,284,291,393,394]; // legacy, dragon, lucky upgrades, permanent slots, season switcher, better golden cookies, kittens, synergies
-AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462];
+AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494];
 AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189];
-AutoPlay.chancemakers = [416,417,418,419,420,421,422,423,441];
-AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479];
+AutoPlay.chancemakers = [416,417,418,419,420,421,422,423,441,493];
+AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497];
 
 AutoPlay.buyHeavenlyUpgrades = function() {
   AutoPlay.prioUpgrades.forEach(function(id) { var e=Game.UpgradesById[id]; if (e.canBePurchased && !e.bought && e.buy(true)) { AutoPlay.info("buying "+e.name); } });
