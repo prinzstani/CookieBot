@@ -4,6 +4,10 @@
 You can see the current steps the bot is working on by hovering over the version information of the bot (bottom left of game screen). 
 Please note that bot has a main goal as displayed in the first line, and several activities it is pursuing just now.
 
+### The bot is stuck - what do I do?
+First, you might want to create an issue about the problem, in particular if the bot has run itself into the problem.
+If you have mixed up the bot strategy because you bought something alongside that the bot would not have bought, you best ascend and let the bot run without interference.
+
 ## Buying Algorithm
 ### What is the next building to be bought?
 The next building is the cheapest building that gives at least 50% of the max possible gain in cpc per cookie invested.
