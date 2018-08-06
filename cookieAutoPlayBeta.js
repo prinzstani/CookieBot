@@ -115,7 +115,7 @@ AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, 73, rolling
 	  (!Game.Achievements["Reincarnation"].won || Game.Upgrades["Arcane sugar"].bought); // brainsweep
 	case 73: return Game.Achievements["Elder nap"].won && Game.Achievements["Elder slumber"].won && Game.Achievements["Elder calm"].won; // elder pact
 	case 74: return Game.Achievements["Elder nap"].won && Game.Achievements["Elder slumber"].won && Game.Upgrades["Elder Covenant"].unlocked; // elder pledge
-	case 84: return Game.Upgrades["Elder Pledge"].bought; // elder covenant
+	case 84: return Game.Upgrades["Elder Pledge"].bought || Game.Achievements["Elder calm"].won; // elder covenant
 //	case 85: return Game.Upgrades["Elder Covenant"].bought; // revoke elder covenant 
     case 227: return true; // choco egg
 	default: return up.pool=="toggle";
