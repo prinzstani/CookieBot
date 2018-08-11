@@ -79,6 +79,7 @@ AutoPlay.cheatGoldenCookies = function() {
     var daysInRun=(Date.now()-Game.startDate)/1000/60/60/24;
     if (daysInRun < 10) return; // cheat only after 10 days
     level=(2*daysInRun)<<0;
+	return; // do not cheat golden cookies
   }
   if(level>100) level=100;
   AutoPlay.addActivity('Cheating golden cookies at level ' + level + '.');
@@ -635,7 +636,7 @@ AutoPlay.handleAscend = function() {
   if (Game.OnAscend) { AutoPlay.doReincarnate(); AutoPlay.findNextAchievement(); return; }
   if (Game.ascensionMode==1 && !AutoPlay.canContinue()) AutoPlay.doAscend("reborn mode did not work, retry.",0);
   if (AutoPlay.preNightMode()) return; //do not ascend right before the night
-  var ascendDays=10;
+  var daysInRun=(Date.now()-Game.startDate)/1000/60/60/24;
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
     AutoPlay.activities="Going for 1000 ascends.";
 	AutoPlay.wantAscend=true; //avoid byuing plants
@@ -648,16 +649,21 @@ AutoPlay.handleAscend = function() {
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) )) 
 	{ AutoPlay.doAscend("go for 100 ascends",0); }
   }
-  if (AutoPlay.endPhase() && (Date.now()-Game.startDate) > ascendDays*24*60*60*1000) {
-    AutoPlay.doAscend("ascend after " + ascendDays + " days just while waiting for next achievement.",1);
+//  if (AutoPlay.endPhase() && (daysInRun > 10)) {
+//    AutoPlay.doAscend("ascend after " + 10 + " days just while waiting for next achievement.",1);
+//  }
+  if (daysInRun + daysInRun*Game.ascendMeterLevel/(Game.prestige+1000000000) > 20) {
+    AutoPlay.doAscend("ascend after " + daysInRun + " days just while waiting for next achievement.",1);
   }
   var newPrestige=(Game.prestige+Game.ascendMeterLevel)%1000000;
-  if (AutoPlay.endPhase() && !Game.Upgrades["Lucky digit"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) { AutoPlay.doAscend("ascend for lucky digit.",0); }
-  if (AutoPlay.endPhase() && !Game.Upgrades["Lucky number"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) { AutoPlay.doAscend("ascend for lucky number.",0); }
-  if (!Game.Upgrades["Lucky payout"].bought && Game.ascendMeterLevel>0 && AutoPlay.endPhase() && (Game.heavenlyChips > 77777777) && (newPrestige <= 777777) && (newPrestige >= 777777-Game.ascendMeterLevel)) {
-    AutoPlay.doAscend("ascend for lucky payout.",0);
+  if (AutoPlay.grinding() && !Game.Upgrades["Lucky digit"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) { AutoPlay.doAscend("ascend for lucky digit.",0); }
+  if (AutoPlay.grinding() && !Game.Upgrades["Lucky number"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) { AutoPlay.doAscend("ascend for lucky number.",0); }
+  if (AutoPlay.grinding() && !Game.Upgrades["Lucky payout"].bought && (Game.heavenlyChips > 77777777)) {
+	AutoPlay.wantAscend=true; //avoid byuing plants
+    AutoPlay.addActivity("Trying to get Lucky Payout.");
+    if (Game.ascendMeterLevel>0 && (newPrestige <= 777777) && (newPrestige+Game.ascendMeterLevel >= 777777))
+      AutoPlay.doAscend("ascend for lucky payout.",0);
   }
-  // could addActivity here to state what the bot is trying
   if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
 	var date=new Date();
 	date.setTime(Date.now()-Game.startDate);
