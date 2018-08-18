@@ -15,6 +15,7 @@ AutoPlay.run = function () {
   if(AutoPlay.plantPending || AutoPlay.harvestPlant) AutoPlay.addActivity("Do not ascend now, since we wait for plants to harvest!");
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
+  if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
   if (AutoPlay.nightMode()) { var age=Date.now()-Game.lumpT; AutoPlay.cheatSugarLumps(age); return; }
   AutoPlay.handleClicking();
   AutoPlay.handleGoldenCookies();
@@ -26,6 +27,45 @@ AutoPlay.run = function () {
   AutoPlay.handleAscend();
   AutoPlay.handleSugarLumps();
   AutoPlay.handleNotes();
+}
+
+AutoPlay.runJustRight = function () {
+  AutoPlay.activities = "Running just right.";
+//  if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
+//  if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
+  AutoPlay.handleAscend();
+  if (Game.ObjectsById[Game.ObjectsById.length-1].amount) AutoPlay.doAscend("Starting runJustRight properly.",0);
+  const goal=1000000000000;
+  const notBuy=[0,1,2,3,4,5,6,129,324];
+  if (Game.cookies<goal/10) { // buying buildings and upgrades
+    for(var i = Game.ObjectsById.length-2; i >= 0; i--) { 
+      var me = Game.ObjectsById[i]; 
+      if ((me.getPrice()<Game.cookies) && (me.amount<10+Game.ObjectsById[i+1].amount)) { me.buy(1); return; }
+    }
+    Game.UpgradesById.forEach(function(e) { if (e.unlocked && !e.bought && e.canBuy() && e.pool!="toggle" && notBuy.indexOf(e.id)<0) { e.buy(true); } });
+  } else {
+	var cookieDiff = goal-Game.cookies;
+	if (Game.BuildingsOwned == 0) { // almost there
+      if (Math.round(Game.cookiesd)==goal) AutoPlay.doAscend("Fixed run just right.",1);
+	  else if ((cookieDiff < -goal) && (Date.now()-Game.startDate>60000)) AutoPlay.doAscend("runJustRight does not work, retry.",0);
+	  else if (cookieDiff < -2000000000) Game.ObjectsById[0].buy(130);
+	  else if (cookieDiff < -6000000) Game.ObjectsById[0].buy(90);
+	  else if (cookieDiff < -30000) Game.ObjectsById[0].buy(50);
+	  else if (cookieDiff < 0) Game.ObjectsById[0].buy(22);
+	  else if (cookieDiff > 10000000) Game.ObjectsById[5].buy(1);
+	  else if (cookieDiff > 500000) Game.ObjectsById[4].buy(1);
+	  else if (cookieDiff > 5000) Game.ObjectsById[2].buy(1);
+	  else if (cookieDiff > 50) Game.ObjectsById[0].buy(1);
+	  else Game.ClickCookie();
+	} else { // now we are selling
+	  if (cookieDiff/Game.cookiesPs > 1000) Game.ObjectsById[5].buy(1);
+      for(var i = Game.ObjectsById.length-2; i >= 0; i--) { 
+        var me = Game.ObjectsById[i]; 
+        if (me.amount>10+Game.ObjectsById[i+1].amount) { me.sell(me.amount-(10+Game.ObjectsById[i+1].amount)); return; }
+        if (me.amount>0 && (4*me.getReverseSumPrice(me.amount)+Game.cookiesPs>cookieDiff)) { me.sell(100); }
+      }
+	}
+  }
 }
 
 //===================== Night Mode ==========================
@@ -635,7 +675,8 @@ AutoPlay.wantAscend=false;
 AutoPlay.handleAscend = function() {
   if (Game.OnAscend) { AutoPlay.doReincarnate(); AutoPlay.findNextAchievement(); return; }
   if (Game.ascensionMode==1 && !AutoPlay.canContinue()) AutoPlay.doAscend("reborn mode did not work, retry.",0);
-  if (AutoPlay.preNightMode()) return; //do not ascend right before the night
+  if (AutoPlay.preNightMode() && AutoPlay.Config.NightMode==5) return; //do not ascend right before the night 
+  // critical, does not work together with nightmode config and switching off nightmode at grinding
   var daysInRun=(Date.now()-Game.startDate)/1000/60/60/24;
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
     AutoPlay.activities="Going for 1000 ascends.";
@@ -716,7 +757,7 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 389, 395];
+AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 389, 395, 397];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
@@ -1035,6 +1076,7 @@ AutoPlay.Disp.AddJscolor = function() {
 }*/
 
 if (AutoPlay.autoPlayer) { AutoPlay.info("replacing old version of autoplay"); clearInterval(AutoPlay.autoPlayer); }
+//AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
 AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
 AutoPlay.findNextAchievement();
 l('versionNumber').innerHTML='v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
