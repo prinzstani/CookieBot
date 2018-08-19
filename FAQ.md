@@ -28,19 +28,20 @@ The following steps are taken, and if you start somewhere in the middle, the pro
 * Step 4: with five permanent slots: get 1000 ascends; until then continue with step 5: about 2 days
 * Step 5: get all "bake xx cookies" achievements & all building achievements: see below
     - Step 5a: get all "bake xx cookies" achievements until 1 tredecillion: about 6 weeks
-    - Step 5b: get "bake 100 tredecillion cookies" achievement: about one year
-    - Step 5c: get "bake 1 quattuordecillion cookies" achievement: about half a year
-    - Step 5d: get "bake 100 quattuordecillion cookies" achievement: about one year (???)
-    - Step 5e: get "bake 1 quindecillion cookies" achievement: about one year (???)
-* Step 6: get all shadow achievements and all the remaining achievements: about one month (???)
-* Step 7: get all the level 10 buildings: about one year
+    - Step 5b: get "bake 100 tredecillion cookies" achievement: about one month
+    - Step 5c: get "bake 1 quattuordecillion cookies" achievement: about two weeks
+    - Step 5d: get "bake 100 quattuordecillion cookies" achievement: about two month
+    - Step 5e: get "bake 1 quindecillion cookies" achievement: about one month
+* Step 6: get all shadow achievements and all the remaining achievements: about one month
+* Step 7: get all the level 10 buildings: about six months
 * Step 8: get the golden sugar lump: more than three more years
 
-With the current design of the game, the step five takes at least five years (grinding). The last two steps (sugar lumps) do also take together five years on average, and two years minimum. Of course, both can be done in parallel.
-This long time is considered not good in terms of game dynamics, and therefore the playthrough will cheat golden cookies in the grinding phase and sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing) as follows. 
-After ten days of run, the bot will gradually increase the chance of getting golden cookies until golden cookies are coming all the time.
-In addition, night mode is switched off in the grinding phase. This way, each sub-step of step 5 takes around one month.
-For the sugar lumps, the bot will divide the ripening time for sugar lumps by 625. This way the ripening time is a few minutes instead of hours. With this cheat, the last two steps will take less than one month.
+With the current design of the game, the step five takes at least five years (grinding) when each step is doen without intermediate ascend. The last two steps (sugar lumps) do also take together five years on average, and two years minimum. Of course, both can be done in parallel.
+The time in grinding is reduced very much by switching off night mode and by intermediate asend, see below. The golden sugar lumps cannot be quicker, and therefore the playthrough will cheat sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing) as follows. 
+The bot will divide the ripening time for sugar lumps by 625. This way the ripening time is a few minutes instead of hours. With this cheat, the last two steps will take less than one month.
+
+### What is the ascend strategy?
+Normally, the bots ascends when the next achievement it works on is achieved. During grinding, it will asend after 5-15 days, but latest after 20 days. This is done in order to increase the cps with heavenly cookies.
 
 ### What is the seasons strategy?
 After seasons are enabled, the bot will go through each of them and complete them. It always follows the order Christmas, Easter, Valentine, Halloween. After Halloween, the bot will stay at Christmas in order to get reindeers.

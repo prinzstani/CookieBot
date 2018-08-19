@@ -106,3 +106,5 @@ Before submitting a bug report, please reload the bot, as it is continuously imp
 
 * **[Prinz Stani](https://github.com/prinzstani)**: Original author and current maintainer
 * **[SearchAndDestroy](https://github.com/SearchAndDestroy)**: Tampermonkey script
+* **[AlexFolland](https://github.com/AlexFolland)**: Options and small fixes
+* **[corvidian](https://github.com/corvidian)**: Elder handling and optimization
