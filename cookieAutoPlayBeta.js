@@ -1,12 +1,3 @@
-/*
-var totalmult=1;
-			for (var i in Game.buffs)
-			{
-				if (typeof Game.buffs[i].multCpS != 'undefined') 
-				{ AutoPlay.info("buff has mult "+ Game.buffs[i].multCpS); totalmult*=Game.buffs[i].multCpS; }
-			}
-			AutoPlay.info("total mult "+ totalmult); 
-*/
 //cookie bot: auto-play-through cookie clicker
 
 var AutoPlay;
@@ -301,13 +292,20 @@ AutoPlay.farmGoldenSugarLumps = function(age) { // this is tested and it works (
 
 AutoPlay.handleMinigames = function() {
   // wizard towers: grimoires
+  // maybe not use click() when it is impossible to refill
   if (Game.isMinigameReady(Game.Objects["Wizard tower"])) {
-    var me=Game.Objects["Wizard tower"];
-    var g=me.minigame;
+    var g=Game.Objects["Wizard tower"].minigame;
     var sp=g.spells["hand of fate"]; // try to get a sugar lump in backfiring
-	if(Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) && (g.magic/g.magicM >= 0.95)) { g.castSpell(sp); }
+	if (Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) && (g.magic/g.magicM >= 0.95)) { g.castSpell(sp); }
     if (Game.shimmerTypes['golden'].n == 2 && !Game.Achievements["Four-leaf cookie"].won && Game.lumps>0 && g.magic>=g.getSpellCost(sp)) { g.castSpell(sp); }
-    if (Game.shimmerTypes['golden'].n == 3 && !Game.Achievements["Four-leaf cookie"].won) { g.lumpRefill.click(); g.castSpell(sp); } 
+    if (Game.shimmerTypes['golden'].n == 3 && !Game.Achievements["Four-leaf cookie"].won) { g.lumpRefill.click(); g.castSpell(sp); }
+    sp=g.spells["conjure baked goods"];
+    var totalmult=1;
+	for (var i in Game.buffs) if (typeof Game.buffs[i].multCpS != 'undefined') totalmult*=Game.buffs[i].multCpS;
+	if (totalmult>100) {
+	  if (g.magic>=g.getSpellCost(sp)) { g.castSpell(sp); return; }
+	  if (Game.lumps>100) { g.lumpRefill.click(); }
+	}
   }
   // temples: pantheon
   if (Game.isMinigameReady(Game.Objects["Temple"])) {
@@ -750,6 +748,7 @@ AutoPlay.doAscend = function(str,log) {
   AutoPlay.wantAscend=AutoPlay.plantPending || AutoPlay.harvestPlant;
   AutoPlay.addActivity("Preparing to ascend.");
   if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant to mature
+  if (Game.hasBuff("Sugar frenzy")) return; // do not ascend when sugar frenzy is active
   // for (var i in Game.buffs) { if(Game.buffs[i].time>=0) return; } // do not ascend while we have buffs - does not work well with cheating golden
   AutoPlay.debugInfo(str);
   AutoPlay.loggingInfo=log?str:0; 
