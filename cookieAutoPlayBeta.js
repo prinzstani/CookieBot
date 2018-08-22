@@ -1,3 +1,12 @@
+/*
+var totalmult=1;
+			for (var i in Game.buffs)
+			{
+				if (typeof Game.buffs[i].multCpS != 'undefined') 
+				{ AutoPlay.info("buff has mult "+ Game.buffs[i].multCpS); totalmult*=Game.buffs[i].multCpS; }
+			}
+			AutoPlay.info("total mult "+ totalmult); 
+*/
 //cookie bot: auto-play-through cookie clicker
 
 var AutoPlay;
@@ -148,6 +157,8 @@ AutoPlay.speedClicking = function() {
 AutoPlay.handleUpgrades = function() {
   if (!Game.Achievements["Hardcore"].won && Game.UpgradesOwned==0) return;
   Game.UpgradesById.forEach(function(e) { if (e.unlocked && !e.bought && e.canBuy() && !AutoPlay.avoidbuy(e)) { e.buy(true); } });
+  if (Game.lumps>120 && Game.Upgrades["Sugar frenzy"].unlocked && !Game.Upgrades["Sugar frenzy"].bought && (Date.now()-Game.startDate) > 3*24*60*60*1000) 
+    Game.Upgrades["Sugar frenzy"].buy();
 }
 
 AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, 73, rolling pins
