@@ -8,6 +8,9 @@ Please note that bot has a main goal as displayed in the first line, and several
 First, you might want to create an issue about the problem, in particular if the bot has run itself into the problem.
 If you have mixed up the bot strategy because you bought something alongside that the bot would not have bought, you best ascend and let the bot run without interference.
 
+### How do I ask a question about the bot?
+First, you want to carefully check this FAQ and the [README](https://github.com/prinzstani/CookieBot/blob/master/README.md). If you request is related to a bug or suggestion, please **create it as an issue** [in the repository](https://github.com/prinzstani/CookieBot) for easier tracking. This allows to follow the status of the issue. If none of this is applicable, send your question to theprinzstani@gmail.com.
+
 ## Buying Algorithm
 ### What is the next building to be bought?
 The next building is the cheapest building that gives at least 50% of the max possible gain in cpc per cookie invested.
