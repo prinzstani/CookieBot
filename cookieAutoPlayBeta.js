@@ -3,8 +3,8 @@
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.0107"
-AutoPlay.gameVersion = "2.0109";
+AutoPlay.version = "2.0108"
+AutoPlay.gameVersion = "2.012";
 AutoPlay.robotName="Automated ";
 AutoPlay.delay=0;
 AutoPlay.night=false;
@@ -24,8 +24,8 @@ AutoPlay.run = function () {
   AutoPlay.handleSeasons();
   AutoPlay.handleDragon();
   AutoPlay.handleWrinklers();
-  AutoPlay.handleAscend();
   AutoPlay.handleSugarLumps();
+  AutoPlay.handleAscend();
   AutoPlay.handleNotes();
 }
 
@@ -304,7 +304,7 @@ AutoPlay.handleMinigames = function() {
 	for (var i in Game.buffs) if (typeof Game.buffs[i].multCpS != 'undefined') totalmult*=Game.buffs[i].multCpS;
 	if (totalmult>100) {
 	  if (g.magic>=g.getSpellCost(sp)) { g.castSpell(sp); return; }
-	  if (Game.lumps>100) { g.lumpRefill.click(); }
+	  if (Game.lumps>98) { g.lumpRefill.click(); }
 	}
   }
   // temples: pantheon
@@ -699,9 +699,6 @@ AutoPlay.handleAscend = function() {
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) )) 
 	{ AutoPlay.doAscend("go for 100 ascends",0); }
   }
-//  if (AutoPlay.endPhase() && (daysInRun > 10)) {
-//    AutoPlay.doAscend("ascend after " + 10 + " days just while waiting for next achievement.",1);
-//  }
   if (daysInRun + daysInRun*Game.ascendMeterLevel/(Game.prestige+1000000000) > 20) {
     AutoPlay.doAscend("ascend after " + daysInRun + " days just while waiting for next achievement.",1);
   }
@@ -738,7 +735,7 @@ AutoPlay.doReincarnate = function() {
   if(!Game.Achievements["Neverclick"].won || !Game.Achievements["Hardcore"].won) { Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt(); }
   if(AutoPlay.endPhase() && AutoPlay.mustRebornAscend()) { Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt(); }
   Game.Reincarnate(true); 
-  if (AutoPlay.loggingInfo) setTimeout(AutoPlay.logging, 20*1000);
+//  if (AutoPlay.loggingInfo) setTimeout(AutoPlay.logging, 20*1000); - this is for logging after ascend, not before
   AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 }
 
@@ -750,8 +747,6 @@ AutoPlay.doAscend = function(str,log) {
   if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant to mature
   if (Game.hasBuff("Sugar frenzy")) return; // do not ascend when sugar frenzy is active
   // for (var i in Game.buffs) { if(Game.buffs[i].time>=0) return; } // do not ascend while we have buffs - does not work well with cheating golden
-  AutoPlay.debugInfo(str);
-  AutoPlay.loggingInfo=log?str:0; 
 //  if(AutoPlay.checkAllAchievementsOK(false)) { AutoPlay.logging(); return; } // do not ascend when we are finished
   if(Game.wrinklers.some(function(w) { return w.close; } )) AutoPlay.assignSpirit(0,"scorn",1);
   Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp=0; } ); // pop all wrinklers
@@ -763,7 +758,7 @@ AutoPlay.doAscend = function(str,log) {
 	}
 	Game.ObjectsById.forEach(function(e) { e.sell(e.amount); } );
     Game.Upgrades["Chocolate egg"].buy();
-  } else { AutoPlay.delay=10; Game.Ascend(true); }
+  } else { AutoPlay.debugInfo(str); AutoPlay.loggingInfo=log?str:0; AutoPlay.logging(); AutoPlay.delay=10; Game.Ascend(true); }
 }
 
 //===================== Handle Achievements ==========================
