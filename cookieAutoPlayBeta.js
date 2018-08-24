@@ -167,6 +167,7 @@ AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, 73, rolling
 //===================== Handle Buildings ==========================
 AutoPlay.handleBuildings = function() {
   var buyAmount=100, checkAmount=1;
+  if (Game.buyMode==-1) Game.storeBulkButton(0);
   if ((Date.now()-Game.startDate) > 10*60*1000) buyAmount=1; // buy single after 10 minutes
   if (Game.resets && Game.ascensionMode!=1 && Game.isMinigameReady(Game.Objects["Temple"]) && Game.Objects["Temple"].minigame.slot[0]==10 // Rigidel is in slot 0
       && Game.BuildingsOwned%10==0 && (Date.now()-Game.startDate) > 2*60*1000) // do not use factor 10 in the first 2 minutes after descend
