@@ -1073,14 +1073,6 @@ AutoPlay.addActivity = function(str) {
 
 //===================== Init & Start ==========================
 
-/* use something similar for loading the beta version
-AutoPlay.Disp.AddJscolor = function() {
-	AutoPlay.Disp.Jscolor = document.createElement('script');
-	AutoPlay.Disp.Jscolor.type = 'text/javascript';
-	AutoPlay.Disp.Jscolor.setAttribute('src', 'https://aktanusa.github.io/CookieMonster/jscolor/jscolor.js');
-	document.head.appendChild(AutoPlay.Disp.Jscolor);
-}*/
-
 if (AutoPlay.autoPlayer) { AutoPlay.info("replacing old version of autoplay"); clearInterval(AutoPlay.autoPlayer); }
 //AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
 AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
