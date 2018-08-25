@@ -5,8 +5,6 @@ var xhr = new XMLHttpRequest();
 xhr.open('GET', 'https://api.github.com/repos/prinzstani/CookieBot/releases/latest', false);
 xhr.send();
 var response = JSON.parse(xhr.responseText);
-var latest = response.html_url + '/cookieAutoPlayBeta.js';
-latest=latest.replace('github','cdn.rawgit');
-latest=latest.replace('/releases/tag','');
+var latest = "https://cdn.rawgit.com/prinzstani/CookieBot/" + response.tag_name + "/cookieAutoPlayBeta.js"
 console.log("### LOADING FROM " + latest); 
 Game.LoadMod(latest);
