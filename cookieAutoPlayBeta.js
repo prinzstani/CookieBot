@@ -323,7 +323,7 @@ AutoPlay.handleMinigames = function() {
     var g=Game.Objects["Farm"].minigame;
 	AutoPlay.planting(g);
 	AutoPlay.harvesting(g);
-    if(Game.lumps<11 && AutoPlay.gardenReady(g) && !AutoPlay.finished && !AutoPlay.harvestPlant) {
+    if(Game.lumps<100 && AutoPlay.gardenReady(g) && !AutoPlay.finished && !AutoPlay.harvestPlant) {
       AutoPlay.plantCookies = false;
 	  g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); //convert garden in order to get more sugar lumps
 	  AutoPlay.plantList=[0,0,0,0];
