@@ -18,9 +18,11 @@ Buildings that are 10 or less from the next interesting limit (50, 100, 150, ...
 
 ### What is the next upgrade to be bought?
 Upgrades are bought whenever possible. There is no saving strategy for the next upgrade implemented.
+The chocolate egg is kept as long as possible. It will be bought right before the next ascension. Before that, all buildings are sold with maximum profit.
+Moreover, the Grandmapocalypse is stopped before the Communal brainsweep (see below). This way, in normal play, the bot is missing four upgrades: Chocolate egg, Communal brainsweep, Elder Pact, and Sacrificial rolling pins.
 
 ### What is the next object to be bought?
-The buying strategy is provided by the object selection algorithm, based on a simple cost-gain analysis. It is assumed that there are enough cookies to buy what is wanted.
+The buying strategy is provided by the object selection algorithm, based on a simple cost-gain analysis. Then the bot waits until there are enough cookies to buy what is selected.
 
 ## Game Strategy
 ### What is the playthrough strategy?
@@ -33,7 +35,7 @@ The following steps are taken, and if you start somewhere in the middle, the pro
     - Step 5a: get all "bake xx cookies" achievements until 1 tredecillion: about 6 weeks
     - Step 5b: get "bake 100 tredecillion cookies" achievement: about one month
     - Step 5c: get "bake 1 quattuordecillion cookies" achievement: about two weeks
-    - Step 5d: get "bake 100 quattuordecillion cookies" achievement: about two month
+    - Step 5d: get "bake 100 quattuordecillion cookies" achievement: about two months
     - Step 5e: get "bake 1 quindecillion cookies" achievement: about one month
 * Step 6: get all shadow achievements and all the remaining achievements: about one month
 * Step 7: get all the level 10 buildings: about six months
@@ -51,9 +53,6 @@ After seasons are enabled, the bot will go through each of them and complete the
 
 ### What is the wrinkler strategy?
 Wrinklers are normally left alone unless we need them to get easter eggs or other droppings. In the endphase, wrinklers are dropped in order to get the shiny wrinkler. During grinding, oned wrinkler is popped per two hours to get more cookies for buying objects.
-
-### What is the chocolate egg handling?
-The chocolate egg is kept as long as possible. It will be bought right before the next ascension. Before that, all buildings are sold with maximum profit.
 
 ### What is the Grandmapocalypse strategy?
 In the first possible round, the bot will complete the Grandmapocalypse in order to get all the achievements.
