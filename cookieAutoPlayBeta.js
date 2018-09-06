@@ -701,7 +701,7 @@ AutoPlay.handleAscend = function() {
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) )) 
 	{ AutoPlay.doAscend("go for 100 ascends",0); }
   }
-  if (daysInRun + daysInRun*Game.ascendMeterLevel/(Game.prestige+1000000000) > 20) {
+  if (daysInRun + daysInRun*Game.ascendMeterLevel/(Game.prestige+1000000000) > 40) {
     AutoPlay.doAscend("ascend after " + daysInRun + " days just while waiting for next achievement.",1);
   }
   var newPrestige=(Game.prestige+Game.ascendMeterLevel)%1000000;
