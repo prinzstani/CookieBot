@@ -41,12 +41,12 @@ The following steps are taken, and if you start somewhere in the middle, the pro
 * Step 7: get all the level 10 buildings: about six months
 * Step 8: get the golden sugar lump: more than three more years
 
-With the current design of the game, the step five takes at least five years (grinding) when each step is doen without intermediate ascend. The last two steps (sugar lumps) do also take together five years on average, and two years minimum. Of course, both can be done in parallel.
-The time in grinding is reduced very much by switching off night mode and by intermediate asend, see below. The golden sugar lumps cannot be quicker, and therefore the playthrough will cheat sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing) as follows. 
+With the current design of the game, the step five takes at least five years (grinding) when each step is done without intermediate ascend. The last two steps (sugar lumps) do also take together five years on average, and two years minimum. Of course, both can be done in parallel.
+The time in grinding is reduced very much by switching off night mode and by intermediate ascend, see below. The golden sugar lumps cannot be quicker, and therefore the playthrough will cheat sugar lumps in the end phase (i.e. when only sugar lump related achievements are missing) as follows. 
 The bot will divide the ripening time for sugar lumps by 625. This way the ripening time is a few minutes instead of hours. With this cheat, the last two steps will take less than one month.
 
 ### What is the ascend strategy?
-Normally, the bots ascends when the next achievement it works on is achieved. During grinding, it will asend after 5-15 days, but latest after 20 days. This is done in order to increase the cps with heavenly cookies.
+Normally, the bots ascends when the next achievement it works on is achieved. During grinding, it will ascend after 5-25 days, but latest after 40 days. This is done in order to increase the cps with heavenly cookies.
 
 ### What is the seasons strategy?
 After seasons are enabled, the bot will go through each of them and complete them. It always follows the order Christmas, Easter, Valentine, Halloween. After Halloween, the bot will stay at Christmas in order to get reindeers.
