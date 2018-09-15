@@ -117,9 +117,8 @@ AutoPlay.cheatGoldenCookies = function() {
     if(AutoPlay.wantAscend) return; // already cheated enough
 	if(!AutoPlay.grinding() || AutoPlay.endPhase()) return; // only cheat in grinding
     var daysInRun=(Date.now()-Game.startDate)/1000/60/60/24;
-    if (daysInRun < 10) return; // cheat only after 10 days
-    level=(2*daysInRun)<<0;
-	return; // do not cheat golden cookies
+    if (daysInRun < 20) return; // cheat only after 20 days
+    level=((3*daysInRun)<<0)-20;
   }
   if(level>100) level=100;
   AutoPlay.addActivity('Cheating golden cookies at level ' + level + '.');
@@ -533,14 +532,12 @@ AutoPlay.seedCalendar = function(sector) {
   if(!Game.Upgrades["Green yeast digestives"].bought && g.plants["greenRot"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Green yeast digestives."); return "greenRot"; }
   if(!Game.Upgrades["Ichor syrup"].bought && g.plants["ichorpuff"].unlocked) { AutoPlay.switchSoil(sector,'fertilizer'); if(doPrint) AutoPlay.addActivity("Trying to get Ichor syrup."); return "ichorpuff"; }
   AutoPlay.plantCookies = false;
-  AutoPlay.switchSoil(sector,(AutoPlay.plantPending || AutoPlay.harvestPlant)?'fertilizer':'clay'); //only when mature, otherwise it should be fertilizer
+  AutoPlay.switchSoil(sector,(AutoPlay.plantPending)?'fertilizer':'clay'); //only when mature, otherwise it should be fertilizer
   //use garden to get cps and sugarlumps
+  if(g.plants['bakeberry'].unlocked && AutoPlay.lumpRelatedAchievements.every(AutoPlay.isWon)) return 'bakeberry'; // 1% cps add. + harvest 30 mins with high ratio - use only in endgame
   if(g.plants['whiskerbloom'].unlocked) return 'whiskerbloom'; // approx. 1.5% cps add. - should use with nursetulip in the middle
   return 'bakerWheat'; // nothing else works
-/* even better: chocoroot has only 1% cps, but also gets 3 mins of cps - harvest on high cps - predictable growth, put on fertilizer first, then on clay, keep them synchronized
-plant something meaningful at night
-bakeberry also 1%cps and good harvest
-*/
+/* alternative: chocoroot gives 1% cps, but also gets 3 mins of cps - harvest on high cps - predictable growth */
 }
 
 AutoPlay.cleaningGarden = function(game) {
@@ -600,6 +597,11 @@ AutoPlay.harvesting = function(game) {
 	  } else if(AutoPlay.harvestable.indexOf(plant.key)>=0) {
 	    AutoPlay.harvestPlant=true;
 	    AutoPlay.addActivity("Waiting to harvest " + plant.name + ".");
+        if (tile[1]>=game.plantsById[tile[0]-1].mature) { // is mature and can give cookies
+          var totalmult=1;
+		  for (var i in Game.buffs) if (typeof Game.buffs[i].multCpS != 'undefined') totalmult*=Game.buffs[i].multCpS;
+		  if (totalmult>100) game.harvest(x,y); // harvest when it pays a lot
+		} else AutoPlay.plantPending=true;
 	  }
       if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
       if (plant.ageTick+plant.ageTickR+tile[1] >= 100) AutoPlay.harvest(game,x,y); // would die in next round
