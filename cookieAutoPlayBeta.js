@@ -706,7 +706,7 @@ AutoPlay.handleAscend = function() {
 	{ AutoPlay.doAscend("go for 100 ascends",0); }
   }
   var extraDaysInRun = daysInRun + daysInRun*Game.ascendMeterLevel/(Game.prestige+1000000000);
-  AutoPlay.addActivity("Still " + (40-(extraDaysInRun<<0)) + " days until next hard ascend.");
+  if (AutoPlay.grinding() && !AutoPlay.wantAscend) AutoPlay.addActivity("Still " + (40-(extraDaysInRun<<0)) + " days until next hard ascend.");
   if (extraDaysInRun > 40) AutoPlay.doAscend("ascend after " + daysInRun + " days just while waiting for next achievement.",1);
   var newPrestige=(Game.prestige+Game.ascendMeterLevel)%1000000;
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky digit"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) { AutoPlay.doAscend("ascend for lucky digit.",0); }
