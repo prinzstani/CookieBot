@@ -561,7 +561,7 @@ AutoPlay.cleanSector = function(game,sector,plant0) {
 	return;
   }
   if(plant0=="all") { 
-    for(var x=X;x<X+3;x++) for(var y=Y;y<Y+3;y++) if((x!=X+1)||(y!=Y+1)) { 
+    for(var x=X;x<X+3;x++) for(var y=Y;y<Y+3;y++) if((x!=X+1)||(y!=Y+1)) { // we do not really need that if, do we?
       var tile=game.getTile(x,y);
 	  if ((tile[0]>=1) && game.plantsById[tile[0]-1].unlocked) game.harvest(x,y); 
 	}
