@@ -601,7 +601,7 @@ AutoPlay.harvesting = function(game) {
           var totalmult=1;
 		  for (var i in Game.buffs) if (typeof Game.buffs[i].multCpS != 'undefined') totalmult*=Game.buffs[i].multCpS;
 		  if (totalmult>100) game.harvest(x,y); // harvest when it pays a lot
-		} else AutoPlay.plantPending=true;
+		}
 	  }
       if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
       if (plant.ageTick+plant.ageTickR+tile[1] >= 100) AutoPlay.harvest(game,x,y); // would die in next round
