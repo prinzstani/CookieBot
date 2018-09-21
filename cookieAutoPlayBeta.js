@@ -397,6 +397,7 @@ AutoPlay.plantDependencies = [
 if(!AutoPlay.plantList) AutoPlay.plantList=[0,0,0,0];
 AutoPlay.plantPending=false; // Is there a plant we want and that is not mature yet?
 AutoPlay.harvestPlant=false; // Is there a plant that gives things when harvesting?
+AutoPlay.plantsMissing=true; // Are there still unlocked plants?
 
 AutoPlay.sectorText = function(sector) {
   if(Game.Objects["Farm"].level>4) return (sector<2?'bottom':'top')+(sector%2?' left':' right');
@@ -456,6 +457,7 @@ AutoPlay.planting = function(game) {
     for(var x=0;x<6;x++) for(var y=0;y<6;y++) if(game.isTileUnlocked(x,y)) AutoPlay.plantSeed("meddleweed",x,y);
 	return;
   }
+  AutoPlay.plantsMissing=true;
   if(!AutoPlay.findPlants(game,0)) { AutoPlay.plantList=[0,0,0,0]; for(var i=0; i<4; i++) AutoPlay.plantSector(i,'','','dummy'); return; }
   AutoPlay.switchSoil(0,AutoPlay.plantPending?'fertilizer':'woodchips'); // want many mutations
   if(Game.Objects["Farm"].level<4) {
@@ -521,6 +523,7 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
 
 AutoPlay.seedCalendar = function(sector) {
   if(AutoPlay.wantAscend) return 'bakerWheat'; // plant cheap before ascend
+  AutoPlay.plantsMissing=false;
   var g=Game.Objects["Farm"].minigame;
   if(sector==0) AutoPlay.plantCookies = true;
   var doPrint = (sector==0) || (sector!=3 && Game.Objects["Farm"].level==sector+6);
@@ -594,7 +597,7 @@ AutoPlay.harvesting = function(game) {
 	    AutoPlay.plantPending=true;
 		AutoPlay.addActivity(plant.name + " is still growing, do not disturb!");
         if (tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature
-	  } else if(AutoPlay.harvestable.indexOf(plant.key)>=0) {
+	  } else if(!AutoPlay.plantsMissing && AutoPlay.harvestable.indexOf(plant.key)>=0) {
 	    AutoPlay.harvestPlant=true;
 	    AutoPlay.addActivity("Waiting to harvest " + plant.name + ".");
         if (tile[1]>=game.plantsById[tile[0]-1].mature) { // is mature and can give cookies
