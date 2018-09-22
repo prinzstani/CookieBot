@@ -3,20 +3,28 @@
 var AutoPlay;
 
 if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.0108"
+AutoPlay.version = "2.012"
 AutoPlay.gameVersion = "2.012";
 AutoPlay.robotName="Automated ";
 AutoPlay.delay=0;
 AutoPlay.night=false;
 AutoPlay.finished=false;
+AutoPlay.deadline=0;
 
 AutoPlay.run = function () {
-  AutoPlay.activities = AutoPlay.mainActivity;
-  if(AutoPlay.plantPending || AutoPlay.harvestPlant) AutoPlay.addActivity("Do not ascend now, since we wait for plants to harvest!");
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
-  if (AutoPlay.nightMode()) { var age=Date.now()-Game.lumpT; AutoPlay.cheatSugarLumps(age); return; }
+  AutoPlay.now=Date.now();
+  // if high cps then do not wait
+  if (AutoPlay.now<AutoPlay.deadline) { AutoPlay.handleClicking(); AutoPlay.handleGoldenCookies(); return; }
+  AutoPlay.deadline=AutoPlay.now+60000; // wait one minute before next step
+  AutoPlay.cpsMult=1;
+  for (var i in Game.buffs) if (typeof Game.buffs[i].multCpS != 'undefined') AutoPlay.cpsMult*=Game.buffs[i].multCpS;
+  if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0);
+  AutoPlay.activities = AutoPlay.mainActivity;
+  if (AutoPlay.plantPending || AutoPlay.harvestPlant) AutoPlay.addActivity("Do not ascend now, since we wait for plants to harvest!");
+  if (AutoPlay.nightMode()) { AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT); return; }
   AutoPlay.handleClicking();
   AutoPlay.handleGoldenCookies();
   AutoPlay.handleBuildings();
@@ -31,8 +39,6 @@ AutoPlay.run = function () {
 
 AutoPlay.runJustRight = function () {
   AutoPlay.activities = "Running just right.";
-//  if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
-//  if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   AutoPlay.handleAscend();
   if (Game.ObjectsById[Game.ObjectsById.length-1].amount) AutoPlay.doAscend("Starting runJustRight properly.",0);
   const goal=1000000000000;
@@ -73,7 +79,7 @@ AutoPlay.preNightMode = function() { if(AutoPlay.Config.NightMode!=1) return fal
 
 AutoPlay.nightMode = function() { 
   if(AutoPlay.Config.NightMode==0) return false;
-  if(AutoPlay.grinding()) return false; //do not sleep while grinding
+  if(AutoPlay.grinding() && !AutoPlay.endPhase()) return false; //do not sleep while grinding
   var h=(new Date).getHours();
   if(AutoPlay.Config.NightMode==1 && h>=7 && h<23) { // be active
     if (AutoPlay.night) AutoPlay.useLump();
@@ -104,8 +110,12 @@ AutoPlay.handleGoldenCookies = function() { // pop the first golden cookie or re
   if(Game.shimmerTypes['golden'].n>=4 && !Game.Achievements['Four-leaf cookie'].won) return;
   for(sx in Game.shimmers) {
     var s=Game.shimmers[sx];
-    if((s.type!="golden") || (s.life<Game.fps) || (!Game.Achievements["Early bird"].won)) { s.pop(); return; }
-    if((s.life/Game.fps)<(s.dur-2) && (Game.Achievements["Fading luck"].won)) { s.pop(); if(AutoPlay.Config.GoldenClickMode==1) return; }
+    if((s.type!="golden") || (s.life<Game.fps) || (!Game.Achievements["Early bird"].won)) { s.pop(); AutoPlay.setDeadline(0); return; }
+    if((s.life/Game.fps)<(s.dur-2) && (Game.Achievements["Fading luck"].won)) { 
+	  s.pop(); 
+	  AutoPlay.setDeadline(0); 
+	  if(AutoPlay.Config.GoldenClickMode==1) return; 
+	}
   }
   AutoPlay.cheatGoldenCookies();
 }
@@ -175,7 +185,9 @@ AutoPlay.handleBuildings = function() {
   for(var i = Game.ObjectsById.length-1; i >= 0; i--){ var me = Game.ObjectsById[i]; var mycpc = me.storedCps / me.price; if (mycpc > cpc) { cpc = mycpc; } }; 
   for(i = Game.ObjectsById.length-1; i >= 0; i--) { 
     var me = Game.ObjectsById[i]; 
-    if ((me.storedCps/me.price > cpc/2 || me.amount % 50 >= 40) && (me.getSumPrice(checkAmount)<Game.cookies)) { me.buy(buyAmount); return; }
+    if ((me.storedCps/me.price > cpc/2 || me.amount % 50 >= 40) && (me.getSumPrice(checkAmount)<Game.cookies)) { 
+	  me.buy(buyAmount); AutoPlay.setDeadline(0); return; 
+	}
   }
   if(Game.resets && Game.ascensionMode!=1 && Game.isMinigameReady(Game.Objects["Temple"]) && Game.Objects["Temple"].minigame.slot[0]==10 && Game.BuildingsOwned%10!=0) { // Rigidel is in slot 0, buy the cheapest
 	var minIdx=0, minPrice=Game.ObjectsById[minIdx].price;
@@ -224,7 +236,7 @@ AutoPlay.lumpRelatedAchievements=range(307,320).concat([336,268,271]);
 AutoPlay.handleSugarLumps = function() {
   if (!Game.canLumps()) return; //do not work with sugar lumps before enabled
   if (Game.ascensionMode==1) return; //no sugar lumps in born again
-  var age=Date.now()-Game.lumpT;
+  var age=AutoPlay.now-Game.lumpT;
   if (age>=Game.lumpMatureAge && Game.lumpCurrentType==0 && Game.lumpsTotal>AutoPlay.minLumps && !Game.Achievements["Hand-picked"].won) AutoPlay.harvestLump();
 //  if(Game.lumpCurrentType==0) AutoPlay.farmGoldenSugarLumps(age); // not needed now, because we cheat sugar lumps
   if (age>=Game.lumpRipeAge) AutoPlay.harvestLump(); // normal harvesting, should check !masterCopy
@@ -256,13 +268,24 @@ AutoPlay.harvestLump = function() {
 
 AutoPlay.useLump = function() { // recursive call just needed if we have many sugar lumps
   if(!Game.lumps) return;
-  for(i in AutoPlay.level1Order) { var me = Game.ObjectsById[AutoPlay.level1Order[i]]; if(!me.level && Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; } };
-  for(i in AutoPlay.level10Order) { var me = Game.ObjectsById[AutoPlay.level10Order[i]]; if(me.level<10) { if(me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); } return; } };
+  for(i in AutoPlay.level1Order) { 
+    var me = Game.ObjectsById[AutoPlay.level1Order[i]]; 
+	if (!me.level && Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; } 
+  }
+  for(i in AutoPlay.level10Order) { 
+    var me = Game.ObjectsById[AutoPlay.level10Order[i]]; 
+	if (me.level<10) { if(me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); } return; } 
+  }
   if(Game.lumps<95) return; //collect lumps for  better cps
-  for(i = Game.ObjectsById.length-1; i >= 0; i--) { var me = Game.ObjectsById[i]; if(me.level<10 && me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; } }; 
+  for(i = Game.ObjectsById.length-1; i >= 0; i--) { 
+    var me = Game.ObjectsById[i]; 
+	if (me.level<10 && me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; } 
+  }
 //  for(i = Game.ObjectsById.length-1; i >= 0; i--) Game.ObjectsById[i].levelUp(); -- do not use sugar lumps for more than level 10
 }
 
+
+/* farming golden sugar lumps - not needed now since we cheat sugar lumps
 AutoPlay.copyWindows=[]; // need to init in the code some place
 AutoPlay.masterSaveCopy=0;
 AutoPlay.masterLoadCopy=0;
@@ -290,10 +313,10 @@ AutoPlay.farmGoldenSugarLumps = function(age) { // this is tested and it works (
     AutoPlay.copyWindows.push(Game.WriteSave(1));
   }
 }
+*/
 
 AutoPlay.handleMinigames = function() {
   // wizard towers: grimoires
-  // maybe not use click() when it is impossible to refill
   if (Game.isMinigameReady(Game.Objects["Wizard tower"])) {
     var g=Game.Objects["Wizard tower"].minigame;
     var sp=g.spells["hand of fate"]; // try to get a sugar lump in backfiring
@@ -301,16 +324,14 @@ AutoPlay.handleMinigames = function() {
     if (Game.shimmerTypes['golden'].n == 2 && !Game.Achievements["Four-leaf cookie"].won && Game.lumps>0 && g.magic>=g.getSpellCost(sp)) { g.castSpell(sp); }
     if (Game.shimmerTypes['golden'].n == 3 && !Game.Achievements["Four-leaf cookie"].won) { g.lumpRefill.click(); g.castSpell(sp); }
     sp=g.spells["conjure baked goods"];
-    var totalmult=1;
-	for (var i in Game.buffs) if (typeof Game.buffs[i].multCpS != 'undefined') totalmult*=Game.buffs[i].multCpS;
-	if (totalmult>100) {
+	if (AutoPlay.cpsMult>100) {
 	  if (g.magic>=g.getSpellCost(sp)) { g.castSpell(sp); return; }
 	  if (Game.lumps>98) { g.lumpRefill.click(); }
 	}
   }
   // temples: pantheon
   if (Game.isMinigameReady(Game.Objects["Temple"])) {
-	var age=Date.now()-Game.lumpT;
+	var age=AutoPlay.now-Game.lumpT;
     if(Game.lumpRipeAge-age < 61*60*1000 && !AutoPlay.cheatLumps && Game.lumps<11) AutoPlay.assignSpirit(0,"order",0); 
 	else if (AutoPlay.preNightMode() && Game.lumpOverripeAge-age < 9*60*60*1000 && (new Date).getMinutes()==59 && !AutoPlay.cheatLumps) AutoPlay.assignSpirit(0,"order",0);
 	else AutoPlay.assignSpirit(0,"mother",0); 
@@ -323,15 +344,14 @@ AutoPlay.handleMinigames = function() {
     var g=Game.Objects["Farm"].minigame;
 	AutoPlay.planting(g);
 	AutoPlay.harvesting(g);
-    if(Game.lumps<100 && AutoPlay.gardenReady(g) && !AutoPlay.finished && !AutoPlay.harvestPlant && !AutoPlay.lumpRelatedAchievements.every(AutoPlay.isWon)) {
+    if(Game.lumps<100 && AutoPlay.gardenReady(g) && !AutoPlay.finished && !AutoPlay.harvestPlant && 
+	    !AutoPlay.lumpRelatedAchievements.every(function(a) { return Game.AchievementsById[a].won; })) {
       AutoPlay.plantCookies = false;
 	  g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); //convert garden in order to get more sugar lumps
 	  AutoPlay.plantList=[0,0,0,0];
 	}
   }
 }
-
-AutoPlay.isWon = function (ach) { return Game.AchievementsById[ach].won; }
 
 AutoPlay.gardenUpgrades = range(470,476);
 
@@ -507,6 +527,7 @@ AutoPlay.plantSector = function(sector,plant1,plant2,plant0) {
 AutoPlay.plantCookies = false;
 
 AutoPlay.plantSeed = function(seed,whereX,whereY) {
+  if (AutoPlay.cpsMult>10) return; // do not plant when it is expensive
   var g=Game.Objects["Farm"].minigame;
   if(!g.isTileUnlocked(whereX,whereY)) return; // do not plant onto locked tiles
   var oldPlant=(g.getTile(whereX,whereY))[0];
@@ -515,9 +536,6 @@ AutoPlay.plantSeed = function(seed,whereX,whereY) {
 	return;
   }
   if(!g.canPlant(g.plants[seed])) return;
-  //AutoPlay.info("planting seed ...");
-  //FireEvent(g.plants[seed].l,"click");
-  //g.clickTile(whereX,whereY);
   g.useTool(g.plants[seed].id,whereX,whereY)
 }
 
@@ -537,7 +555,7 @@ AutoPlay.seedCalendar = function(sector) {
   AutoPlay.plantCookies = false;
   AutoPlay.switchSoil(sector,(AutoPlay.plantPending)?'fertilizer':'clay'); //only when mature, otherwise it should be fertilizer
   //use garden to get cps and sugarlumps
-  if(g.plants['bakeberry'].unlocked && AutoPlay.lumpRelatedAchievements.every(AutoPlay.isWon)) return 'bakeberry'; // 1% cps add. + harvest 30 mins with high ratio - use only in endgame
+  if(g.plants['bakeberry'].unlocked && AutoPlay.lumpRelatedAchievements.every(function(a) { return Game.AchievementsById[a].won; })) return 'bakeberry'; // 1% cps add. + harvest 30 mins with high ratio - use only in endgame
   if(g.plants['whiskerbloom'].unlocked) return 'whiskerbloom'; // approx. 1.5% cps add. - should use with nursetulip in the middle
   return 'bakerWheat'; // nothing else works
 /* alternative: chocoroot gives 1% cps, but also gets 3 mins of cps - harvest on high cps - predictable growth */
@@ -601,9 +619,7 @@ AutoPlay.harvesting = function(game) {
 	    AutoPlay.harvestPlant=true;
 	    AutoPlay.addActivity("Waiting to harvest " + plant.name + ".");
         if (tile[1]>=game.plantsById[tile[0]-1].mature) { // is mature and can give cookies
-          var totalmult=1;
-		  for (var i in Game.buffs) if (typeof Game.buffs[i].multCpS != 'undefined') totalmult*=Game.buffs[i].multCpS;
-		  if (totalmult>100) game.harvest(x,y); // harvest when it pays a lot
+		  if (AutoPlay.cpsMult>300) game.harvest(x,y); // harvest when it pays a lot
 		}
 	  }
       if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature) game.harvest(x,y); // is mature and can give cookies
@@ -649,14 +665,15 @@ AutoPlay.handleWrinklers = function() {
   doPop = doPop || (Game.Upgrades["Unholy bait"].bought && !Game.Achievements["Moistburster"].won);
   doPop = doPop || (AutoPlay.endPhase() && !Game.Achievements["Last Chance to See"].won);
   if (doPop) {
+	AutoPlay.setDeadline(AutoPlay.now+20000);
     AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
-  } else if((((Date.now()-Game.startDate) > 10*24*60*60*1000) || AutoPlay.grinding()) && !AutoPlay.endPhase() && !AutoPlay.wantAscend) {
+  } else if((((AutoPlay.now-Game.startDate) > 10*24*60*60*1000) || AutoPlay.grinding()) && !AutoPlay.endPhase() && !AutoPlay.wantAscend) {
     AutoPlay.addActivity("Popping one wrinkler per 2 hours, last " + (((Date.now()-AutoPlay.wrinklerTime)/1000/60)>>0) + " minutes ago.");
-	if(Date.now()-AutoPlay.wrinklerTime >= 2*60*60*1000) {
+	if(AutoPlay.now-AutoPlay.wrinklerTime >= 2*60*60*1000) {
       var w=Game.wrinklers[AutoPlay.nextWrinkler];
 	  if (w.close==1) w.hp = 0;
-	  AutoPlay.wrinklerTime=Date.now();
+	  AutoPlay.wrinklerTime=AutoPlay.now;
 	  AutoPlay.nextWrinkler=(AutoPlay.nextWrinkler+1)%Game.getWrinklersMax();
 	}
   }
@@ -698,12 +715,14 @@ AutoPlay.handleAscend = function() {
   var daysInRun=(Date.now()-Game.startDate)/1000/60/60/24;
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
     AutoPlay.activities="Going for 1000 ascends.";
+	AutoPlay.setDeadline(0);
 	AutoPlay.wantAscend=true; //avoid byuing plants
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) || ((Game.prestige+Game.ascendMeterLevel)%1000==777))) 
 	{ AutoPlay.doAscend("go for 1000 ascends",0); }
   }
   if (Game.Upgrades["Permanent upgrade slot V"].bought && !Game.Achievements["Reincarnation"].won && !Game.ascensionMode) { // this costs 3+2 minute per 2 ascend
     AutoPlay.activities="Going for 100 ascends.";
+	AutoPlay.setDeadline(0);
 	AutoPlay.wantAscend=true; //avoid byuing plants
     if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) )) 
 	{ AutoPlay.doAscend("go for 100 ascends",0); }
@@ -716,6 +735,7 @@ AutoPlay.handleAscend = function() {
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky number"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) { AutoPlay.doAscend("ascend for lucky number.",0); }
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky payout"].bought && (Game.heavenlyChips > 77777777)) {
 	AutoPlay.wantAscend=true; //avoid byuing plants
+	AutoPlay.setDeadline(0);
     AutoPlay.addActivity("Trying to get Lucky Payout.");
     if (Game.ascendMeterLevel>0 && (newPrestige <= 777777) && (newPrestige+Game.ascendMeterLevel >= 777777))
       AutoPlay.doAscend("ascend for lucky payout.",0);
@@ -741,6 +761,7 @@ AutoPlay.canContinue = function() {
 
 AutoPlay.doReincarnate = function() {
   AutoPlay.delay=10; AutoPlay.buyHeavenlyUpgrades(); 
+  AutoPlay.setDeadline(0);
   if(!Game.Achievements["Neverclick"].won || !Game.Achievements["Hardcore"].won) { Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt(); }
   if(AutoPlay.endPhase() && AutoPlay.mustRebornAscend()) { Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt(); }
   Game.Reincarnate(true); 
@@ -755,7 +776,7 @@ AutoPlay.doAscend = function(str,log) {
   AutoPlay.addActivity("Preparing to ascend.");
   if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant to mature
   if (Game.hasBuff("Sugar frenzy")) return; // do not ascend when sugar frenzy is active
-  // for (var i in Game.buffs) { if(Game.buffs[i].time>=0) return; } // do not ascend while we have buffs - does not work well with cheating golden
+//  for (var i in Game.buffs) { if(Game.buffs[i].time>=0) return; } // do not ascend while we have buffs - does not work well with cheating golden
 //  if(AutoPlay.checkAllAchievementsOK(false)) { AutoPlay.logging(); return; } // do not ascend when we are finished
   if(Game.wrinklers.some(function(w) { return w.close; } )) AutoPlay.assignSpirit(0,"scorn",1);
   Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp=0; } ); // pop all wrinklers
@@ -1040,6 +1061,8 @@ Game.UpdateMenu = function() {
 
 AutoPlay.info = function(s) { console.log("### "+s); Game.Notify("Automatic Playthrough",s,1,100); }
 AutoPlay.debugInfo = function(s) { console.log("======> "+s); Game.Notify("Debugging CookieBot",s,1,20); }
+
+AutoPlay.setDeadline = function(d) { if (AutoPlay.deadline>d) AutoPlay.deadline=d; }
 
 AutoPlay.logging = function() {
   var before=window.localStorage.getItem("autoplayLog");
