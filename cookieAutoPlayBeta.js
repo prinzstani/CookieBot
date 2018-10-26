@@ -1,11 +1,11 @@
-//cookie bot: auto-play-through cookie clicker
+// cookie bot: auto-play-through cookie clicker
 // see also https://github.com/prinzstani/CookieBot
 
 var AutoPlay;
 
-if(!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.012"
-AutoPlay.gameVersion = "2.012";
+if (!AutoPlay) AutoPlay = {};
+AutoPlay.version = "2.016"
+AutoPlay.gameVersion = "2.016";
 AutoPlay.robotName = "Automated ";
 AutoPlay.delay = 0;
 AutoPlay.night = false;
@@ -407,26 +407,26 @@ AutoPlay.farmGoldenSugarLumps = function(age) {
   if (AutoPlay.nextAchievement!=Game.Achievements["All-natural cane sugar"].id) 
 	return;
   if (AutoPlay.masterSaveCopy) { 
-    AutoPlay.debugInfo("back to save master"); 
+    AutoPlay.info("back to save master"); 
 	Game.LoadSave(AutoPlay.masterSaveCopy); 
 	AutoPlay.masterSaveCopy = 0; 
 	return; 
   }
   if (age<Game.lumpRipeAge && age>=Game.lumpMatureAge) {
     if (AutoPlay.copyWindows.length>=AutoPlay.copyCount) { // check rather !masterCopy
-	  AutoPlay.debugInfo("creating master load copy"); 
+	  AutoPlay.info("creating master load copy"); 
 	  AutoPlay.masterLoadCopy = Game.WriteSave(1); 
 	} 
     if (AutoPlay.copyWindows.length) {
 	  Game.LoadSave(AutoPlay.copyWindows.pop());
 	  if (Game.lumpCurrentType) 
-		AutoPlay.debugInfo("found lump with type " + Game.lumpCurrentType);
+		AutoPlay.info("found lump with type " + Game.lumpCurrentType);
 	  if (Game.lumpCurrentType==2) {
 	    AutoPlay.info("YESS, golden lump");
 		AutoPlay.masterLoadCopy = 0; AutoPlay.copyWindows=[];
 	  } 
 	} else if (AutoPlay.masterLoadCopy) { 
-	  AutoPlay.debugInfo("going back to master copy"); 
+	  AutoPlay.info("going back to master copy"); 
 	  Game.LoadSave(AutoPlay.masterLoadCopy); 
 	  AutoPlay.masterLoadCopy = 0; }
   }
@@ -477,8 +477,8 @@ AutoPlay.handleMinigames = function() {
   // farms: garden ================================
   if (Game.isMinigameReady(Game.Objects["Farm"])) {
     var g = Game.Objects["Farm"].minigame;
-	AutoPlay.planting(g);
 	AutoPlay.harvesting(g);
+	AutoPlay.planting(g);
     if(Game.lumps<100 && AutoPlay.gardenReady(g) && !AutoPlay.finished && 
 	    !AutoPlay.harvestPlant && !AutoPlay.lumpRelatedAchievements.every(
 		  function(a) { return Game.AchievementsById[a].won; })) {
@@ -855,8 +855,8 @@ AutoPlay.harvest = function(game,x,y) {
 AutoPlay.switchSoil = function(game,sector,which) {
   if (sector) return;
   if (game.nextSoil>AutoPlay.now) return;
-  var me=g.soils[which];
-  if (g.soil==me.id || g.parent.bought<me.req) return;
+  var me=game.soils[which];
+  if (game.soil==me.id || game.parent.bought<me.req) return;
   FireEvent(l('gardenSoil-'+Game.Objects["Farm"].minigame.soils[which].id),'click');
 }
 
@@ -946,146 +946,210 @@ AutoPlay.unDunk = function() {
 
 //===================== Handle Ascend ==========================
 AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
-AutoPlay.wantAscend=false;
+AutoPlay.wantAscend = false;
 
 AutoPlay.handleAscend = function() {
-  if (Game.OnAscend) { AutoPlay.doReincarnate(); AutoPlay.findNextAchievement(); return; }
-  if (Game.ascensionMode==1 && !AutoPlay.canContinue()) AutoPlay.doAscend("reborn mode did not work, retry.",0);
-  if (AutoPlay.preNightMode() && AutoPlay.Config.NightMode==5) return; //do not ascend right before the night 
-  // critical, does not work together with nightmode config and switching off nightmode at grinding
-  var daysInRun=(AutoPlay.now-Game.startDate)/1000/60/60/24;
-  if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) { // this costs 2 minutes per 2 ascend
-    AutoPlay.activities="Going for 1000 ascends.";
-	AutoPlay.setDeadline(0);
-	AutoPlay.wantAscend=true; //avoid byuing plants
-    if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) || ((Game.prestige+Game.ascendMeterLevel)%1000==777))) 
-	{ AutoPlay.doAscend("go for 1000 ascends",0); }
+  if (Game.OnAscend) { 
+    AutoPlay.doReincarnate(); 
+	AutoPlay.findNextAchievement(); 
+    AutoPlay.setDeadline(0); 
+	return; 
   }
-  if (Game.Upgrades["Permanent upgrade slot V"].bought && !Game.Achievements["Reincarnation"].won && !Game.ascensionMode) { // this costs 3+2 minute per 2 ascend
-    AutoPlay.activities="Going for 100 ascends.";
+  if (Game.ascensionMode==1 && !AutoPlay.canContinue()) 
+    AutoPlay.doAscend("reborn mode did not work, retry.",0);
+  if (AutoPlay.preNightMode() && AutoPlay.Config.NightMode==5) 
+	return; //do not ascend right before the night 
+  var daysInRun = (AutoPlay.now-Game.startDate)/1000/60/60/24;
+  if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && 
+      !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) { 
+	// this costs approx. 2 minutes per 2 ascend
+    AutoPlay.activities = "Going for 1000 ascends.";
 	AutoPlay.setDeadline(0);
-	AutoPlay.wantAscend=true; //avoid byuing plants
-    if ((Game.ascendMeterLevel > 0) && ((AutoPlay.ascendLimit < Game.ascendMeterLevel*Game.ascendMeterPercent) )) 
-	{ AutoPlay.doAscend("go for 100 ascends",0); }
+	AutoPlay.wantAscend = true; //avoid byuing plants
+    if ((Game.ascendMeterLevel>0) && 
+         (AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent || 
+	        (Game.prestige+Game.ascendMeterLevel)%1000==777)) 
+	  AutoPlay.doAscend("go for 1000 ascends",0);
   }
-  var extraDaysInRun = daysInRun + daysInRun*Game.ascendMeterLevel/(Game.prestige+1000000000);
-  if (AutoPlay.grinding() && !AutoPlay.wantAscend) AutoPlay.addActivity("Still " + (40-(extraDaysInRun<<0)) + " days until next hard ascend.");
-  if (extraDaysInRun > 40) AutoPlay.doAscend("ascend after " + daysInRun + " days just while waiting for next achievement.",1);
-  var newPrestige=(Game.prestige+Game.ascendMeterLevel)%1000000;
-  if (AutoPlay.grinding() && !Game.Upgrades["Lucky digit"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) { AutoPlay.doAscend("ascend for lucky digit.",0); }
-  if (AutoPlay.grinding() && !Game.Upgrades["Lucky number"].bought && Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) { AutoPlay.doAscend("ascend for lucky number.",0); }
-  if (AutoPlay.grinding() && !Game.Upgrades["Lucky payout"].bought && (Game.heavenlyChips > 77777777)) {
-	AutoPlay.wantAscend=true; //avoid byuing plants
+  if (Game.Upgrades["Permanent upgrade slot V"].bought && 
+      !Game.Achievements["Reincarnation"].won && !Game.ascensionMode) { 
+	// this costs 3+2 minute per 2 ascend
+    AutoPlay.activities = "Going for 100 ascends.";
+	AutoPlay.setDeadline(0);
+	AutoPlay.wantAscend = true; //avoid byuing plants
+    if (Game.ascendMeterLevel>0 && 
+	    AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent) 
+	  AutoPlay.doAscend("go for 100 ascends",0);
+  }
+  var extraDaysInRun = 
+        daysInRun + daysInRun*Game.ascendMeterLevel/(Game.prestige+1000000000);
+  if (AutoPlay.grinding() && !AutoPlay.wantAscend) 
+	AutoPlay.addActivity("Still " + (40-(extraDaysInRun<<0)) + 
+      " days until next hard ascend.");
+  if (extraDaysInRun>40) {
+	for (var x = Game.cookies; x>10; x/=10);
+	if (x<9) AutoPlay.doAscend("ascend after " + daysInRun + 
+               " days just while waiting for next achievement.",1);
+  }
+  var newPrestige = (Game.prestige+Game.ascendMeterLevel)%1000000;
+  if (AutoPlay.grinding() && !Game.Upgrades["Lucky digit"].bought && 
+      Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) 
+	AutoPlay.doAscend("ascend for lucky digit.",0);
+  if (AutoPlay.grinding() && !Game.Upgrades["Lucky number"].bought && 
+      Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) 
+    AutoPlay.doAscend("ascend for lucky number.",0);
+  if (AutoPlay.grinding() && !Game.Upgrades["Lucky payout"].bought && 
+      Game.heavenlyChips>77777777) {
+	AutoPlay.wantAscend = true; //avoid byuing plants
 	AutoPlay.setDeadline(0);
     AutoPlay.addActivity("Trying to get Lucky Payout.");
-    if (Game.ascendMeterLevel>0 && (newPrestige <= 777777) && (newPrestige+Game.ascendMeterLevel >= 777777))
+    if (Game.ascendMeterLevel>0 && (newPrestige <= 777777) && 
+	    (newPrestige+Game.ascendMeterLevel >= 777777))
       AutoPlay.doAscend("ascend for lucky payout.",0);
   }
   if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
-	var date=new Date();
+	var date = new Date();
 	date.setTime(AutoPlay.now-Game.startDate);
-	var legacyTime=Game.sayTime(date.getTime()/1000*Game.fps,-1);
+	var legacyTime = Game.sayTime(date.getTime()/1000*Game.fps,-1);
 	date.setTime(AutoPlay.now-Game.fullDate);
 	var fullTime=Game.sayTime(date.getTime()/1000*Game.fps,-1);
-    AutoPlay.doAscend("have achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].desc + " after " + legacyTime + "(total: " + fullTime + ")",1);
-} }
+    AutoPlay.doAscend("have achievement: " + 
+	  Game.AchievementsById[AutoPlay.nextAchievement].desc + 
+      " after " + legacyTime + "(total: " + fullTime + ")",1);
+  } 
+}
 
 AutoPlay.canContinue = function() {
-  if (!Game.Achievements["Neverclick"].won && Game.cookieClicks<=15) { AutoPlay.activities="Trying to get achievement: Neverclick."; return true; }
-  if (!Game.Achievements["True Neverclick"].won && Game.cookieClicks==0) { AutoPlay.activities="Trying to get achievement: True Neverclick."; return true; }
-  if (!Game.Achievements["Hardcore"].won && Game.UpgradesOwned==0) { AutoPlay.activities="Trying to get achievement: Hardcore."; return true; }
-  if (!Game.Achievements["Speed baking I"].won && (AutoPlay.now-Game.startDate <= 1000*60*35)) { AutoPlay.activities="Trying to get achievement: Speed baking I."; return true; }
-  if (!Game.Achievements["Speed baking II"].won && (AutoPlay.now-Game.startDate <= 1000*60*25)) { AutoPlay.activities="Trying to get achievement: Speed baking II."; return true; }
-  if (!Game.Achievements["Speed baking III"].won && (AutoPlay.now-Game.startDate <= 1000*60*15)) { AutoPlay.activities="Trying to get achievement: Speed baking III."; return true; }
-  return false;
+  if (!Game.Achievements["Neverclick"].won && Game.cookieClicks<=15) { 
+    AutoPlay.activities="Trying to get achievement: Neverclick."; 
+	return true; 
+  } else if (!Game.Achievements["True Neverclick"].won && Game.cookieClicks==0) { 
+    AutoPlay.activities="Trying to get achievement: True Neverclick."; 
+	return true; 
+  } else if (!Game.Achievements["Hardcore"].won && Game.UpgradesOwned==0) { 
+    AutoPlay.activities="Trying to get achievement: Hardcore."; 
+	return true; 
+  } else if (!Game.Achievements["Speed baking I"].won && 
+            (AutoPlay.now-Game.startDate <= 1000*60*35)) { 
+	AutoPlay.activities="Trying to get achievement: Speed baking I."; 
+	return true; 
+  } else if (!Game.Achievements["Speed baking II"].won && 
+            (AutoPlay.now-Game.startDate <= 1000*60*25)) { 
+    AutoPlay.activities="Trying to get achievement: Speed baking II."; 
+	return true; 
+  } else if (!Game.Achievements["Speed baking III"].won && 
+            (AutoPlay.now-Game.startDate <= 1000*60*15)) { 
+	AutoPlay.activities="Trying to get achievement: Speed baking III."; 
+	return true; 
+  } else return false;
 }
 
 AutoPlay.doReincarnate = function() {
-  AutoPlay.delay=10; AutoPlay.buyHeavenlyUpgrades(); 
+  AutoPlay.delay = 10; 
+  AutoPlay.buyHeavenlyUpgrades(); 
   AutoPlay.setDeadline(0);
-  if(!Game.Achievements["Neverclick"].won || !Game.Achievements["Hardcore"].won) { Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt(); }
-  if(AutoPlay.endPhase() && AutoPlay.mustRebornAscend()) { Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt(); }
-  Game.Reincarnate(true); 
-//  if (AutoPlay.loggingInfo) setTimeout(AutoPlay.logging, 20*1000); - this is for logging after ascend, not before
+  if (!Game.Achievements["Neverclick"].won || !Game.Achievements["Hardcore"].won) { 
+    Game.PickAscensionMode(); Game.nextAscensionMode = 1; Game.ConfirmPrompt(); 
+  }
+  if (AutoPlay.endPhase() && AutoPlay.mustRebornAscend()) { 
+    Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt(); 
+  }
+  Game.Reincarnate(true);
   AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 }
 
-AutoPlay.mustRebornAscend = function() { return !([78,93,94,95].every(function(a) { return Game.AchievementsById[a].won; })); }
+AutoPlay.mustRebornAscend = function() { 
+  return !([78,93,94,95].every(function(a) { return Game.AchievementsById[a].won; })); 
+}
 
 AutoPlay.doAscend = function(str,log) {
-  AutoPlay.wantAscend=AutoPlay.plantPending || AutoPlay.harvestPlant;
+  AutoPlay.wantAscend = AutoPlay.plantPending || AutoPlay.harvestPlant;
   AutoPlay.addActivity("Preparing to ascend.");
-  if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant to mature
-  if (Game.hasBuff("Sugar frenzy")) return; // do not ascend when sugar frenzy is active
-//  for (var i in Game.buffs) { if(Game.buffs[i].time>=0) return; } // do not ascend while we have buffs - does not work well with cheating golden
-//  if(AutoPlay.checkAllAchievementsOK(false)) { AutoPlay.logging(); return; } // do not ascend when we are finished
-  if(Game.wrinklers.some(function(w) { return w.close; } )) AutoPlay.assignSpirit(0,"scorn",1);
-  Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp=0; } ); // pop all wrinklers
-  if (Game.isMinigameReady(Game.Objects["Farm"])) Game.Objects["Farm"].minigame.harvestAll(); // harvest garden
-  if (Game.Upgrades["Chocolate egg"].unlocked && !Game.Upgrades["Chocolate egg"].bought) {
+  if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant
+  if (Game.hasBuff("Sugar frenzy")) return; // do not ascend during sugar frenzy
+  AutoPlay.setDeadline(0); 
+  if (Game.wrinklers.some(function(w) { return w.close; } )) 
+	AutoPlay.assignSpirit(0,"scorn",1);
+  Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp=0; } ); // pop wrinklers
+  if (Game.isMinigameReady(Game.Objects["Farm"])) 
+	Game.Objects["Farm"].minigame.harvestAll(); // harvest garden
+  if (Game.Upgrades["Chocolate egg"].unlocked && 
+      !Game.Upgrades["Chocolate egg"].bought) {
     if (Game.dragonLevel>=9) { // setting first aura to earth shatterer
       Game.specialTab="dragon"; Game.SetDragonAura(5,0); 
       Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
 	}
 	Game.ObjectsById.forEach(function(e) { e.sell(e.amount); } );
     Game.Upgrades["Chocolate egg"].buy();
-  } else { AutoPlay.debugInfo(str); AutoPlay.loggingInfo=log?str:0; AutoPlay.logging(); AutoPlay.delay=10; Game.Ascend(true); }
+  } else { 
+    AutoPlay.info(str); AutoPlay.loggingInfo=log?str:0; 
+	AutoPlay.logging(); AutoPlay.delay=10; Game.Ascend(true); 
+  }
 }
 
 //===================== Handle Achievements ==========================
 AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 389, 395, 397];
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
-AutoPlay.endPhase = function() { return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; }
+AutoPlay.endPhase = function() { 
+  return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; 
+}
 
-AutoPlay.grinding = function() { return Game.AchievementsById[373].won /*&& !Game.AchievementsById[391].won*/; }
+AutoPlay.grinding = function() { return Game.AchievementsById[373].won; }
 
-AutoPlay.mainActivity="Doing nothing in particular.";
+AutoPlay.mainActivity = "Doing nothing in particular.";
 
 AutoPlay.setMainActivity = function(str) {
-  AutoPlay.mainActivity=str;
-  AutoPlay.debugInfo(str); 
+  AutoPlay.mainActivity = str;
+  AutoPlay.info(str); 
 }
 
 AutoPlay.findNextAchievement = function() {
-  AutoPlay.wantAscend=false;
+  AutoPlay.wantAscend = false;
   AutoPlay.handleSmallAchievements();
-  for(i = 0; i < AutoPlay.wantedAchievements.length; i++) {
+  for(i = 0; i<AutoPlay.wantedAchievements.length; i++) {
     if (!(Game.AchievementsById[AutoPlay.wantedAchievements[i]].won)) { 
 	  AutoPlay.nextAchievement = AutoPlay.wantedAchievements[i]; 
-	  AutoPlay.setMainActivity("Trying to get achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].desc);
+	  AutoPlay.setMainActivity("Trying to get achievement: " + 
+	    Game.AchievementsById[AutoPlay.nextAchievement].desc);
 	  return; 
 	}
   }
-  AutoPlay.checkAllAchievementsOK(true);
+  AutoPlay.checkAllAchievementsOK();
 }
 
-AutoPlay.checkAllAchievementsOK = function(log) { // could remove the parameter ...
+AutoPlay.checkAllAchievementsOK = function() { //We do not stop for one-year legacy
   for (var i in Game.Achievements) {
-    var me=Game.Achievements[i];
-    if (!me.won && me.pool!="dungeon" && me.id!=367) { // missing achievement, but do not stop for legacy of one year
-      if(log) AutoPlay.setMainActivity("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
-	  if(log) AutoPlay.nextAchievement=me.id; 
+    var me = Game.Achievements[i];
+    if (!me.won && me.pool!="dungeon" && me.id!=367) { // missing achievement
+      AutoPlay.setMainActivity("Missing achievement #" + me.id + 
+	    ": " + me.desc + ", try to get it now.");
+	  AutoPlay.nextAchievement = me.id; 
 	  return false;
-  } }
+    } 
+  }
   for (var i in Game.Upgrades) {
-    var me=Game.Upgrades[i];
+    var me = Game.Upgrades[i];
     if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
-      if(log) AutoPlay.nextAchievement=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
-      if(log) AutoPlay.setMainActivity("Prestige upgrade " + me.name + " is missing, waiting to buy it.");
-	  if(log) Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); 
+      AutoPlay.nextAchievement = 
+	    AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
+      AutoPlay.setMainActivity("Prestige upgrade " + me.name + 
+	    " is missing, waiting to buy it.");
+	  Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); 
 	  return false;
-  } }
-  if(!Game.Achievements["So much to do so much to see"].won) { //wait until the end of the year - achievement 367
-    var me=Game.Achievements["So much to do so much to see"];
-    if(log) AutoPlay.setMainActivity("Missing achievement #" + me.id + ": " + me.desc + ", try to get it now."); 
-	if(log) AutoPlay.nextAchievement=me.id; 
+    } 
+  }
+  if (!Game.Achievements["So much to do so much to see"].won) { //wait until one-year legacy (367)
+    var me = Game.Achievements["So much to do so much to see"];
+    AutoPlay.setMainActivity("Missing achievement #" + me.id + 
+	  ": " + me.desc + ", try to get it now."); 
+	AutoPlay.nextAchievement = me.id; 
 	return false;
   }
   // finished with playing: idle further
-  AutoPlay.finished=true;
-  if(log) AutoPlay.setMainActivity("My job is done here, have a nice day. I am still idling along.");
-  if(log) AutoPlay.nextAchievement=99; // follow the white rabbit (from dungeons)
+  AutoPlay.finished = true;
+  AutoPlay.setMainActivity("My job is done here, have a nice day. I am still idling along.");
+  AutoPlay.nextAchievement = 99; // follow the white rabbit (from dungeons)
   return false;
 }
 
@@ -1093,43 +1157,60 @@ AutoPlay.leaveGame = function() {
   clearInterval(AutoPlay.autoPlayer); //stop autoplay: 
   AutoPlay.info("My job is done here, have a nice day.");
   if(Game.bakeryName.slice(0,AutoPlay.robotName.length)==AutoPlay.robotName) { 
-    Game.bakeryName = Game.bakeryName.slice(AutoPlay.robotName.length); Game.bakeryNamePrompt(); Game.ConfirmPrompt(); 
+    Game.bakeryName = Game.bakeryName.slice(AutoPlay.robotName.length); 
+	Game.bakeryNamePrompt(); Game.ConfirmPrompt(); 
   }
   return true;
 }
 
 AutoPlay.findMissingAchievements = function() { // just for testing purposes
   for (var i in Game.Achievements) {
-    var me=Game.Achievements[i];
+    var me = Game.Achievements[i];
     if (!me.won && me.pool!="dungeon") { // missing achievement
-      AutoPlay.debugInfo("missing achievement #" + me.id + ": " + me.desc);
+      AutoPlay.info("missing achievement #" + me.id + ": " + me.desc);
   } }
   for (var i in Game.Upgrades) {
     var me=Game.Upgrades[i];
-    if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
-      AutoPlay.debugInfo("prestige upgrade " + me.name + " is missing.");
-} } }
+    if (me.pool=='prestige' && !me.bought) { // missing prestige upgrade
+      AutoPlay.info("prestige upgrade " + me.name + " is missing.");
+    } 
+  } 
+}
 
 //===================== Handle Heavenly Upgrades ==========================
-AutoPlay.prioUpgrades = [363,323,411,412,413,264,265,266,267,268,181,282,283,284,291,393,394]; // legacy, dragon, lucky upgrades, permanent slots, season switcher, better golden cookies, kittens, synergies
+AutoPlay.prioUpgrades = [363, 323, // legacy, dragon 
+  411, 412, 413, // lucky upgrades, 
+  264, 265, 266, 267, 268, 181, // permanent slots, season switcher, 
+  282, 283, 284, 291, 393, 394]; // better golden cookies, kittens, synergies
 AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494];
 AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189];
 AutoPlay.chancemakers = [416,417,418,419,420,421,422,423,441,493];
 AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497];
 
 AutoPlay.buyHeavenlyUpgrades = function() {
-  AutoPlay.prioUpgrades.forEach(function(id) { var e=Game.UpgradesById[id]; if (e.canBePurchased && !e.bought && e.buy(true)) { AutoPlay.info("buying "+e.name); } });
-  Game.UpgradesById.forEach(function(e) { if (e.canBePurchased && !e.bought && e.buy(true)) { AutoPlay.info("buying "+e.name); } });
+  AutoPlay.prioUpgrades.forEach(function(id) { 
+    var e = Game.UpgradesById[id]; 
+	if (e.canBePurchased && !e.bought && e.buy(true)) { 
+	  AutoPlay.info("buying "+e.name); 
+	} 
+  });
+  Game.UpgradesById.forEach(function(e) { 
+    if (e.canBePurchased && !e.bought && e.buy(true)) { 
+	  AutoPlay.info("buying "+e.name); 
+	} 
+  });
   AutoPlay.assignPermanentSlot(1,AutoPlay.kittens);
   AutoPlay.assignPermanentSlot(2,AutoPlay.chancemakers);
-  if(!Game.Achievements["Reincarnation"].won) { // for many ascends
+  if (!Game.Achievements["Reincarnation"].won) { // for many ascends
     AutoPlay.assignPermanentSlot(0,AutoPlay.cursors);
     AutoPlay.assignPermanentSlot(3,[52]); // lucky day
     AutoPlay.assignPermanentSlot(4,[53]); // serendipity
   } else { //collect rare things
     AutoPlay.assignPermanentSlot(0,AutoPlay.butterBiscuits);
     AutoPlay.assignPermanentSlot(3,[226]); // omelette
-	if(Game.Achievements["Elder nap"].won && Game.Achievements["Elder slumber"].won && Game.Achievements["Elder calm"].won)
+	if (Game.Achievements["Elder nap"].won && 
+	    Game.Achievements["Elder slumber"].won && 
+		Game.Achievements["Elder calm"].won)
       AutoPlay.assignPermanentSlot(4,[72]); // arcane sugar
 	else AutoPlay.assignPermanentSlot(4,[53]); // serendipity
   }
@@ -1138,32 +1219,41 @@ AutoPlay.buyHeavenlyUpgrades = function() {
 AutoPlay.assignPermanentSlot = function(slot,options) {
   if (!Game.UpgradesById[264+slot].bought) return;
   Game.AssignPermanentSlot(slot); 
-  for (var i=options.length-1; i>=0; i--) { if(Game.UpgradesById[options[i]].bought) { Game.PutUpgradeInPermanentSlot(options[i],slot); break; } }
+  for (var i=options.length-1; i>=0; i--) { 
+    if (Game.UpgradesById[options[i]].bought) { 
+	  Game.PutUpgradeInPermanentSlot(options[i],slot); break; 
+	} 
+  }
   Game.ConfirmPrompt();
 }
 
 //===================== Handle Dragon ==========================
 AutoPlay.handleDragon = function() {
   if (Game.Upgrades["A crumbly egg"].unlocked) {
-    if (Game.dragonLevel<Game.dragonLevels.length-1 && Game.dragonLevels[Game.dragonLevel].cost()) {
-      Game.specialTab="dragon"; Game.UpgradeDragon(); Game.ToggleSpecialMenu(0);
-  } }
-  if ((Game.dragonAura==0) && (Game.dragonLevel>=5)) { // set first aura to kitten (breath of milk)
-    Game.specialTab="dragon"; Game.SetDragonAura(1,0); 
+    if (Game.dragonLevel<Game.dragonLevels.length-1 && 
+	    Game.dragonLevels[Game.dragonLevel].cost()) {
+      Game.specialTab = "dragon"; 
+	  Game.UpgradeDragon(); Game.ToggleSpecialMenu(0);
+    } 
+  }
+  if ((Game.dragonAura==0) && (Game.dragonLevel>=5)) { 
+  // set first aura to kitten (breath of milk)
+    Game.specialTab = "dragon"; Game.SetDragonAura(1,0); 
     Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
   }
-  if ((Game.dragonAura==1) && (Game.dragonLevel>=19)) { // set first aura to prism (radiant appetite)
-    Game.specialTab="dragon"; Game.SetDragonAura(15,0); 
+  if ((Game.dragonAura==1) && (Game.dragonLevel>=21)) { 
+  // set first aura to fractal (dragons curve)
+    Game.specialTab = "dragon"; Game.SetDragonAura(17,0); 
     Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
   }
-  if ((Game.dragonAura2==0) && (Game.dragonLevel>=Game.dragonLevels.length-1)) { // set second aura to kitten (breath of milk)
-    Game.specialTab="dragon"; Game.SetDragonAura(1,1); 
+  if ((Game.dragonAura2==0) && 
+      (Game.dragonLevel>=Game.dragonLevels.length-1)) { 
+  // set second aura to kitten (breath of milk)
+    Game.specialTab = "dragon"; Game.SetDragonAura(1,1); 
     Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
 } }
 
 //===================== Menu ==========================
-//somehow the toggle off goes away after some short period.
-
 if(!AutoPlay.Backup) AutoPlay.Backup = {};
 AutoPlay.Config = {};
 AutoPlay.ConfigData = {};
@@ -1172,143 +1262,139 @@ AutoPlay.Disp = {};
 AutoPlay.ConfigPrefix = 'autoplayConfig';
 
 AutoPlay.SaveConfig = function(config) {
-	localStorage.setItem(AutoPlay.ConfigPrefix, JSON.stringify(config));
+  localStorage.setItem(AutoPlay.ConfigPrefix, JSON.stringify(config));
 }
 
 AutoPlay.LoadConfig = function() {
-	if (localStorage.getItem(AutoPlay.ConfigPrefix) != null) {
-		AutoPlay.Config = JSON.parse(localStorage.getItem(AutoPlay.ConfigPrefix));
-
-		// Check values
-		var mod = false;
-		for (var i in AutoPlay.ConfigDefault) {
-			if (typeof AutoPlay.Config[i] === 'undefined' || AutoPlay.Config[i] < 0 || AutoPlay.Config[i] >= AutoPlay.ConfigData[i].label.length) {
-				mod = true;
-				AutoPlay.Config[i] = AutoPlay.ConfigDefault[i];
-			}
-		}
-		if (mod) AutoPlay.SaveConfig(AutoPlay.Config);
+  if (localStorage.getItem(AutoPlay.ConfigPrefix) != null) {
+	AutoPlay.Config = JSON.parse(localStorage.getItem(AutoPlay.ConfigPrefix));
+	// Check values
+	var mod = false;
+	for (var i in AutoPlay.ConfigDefault) {
+      if (typeof AutoPlay.Config[i]==='undefined' || AutoPlay.Config[i]<0 || 
+	      AutoPlay.Config[i]>=AutoPlay.ConfigData[i].label.length) {
+		mod = true;
+		AutoPlay.Config[i] = AutoPlay.ConfigDefault[i];
+	  }
 	}
-	else { // Default values
-		AutoPlay.RestoreDefault();
-	}
+	if (mod) AutoPlay.SaveConfig(AutoPlay.Config);
+  } else { // Default values
+	AutoPlay.RestoreDefault();
+  }
 }
 
 AutoPlay.RestoreDefault = function() {
-	AutoPlay.Config = {};
-	AutoPlay.SaveConfig(AutoPlay.ConfigDefault);
-	AutoPlay.LoadConfig();
-	Game.UpdateMenu();
+  AutoPlay.Config = {};
+  AutoPlay.SaveConfig(AutoPlay.ConfigDefault);
+  AutoPlay.LoadConfig();
+  Game.UpdateMenu();
 }
 
 AutoPlay.ToggleConfig = function(config) {
-	AutoPlay.ToggleConfigUp(config);
-	if (AutoPlay.Config[config] == 0) {
-		l(AutoPlay.ConfigPrefix + config).className = 'option off';
-	}
-	else {
-		l(AutoPlay.ConfigPrefix + config).className = 'option';
-	}
-}
-
-AutoPlay.WaitConfig = function(config) {
+  AutoPlay.ToggleConfigUp(config);
+  l(AutoPlay.ConfigPrefix + config).className = 
+    AutoPlay.Config[config]?'option':'option off';
 }
 
 AutoPlay.ToggleConfigUp = function(config) {
-	AutoPlay.Config[config]++;
-	if (AutoPlay.Config[config] == AutoPlay.ConfigData[config].label.length) {
-		AutoPlay.Config[config] = 0;
-	}
-	l(AutoPlay.ConfigPrefix + config).innerHTML = AutoPlay.Disp.GetConfigDisplay(config);
-	AutoPlay.SaveConfig(AutoPlay.Config);
+  AutoPlay.Config[config]++;
+  if (AutoPlay.Config[config]==AutoPlay.ConfigData[config].label.length)
+	AutoPlay.Config[config] = 0;
+  l(AutoPlay.ConfigPrefix + config).innerHTML = AutoPlay.Disp.GetConfigDisplay(config);
+  AutoPlay.SaveConfig(AutoPlay.Config);
 }
 
-AutoPlay.ConfigData.NightMode = {label: ['OFF', 'AUTO', 'ON'], desc: 'Handling of night mode'};
-AutoPlay.ConfigData.ClickMode = {label: ['OFF', 'AUTO', 'LIGHT SPEED', 'RIDICULOUS SPEED', 'LUDICROUS SPEED'], desc: 'Clicking speed'};
-AutoPlay.ConfigData.GoldenClickMode = {label: ['OFF', 'AUTO', 'ALL'], desc: 'Golden Cookie clicking mode'};
-AutoPlay.ConfigData.CheatLumps = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of sugar lumps'};
-AutoPlay.ConfigData.CheatGolden = {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of golden cookies'};
+AutoPlay.ConfigData.NightMode = 
+  {label: ['OFF', 'AUTO', 'ON'], desc: 'Handling of night mode'};
+AutoPlay.ConfigData.ClickMode = 
+  {label: ['OFF', 'AUTO', 'LIGHT SPEED', 'RIDICULOUS SPEED', 'LUDICROUS SPEED'], 
+   desc: 'Clicking speed'};
+AutoPlay.ConfigData.GoldenClickMode = 
+  {label: ['OFF', 'AUTO', 'ALL'], desc: 'Golden Cookie clicking mode'};
+AutoPlay.ConfigData.CheatLumps = 
+  {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of sugar lumps'};
+AutoPlay.ConfigData.CheatGolden = 
+  {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of golden cookies'};
 AutoPlay.ConfigData.CleanLog = {label: ['Clean Log'], desc: 'Cleaning the log'};
 AutoPlay.ConfigData.ShowLog = {label: ['Show Log'], desc: 'Showing the log'};
 
-AutoPlay.ConfigDefault = {NightMode: 1, ClickMode: 1, GoldenClickMode: 1, CheatLumps: 1, CheatGolden: 1, CleanLog: 0, ShowLog: 0}; // default
+AutoPlay.ConfigDefault = {NightMode: 1, ClickMode: 1, GoldenClickMode: 1, 
+                          CheatLumps: 1, CheatGolden: 1, CleanLog: 0, ShowLog: 0};
 
 AutoPlay.LoadConfig();
 
 AutoPlay.Disp.GetConfigDisplay = function(config) {
-	return AutoPlay.ConfigData[config].label[AutoPlay.Config[config]];
+  return AutoPlay.ConfigData[config].label[AutoPlay.Config[config]];
 }
 
 AutoPlay.Disp.AddMenuPref = function() {
-	var header = function(text) {
-		var div = document.createElement('div');
-		div.className = 'listing';
-		div.style.padding = '5px 16px';
-		div.style.opacity = '0.7';
-		div.style.fontSize = '17px';
-		div.style.fontFamily = '\"Kavoon\", Georgia, serif';
-		div.textContent = text;
-		return div;
-	}
-
-	var frag = document.createDocumentFragment();
-
+  var header = function(text) {
 	var div = document.createElement('div');
-	div.className = 'title ' + AutoPlay.Disp.colorTextPre + AutoPlay.Disp.colorBlue;
-	div.textContent = 'Cookiebot Options';
-	
-	frag.appendChild(div);
-
-	var listing = function(config,clickFunc) {
-		var div = document.createElement('div');
-		div.className = 'listing';
-		var a = document.createElement('a');
-		a.className = 'option';
-		if (AutoPlay.ConfigData[config].toggle && AutoPlay.Config[config] == 0) a.className = 'option off';
-		a.id = AutoPlay.ConfigPrefix + config;
-		a.onclick = function() { AutoPlay.ToggleConfig(config); };
-		if(clickFunc) a.onclick = clickFunc;
-		a.textContent = AutoPlay.Disp.GetConfigDisplay(config);
-		div.appendChild(a);
-		var label = document.createElement('label');
-		label.textContent = AutoPlay.ConfigData[config].desc;
-		div.appendChild(label);
-		return div;
-	}
-
-	frag.appendChild(listing('NightMode',null));
-	frag.appendChild(listing('ClickMode',null));
-	frag.appendChild(listing('GoldenClickMode',null));
-	frag.appendChild(header('Cheating'));
-	frag.appendChild(listing('CheatLumps',null));
-	frag.appendChild(listing('CheatGolden',null));
-	frag.appendChild(header('Logging'));
-	frag.appendChild(listing('CleanLog',AutoPlay.cleanLog));
-	frag.appendChild(listing('ShowLog',AutoPlay.showLog));
-
-	l('menu').childNodes[2].insertBefore(frag, l('menu').childNodes[2].childNodes[l('menu').childNodes[2].childNodes.length - 1]);
+	div.className = 'listing';
+	div.style.padding = '5px 16px';
+	div.style.opacity = '0.7';
+	div.style.fontSize = '17px';
+	div.style.fontFamily = '\"Kavoon\", Georgia, serif';
+	div.textContent = text;
+	return div;
+  }
+  var frag = document.createDocumentFragment();
+  var div = document.createElement('div');
+  div.className = 'title ' + AutoPlay.Disp.colorTextPre + AutoPlay.Disp.colorBlue;
+  div.textContent = 'Cookiebot Options';
+  frag.appendChild(div);
+  var listing = function(config,clickFunc) {
+	var div = document.createElement('div');
+	div.className = 'listing';
+	var a = document.createElement('a');
+	a.className = 'option';
+	if (AutoPlay.Config[config] == 0) a.className = 'option off';
+	a.id = AutoPlay.ConfigPrefix + config;
+	a.onclick = function() { AutoPlay.ToggleConfig(config); };
+	if (clickFunc) a.onclick = clickFunc;
+	a.textContent = AutoPlay.Disp.GetConfigDisplay(config);
+	div.appendChild(a);
+	var label = document.createElement('label');
+	label.textContent = AutoPlay.ConfigData[config].desc;
+	div.appendChild(label);
+	return div;
+  }
+  frag.appendChild(listing('NightMode',null));
+  frag.appendChild(listing('ClickMode',null));
+  frag.appendChild(listing('GoldenClickMode',null));
+  frag.appendChild(header('Cheating'));
+  frag.appendChild(listing('CheatLumps',null));
+  frag.appendChild(listing('CheatGolden',null));
+  frag.appendChild(header('Logging'));
+  frag.appendChild(listing('CleanLog',AutoPlay.cleanLog));
+  frag.appendChild(listing('ShowLog',AutoPlay.showLog));
+  l('menu').childNodes[2].insertBefore(frag, l('menu').childNodes[2].
+      childNodes[l('menu').childNodes[2].childNodes.length - 1]);
 }
 
-if(!AutoPlay.Backup.UpdateMenu) { console.log("new update menu"); AutoPlay.Backup.UpdateMenu = Game.UpdateMenu; }
+if (!AutoPlay.Backup.UpdateMenu) AutoPlay.Backup.UpdateMenu = Game.UpdateMenu;
 
 Game.UpdateMenu = function() {
-	AutoPlay.Backup.UpdateMenu();
-	if (Game.onMenu == 'prefs') {
-		AutoPlay.Disp.AddMenuPref();
-	}
+  AutoPlay.Backup.UpdateMenu();
+  if (Game.onMenu == 'prefs') AutoPlay.Disp.AddMenuPref();
 }
 
 //===================== Auxiliary ==========================
 
-AutoPlay.info = function(s) { console.log("### "+s); Game.Notify("Automatic Playthrough",s,1,100); }
-AutoPlay.debugInfo = function(s) { console.log("======> "+s); Game.Notify("Debugging CookieBot",s,1,20); }
+AutoPlay.info = function(s) { 
+  console.log("### "+s); 
+  Game.Notify("CookieBot",s,1,100); 
+}
 
-AutoPlay.setDeadline = function(d) { if (AutoPlay.deadline>d) AutoPlay.deadline=d; }
+AutoPlay.setDeadline = function(d) { 
+  if (AutoPlay.deadline>d) AutoPlay.deadline=d; 
+}
 
 AutoPlay.logging = function() {
-  var before=window.localStorage.getItem("autoplayLog");
-  var toAdd="#logging autoplay V" + AutoPlay.version + " with " + AutoPlay.loggingInfo + "\n" + Game.WriteSave(1) + "\n";
-  AutoPlay.loggingInfo=0;
+  var before = window.localStorage.getItem("autoplayLog");
+  var toAdd = "#logging autoplay V" + AutoPlay.version + " with " + 
+              AutoPlay.loggingInfo + "\n" + Game.WriteSave(1) + "\n";
+  AutoPlay.loggingInfo = 0;
   window.localStorage.setItem("autoplayLog",before+toAdd);
 }
 
@@ -1317,17 +1403,27 @@ AutoPlay.cleanLog = function() {
 }
 
 AutoPlay.showLog = function() {
-  Game.Prompt('<h3>Cookie Bot Log</h3><div class="block">This is the log of the bot with saves at important stages.<br>Copy it and use it as you like.</div><div class="block"><textarea id="textareaPrompt" style="width:100%;height:128px;" readonly>'+window.localStorage.getItem("autoplayLog")+'</textarea></div>',['All done!']);
+	var str=
+  Game.Prompt('<h3>Cookie Bot Log</h3><div class="block">'+
+    'This is the log of the bot with saves at important stages.<br>'+
+	'Copy it and use it as you like.</div>'+
+	'<div class="block"><textarea id="textareaPrompt" '+
+	'style="width:100%;height:128px;" readonly>'+
+	window.localStorage.getItem("autoplayLog")+'</textarea></div>',
+	['All done!']);
 }
 
 AutoPlay.handleNotes = function() {
-  for (var i in Game.Notes) {
-    if (Game.Notes[i].quick==0) { Game.Notes[i].life=2000*Game.fps; Game.Notes[i].quick=1; }
-} }
+  for (var i in Game.Notes)
+    if (Game.Notes[i].quick==0) { 
+	  Game.Notes[i].life=2000*Game.fps; 
+	  Game.Notes[i].quick=1; 
+	}
+}
 
 function range(start, end) {
   var foo = [];
-  for (var i = start; i <= end; i++) { foo.push(i); }
+  for (var i = start; i<=end; i++) { foo.push(i); }
   return foo;
 }
 
@@ -1340,15 +1436,23 @@ AutoPlay.whatTheBotIsDoing = function() {
 }
 
 AutoPlay.addActivity = function(str) {
-  if(!AutoPlay.activities.includes(str)) AutoPlay.activities+= '<div class="line"></div>'+str;
+  if (!AutoPlay.activities.includes(str)) 
+	AutoPlay.activities+= '<div class="line"></div>'+str;
 }
 
 //===================== Init & Start ==========================
 
-if (AutoPlay.autoPlayer) { AutoPlay.info("replacing old version of autoplay"); clearInterval(AutoPlay.autoPlayer); }
-//AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
-AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // was 100 before, but that is too quick
+if (AutoPlay.autoPlayer) { 
+  AutoPlay.info("replacing old version of autoplay"); 
+  clearInterval(AutoPlay.autoPlayer); 
+}
+AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // 100 is too quick
 AutoPlay.findNextAchievement();
-l('versionNumber').innerHTML='v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
-l('versionNumber').innerHTML='v. '+Game.version+' <span '+Game.getDynamicTooltip('AutoPlay.whatTheBotIsDoing','this')+">(with autoplay v."+AutoPlay.version+")"+'</span>';
-if (Game.version != AutoPlay.gameVersion) AutoPlay.info("Warning: cookieBot is last tested with cookie clicker version " + AutoPlay.gameVersion);
+l('versionNumber').innerHTML=
+  'v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
+l('versionNumber').innerHTML='v. '+Game.version+' <span '+
+  Game.getDynamicTooltip('AutoPlay.whatTheBotIsDoing','this')+
+  ">(with autoplay v."+AutoPlay.version+")"+'</span>';
+if (Game.version!=AutoPlay.gameVersion) 
+  AutoPlay.info("Warning: cookieBot is last tested with "+
+    "cookie clicker version " + AutoPlay.gameVersion);
