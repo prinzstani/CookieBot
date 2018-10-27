@@ -1088,7 +1088,9 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 89, 108, 225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 389, 395, 397];
+AutoPlay.wantedAchievements = [82, 89, 108, // elder calm, 100 antimatter, halloween
+    225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 529, // bake xx cookies
+	528, 395, 397]; // max cps, max buildings, ascend right 
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { 
