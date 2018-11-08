@@ -74,7 +74,7 @@ AutoPlay.runJustRight = function() {
 	  else if (cookieDiff < -2000000000) Game.ObjectsById[0].buy(130);
 	  else if (cookieDiff < -6000000) Game.ObjectsById[0].buy(90);
 	  else if (cookieDiff < -30000) Game.ObjectsById[0].buy(50);
-	  else if (cookieDiff < 0) Game.ObjectsById[0].buy(22);
+	  else if (cookieDiff < 0) Game.ObjectsById[0].buy(35);
 	  else if (cookieDiff > 10000000) Game.ObjectsById[5].buy(1);
 	  else if (cookieDiff > 500000) Game.ObjectsById[4].buy(1);
 	  else if (cookieDiff > 5000) Game.ObjectsById[2].buy(1);
