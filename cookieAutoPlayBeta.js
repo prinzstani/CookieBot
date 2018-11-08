@@ -56,7 +56,7 @@ AutoPlay.runJustRight = function() {
   const goal = 1000000000000;
   const notBuy = [0,1,2,3,4,5,6,129,324];
   if (Game.cookies<goal/10) { // buying buildings and upgrades
-    for(var i = Game.ObjectsById.length-2; i >= 0; i--) { 
+    for (var i = Game.ObjectsById.length-2; i >= 0; i--) { 
       var me = Game.ObjectsById[i]; 
       if ((me.getPrice()<Game.cookies) && 
 	      (me.amount<10+Game.ObjectsById[i+1].amount)) { me.buy(1); return; }
@@ -82,7 +82,7 @@ AutoPlay.runJustRight = function() {
 	  else Game.ClickCookie();
 	} else { // now we are selling
 	  if (cookieDiff/Game.cookiesPs > 1000) Game.ObjectsById[5].buy(1);
-      for(var i = Game.ObjectsById.length-2; i>=0; i--) { 
+      for (var i = Game.ObjectsById.length-2; i>=0; i--) { 
         var me = Game.ObjectsById[i]; 
         if (me.amount>10+Game.ObjectsById[i+1].amount) { 
 		  me.sell(me.amount-(10+Game.ObjectsById[i+1].amount)); 
@@ -141,7 +141,7 @@ AutoPlay.handleGoldenCookies = function() { // pop first golden cookie or reinde
   if (AutoPlay.Config.GoldenClickMode==0) return;
   if (Game.shimmerTypes['golden'].n>=4 && 
      !Game.Achievements['Four-leaf cookie'].won) return;
-  for (sx in Game.shimmers) {
+  for (var sx in Game.shimmers) {
     var s = Game.shimmers[sx];
     if (s.type!="golden" || s.life<Game.fps || !Game.Achievements["Early bird"].won) { 
 	  s.pop(); 
@@ -351,7 +351,7 @@ AutoPlay.cheatSugarLumps = function(age) {
   if (AutoPlay.Config.CheatLumps==0) return;
   if (AutoPlay.Config.CheatLumps==1) {
 	if (AutoPlay.finished) return;
-    for (a in Game.AchievementsById) { 
+    for (var a in Game.AchievementsById) { 
 	  var me=Game.AchievementsById[a]; 
 	  if (!(me.won || me.pool=="dungeon" || 
 	      AutoPlay.lumpRelatedAchievements.indexOf(me.id)>=0)) 
@@ -375,11 +375,11 @@ AutoPlay.harvestLump = function() {
 
 AutoPlay.useLump = function() { // recursive call to handle many sugar lumps
   if (!Game.lumps) return;
-  for (i in AutoPlay.level1Order) { 
+  for (var i in AutoPlay.level1Order) { 
     var me = Game.ObjectsById[AutoPlay.level1Order[i]]; 
 	if (!me.level && Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; } 
   }
-  for (i in AutoPlay.level10Order) { 
+  for (var i in AutoPlay.level10Order) { 
     var me = Game.ObjectsById[AutoPlay.level10Order[i]]; 
 	if (me.level<10) { 
 	  if (me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); } 
@@ -387,9 +387,11 @@ AutoPlay.useLump = function() { // recursive call to handle many sugar lumps
 	} 
   }
   if (Game.lumps<99) return; // collect lumps for  better cps
-  for(i = Game.ObjectsById.length-1; i>=0; i--) { 
+  for (var i = Game.ObjectsById.length-1; i>=0; i--) {
     var me = Game.ObjectsById[i]; 
-	if (me.level<10 && me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); } 
+	if (me.level<10 && me.level<Game.lumps) { 
+	  me.levelUp(); AutoPlay.useLump(); return;
+	} 
   }
 }
 
@@ -598,7 +600,7 @@ AutoPlay.findPlants = function(game,idx) {
 	  else { AutoPlay.plantList[idx] = 1; return true; }
 	}
   }
-  for (i = 3; i<AutoPlay.plantDependencies.length; i++) { // plant normal plants
+  for (var i = 3; i<AutoPlay.plantDependencies.length; i++) { // plant normal plants
 	var plant = AutoPlay.plantDependencies[i][0];
 	if (!AutoPlay.havePlant(game,plant) && 
 	    game.plants[AutoPlay.plantDependencies[i][1]].unlocked && 
@@ -629,7 +631,7 @@ AutoPlay.planting = function(game) {
   AutoPlay.plantsMissing = true;
   if (!AutoPlay.findPlants(game,0)) { 
     AutoPlay.plantList=[0,0,0,0]; 
-	for (var i=0; i<4; i++) AutoPlay.plantSector(game,i,'','','dummy'); 
+	for (var i = 0; i<4; i++) AutoPlay.plantSector(game,i,'','','dummy'); 
 	return; 
   }
   AutoPlay.switchSoil(game,0,AutoPlay.plantPending?'fertilizer':'woodchips'); // want mutations
@@ -796,7 +798,7 @@ AutoPlay.cleanSector = function(game,sector,plant0) {
 	  }
 	return;
   }
-  for (var y=Y;y<Y+3;y++) { 
+  for (var y = Y; y<Y+3; y++) { 
     AutoPlay.cleanSeed(game,X,y); 
 	AutoPlay.cleanSeed(game,X+2,y); 
   }
@@ -906,7 +908,7 @@ AutoPlay.handleWrinklers = function() {
 AutoPlay.backupHeight = 0;
 AutoPlay.handleSmallAchievements = function() {
   if (!Game.Achievements["Tabloid addiction"].won) 
-	for (i = 0; i < 50; i++) Game.tickerL.click();
+	for (var i = 0; i < 50; i++) Game.tickerL.click();
   if (!Game.Achievements["Here you go"].won) 
 	Game.Achievements["Here you go"].click();
   if (!Game.Achievements["Tiny cookie"].won) Game.ClickTinyCookie();
@@ -1109,7 +1111,7 @@ AutoPlay.setMainActivity = function(str) {
 AutoPlay.findNextAchievement = function() {
   AutoPlay.wantAscend = false;
   AutoPlay.handleSmallAchievements();
-  for(i = 0; i<AutoPlay.wantedAchievements.length; i++) {
+  for (var i = 0; i<AutoPlay.wantedAchievements.length; i++) {
     if (!(Game.AchievementsById[AutoPlay.wantedAchievements[i]].won)) { 
 	  AutoPlay.nextAchievement = AutoPlay.wantedAchievements[i]; 
 	  AutoPlay.setMainActivity("Trying to get achievement: " + 
@@ -1221,7 +1223,7 @@ AutoPlay.buyHeavenlyUpgrades = function() {
 AutoPlay.assignPermanentSlot = function(slot,options) {
   if (!Game.UpgradesById[264+slot].bought) return;
   Game.AssignPermanentSlot(slot); 
-  for (var i=options.length-1; i>=0; i--) { 
+  for (var i = options.length-1; i>=0; i--) { 
     if (Game.UpgradesById[options[i]].bought) { 
 	  Game.PutUpgradeInPermanentSlot(options[i],slot); break; 
 	} 
