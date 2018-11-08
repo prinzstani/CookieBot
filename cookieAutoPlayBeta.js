@@ -1033,15 +1033,18 @@ AutoPlay.canContinue = function() {
 	return true; 
   } else if (!Game.Achievements["Speed baking I"].won && 
             (AutoPlay.now-Game.startDate <= 1000*60*35)) { 
-	AutoPlay.activities="Trying to get achievement: Speed baking I."; 
+	AutoPlay.activities="Trying to get achievement: Speed baking I.";
+    AutoPlay.setDeadline(0);
 	return true; 
   } else if (!Game.Achievements["Speed baking II"].won && 
             (AutoPlay.now-Game.startDate <= 1000*60*25)) { 
     AutoPlay.activities="Trying to get achievement: Speed baking II."; 
+    AutoPlay.setDeadline(0);
 	return true; 
   } else if (!Game.Achievements["Speed baking III"].won && 
             (AutoPlay.now-Game.startDate <= 1000*60*15)) { 
 	AutoPlay.activities="Trying to get achievement: Speed baking III."; 
+    AutoPlay.setDeadline(0);
 	return true; 
   } else return false;
 }
