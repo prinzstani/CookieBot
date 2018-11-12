@@ -353,20 +353,23 @@ AutoPlay.handleSugarLumps = function() {
 AutoPlay.cheatSugarLumps = function(age) {
   AutoPlay.cheatLumps = false;
   if (AutoPlay.Config.CheatLumps==0) return;
+  var cheatReduction = 25; 
   if (AutoPlay.Config.CheatLumps==1) {
 	if (AutoPlay.finished) return;
 	if (!AutoPlay.endPhase()) return;
 	if (AutoPlay.lumpRelatedAchievements.every(
 	    function(a) { return Game.AchievementsById[a].won; }))
 	  return;
+	if (AutoPlay.lumpRelatedAchievements.includes(AutoPlay.nextAchievement))
+	  cheatReduction*=25;
   }
-  AutoPlay.cheatLumps = true; // only heavy lump related achievements are missing
+  AutoPlay.cheatLumps = true;
   AutoPlay.addActivity('Cheating sugar lumps.');
   // divide lump ripe time, making days into hours, minutes or seconds
-  var cheatReduction = 25*25; 
   if (AutoPlay.Config.CheatLumps==2) cheatReduction = 25;
+  if (AutoPlay.Config.CheatLumps==3) cheatReduction = 25*25;
   if (AutoPlay.Config.CheatLumps==4) {
-	cheatReduction = 25*cheatReduction; 
+	cheatReduction = 25*25*25; 
 	AutoPlay.setDeadline(0); 
   }
   var cheatDelay = Game.lumpRipeAge/cheatReduction;
