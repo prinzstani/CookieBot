@@ -48,6 +48,8 @@ AutoPlay.run = function() {
   AutoPlay.handleNotes();
 }
 
+AutoPlay.runRightCount=0;
+
 AutoPlay.runJustRight = function() {
   AutoPlay.activities = "Running just right.";
   AutoPlay.handleAscend();
@@ -67,14 +69,15 @@ AutoPlay.runJustRight = function() {
   } else {
 	var cookieDiff = goal-Game.cookies;
 	if (Game.BuildingsOwned==0) { // almost there
+	  if (cookieDiff<0) AutoPlay.runRightCount++;
       if (Math.round(Game.cookiesd)==goal) 
 		AutoPlay.doAscend("Fixed run just right.",1);
 	  else if ((cookieDiff < -goal) && (AutoPlay.now-Game.startDate>60000)) 
 		AutoPlay.doAscend("runJustRight does not work, retry.",0);
-	  else if (cookieDiff < -2000000000) Game.ObjectsById[0].buy(130);
-	  else if (cookieDiff < -6000000) Game.ObjectsById[0].buy(90);
-	  else if (cookieDiff < -30000) Game.ObjectsById[0].buy(50);
-	  else if (cookieDiff < 0) Game.ObjectsById[0].buy(35);
+	  else if (cookieDiff < -2000000000) Game.ObjectsById[0].buy(130+AutoPlay.runRightCount);
+	  else if (cookieDiff < -6000000) Game.ObjectsById[0].buy(90+AutoPlay.runRightCount);
+	  else if (cookieDiff < -30000) Game.ObjectsById[0].buy(50+AutoPlay.runRightCount);
+	  else if (cookieDiff < 0) Game.ObjectsById[0].buy(22+AutoPlay.runRightCount);
 	  else if (cookieDiff > 10000000) Game.ObjectsById[5].buy(1);
 	  else if (cookieDiff > 500000) Game.ObjectsById[4].buy(1);
 	  else if (cookieDiff > 5000) Game.ObjectsById[2].buy(1);
@@ -105,6 +108,7 @@ AutoPlay.preNightMode = function() {
 }
 
 AutoPlay.nightMode = function() { 
+  if (Game.OnAscend) return false;
   if (AutoPlay.Config.NightMode==0) return false;
   if (AutoPlay.grinding() && !AutoPlay.endPhase()) 
 	return false; //do not sleep while grinding
@@ -351,19 +355,20 @@ AutoPlay.cheatSugarLumps = function(age) {
   if (AutoPlay.Config.CheatLumps==0) return;
   if (AutoPlay.Config.CheatLumps==1) {
 	if (AutoPlay.finished) return;
-    for (var a in Game.AchievementsById) { 
-	  var me=Game.AchievementsById[a]; 
-	  if (!(me.won || me.pool=="dungeon" || 
-	      AutoPlay.lumpRelatedAchievements.indexOf(me.id)>=0)) 
-		return; 
-	}
+	if (!AutoPlay.endPhase()) return;
+	if (AutoPlay.lumpRelatedAchievements.every(
+	    function(a) { return Game.AchievementsById[a].won; }))
+	  return;
   }
   AutoPlay.cheatLumps = true; // only heavy lump related achievements are missing
   AutoPlay.addActivity('Cheating sugar lumps.');
   // divide lump ripe time, making days into hours, minutes or seconds
   var cheatReduction = 25*25; 
   if (AutoPlay.Config.CheatLumps==2) cheatReduction = 25;
-  if (AutoPlay.Config.CheatLumps==4) cheatReduction = 25*cheatReduction;
+  if (AutoPlay.Config.CheatLumps==4) {
+	cheatReduction = 25*cheatReduction; 
+	AutoPlay.setDeadline(0); 
+  }
   var cheatDelay = Game.lumpRipeAge/cheatReduction;
   if (age<Game.lumpRipeAge-cheatDelay) Game.lumpT -= cheatDelay*(cheatReduction-1);
 }
@@ -1073,8 +1078,10 @@ AutoPlay.doAscend = function(str,log) {
   if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant
   if (Game.hasBuff("Sugar frenzy")) return; // do not ascend during sugar frenzy
   AutoPlay.setDeadline(0); 
-  if (Game.wrinklers.some(function(w) { return w.close; } )) 
+  if (Game.wrinklers.some(function(w) { return w.close; } )) {
 	AutoPlay.assignSpirit(0,"scorn",1);
+	AutoPlay.delay = 10;
+  }
   Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp=0; } ); // pop wrinklers
   if (Game.isMinigameReady(Game.Objects["Farm"])) 
 	Game.Objects["Farm"].minigame.harvestAll(); // harvest garden
@@ -1086,6 +1093,7 @@ AutoPlay.doAscend = function(str,log) {
 	}
 	Game.ObjectsById.forEach(function(e) { e.sell(e.amount); } );
     Game.Upgrades["Chocolate egg"].buy();
+	AutoPlay.delay = 10;
   } else { 
     AutoPlay.info(str); AutoPlay.loggingInfo=log?str:0; 
 	AutoPlay.logging(); AutoPlay.delay=10; Game.Ascend(true); 
