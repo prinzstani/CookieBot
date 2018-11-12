@@ -216,7 +216,7 @@ AutoPlay.handleUpgrades = function() {
     if (e.unlocked && !e.bought && e.canBuy() && !AutoPlay.avoidbuy(e)) 
 	  e.buy(true); 
   });
-  if (Game.lumps>120 && Game.Upgrades["Sugar frenzy"].unlocked && 
+  if (Game.lumps>100 && Game.Upgrades["Sugar frenzy"].unlocked && 
       !Game.Upgrades["Sugar frenzy"].bought && 
 	  (AutoPlay.now-Game.startDate) > 3*24*60*60*1000) 
     Game.Upgrades["Sugar frenzy"].buy();
