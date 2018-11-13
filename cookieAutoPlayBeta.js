@@ -1280,25 +1280,29 @@ AutoPlay.Disp = {};
 AutoPlay.ConfigPrefix = 'autoplayConfig';
 
 AutoPlay.SaveConfig = function(config) {
-  localStorage.setItem(AutoPlay.ConfigPrefix, JSON.stringify(config));
+  try {
+    window.localStorage.setItem(AutoPlay.ConfigPrefix, JSON.stringify(config));
+  } catch (e) {}
 }
 
 AutoPlay.LoadConfig = function() {
-  if (localStorage.getItem(AutoPlay.ConfigPrefix) != null) {
-	AutoPlay.Config = JSON.parse(localStorage.getItem(AutoPlay.ConfigPrefix));
-	// Check values
-	var mod = false;
-	for (var i in AutoPlay.ConfigDefault) {
-      if (typeof AutoPlay.Config[i]==='undefined' || AutoPlay.Config[i]<0 || 
-	      AutoPlay.Config[i]>=AutoPlay.ConfigData[i].label.length) {
-		mod = true;
-		AutoPlay.Config[i] = AutoPlay.ConfigDefault[i];
+  try {
+    if (window.localStorage.getItem(AutoPlay.ConfigPrefix) != null) {
+	  AutoPlay.Config = JSON.parse(window.localStorage.getItem(AutoPlay.ConfigPrefix));
+     // Check values
+	  var mod = false;
+	  for (var i in AutoPlay.ConfigDefault) {
+        if (typeof AutoPlay.Config[i]==='undefined' || AutoPlay.Config[i]<0 || 
+	        AutoPlay.Config[i]>=AutoPlay.ConfigData[i].label.length) {
+		  mod = true;
+		  AutoPlay.Config[i] = AutoPlay.ConfigDefault[i];
+	    }
 	  }
-	}
-	if (mod) AutoPlay.SaveConfig(AutoPlay.Config);
-  } else { // Default values
-	AutoPlay.RestoreDefault();
-  }
+	  if (mod) AutoPlay.SaveConfig(AutoPlay.Config);
+    } else { // Default values
+	  AutoPlay.RestoreDefault();
+    }
+  } catch (e) {}
 }
 
 AutoPlay.RestoreDefault = function() {
@@ -1409,26 +1413,34 @@ AutoPlay.setDeadline = function(d) {
 }
 
 AutoPlay.logging = function() {
-  var before = window.localStorage.getItem("autoplayLog");
-  var toAdd = "#logging autoplay V" + AutoPlay.version + " with " + 
-              AutoPlay.loggingInfo + "\n" + Game.WriteSave(1) + "\n";
-  AutoPlay.loggingInfo = 0;
-  window.localStorage.setItem("autoplayLog",before+toAdd);
+  try {
+	var before = window.localStorage.getItem("autoplayLog");
+    var toAdd = "#logging autoplay V" + AutoPlay.version + " with " + 
+                AutoPlay.loggingInfo + "\n" + Game.WriteSave(1) + "\n";
+    AutoPlay.loggingInfo = 0;
+    window.localStorage.setItem("autoplayLog",before+toAdd);
+  } catch (e) {}
 }
 
 AutoPlay.cleanLog = function() {
-  window.localStorage.setItem("autoplayLog","");
+  try {
+    window.localStorage.setItem("autoplayLog","");
+  } catch (e) {}
 }
 
 AutoPlay.showLog = function() {
-	var str=
-  Game.Prompt('<h3>Cookie Bot Log</h3><div class="block">'+
-    'This is the log of the bot with saves at important stages.<br>'+
-	'Copy it and use it as you like.</div>'+
-	'<div class="block"><textarea id="textareaPrompt" '+
-	'style="width:100%;height:128px;" readonly>'+
-	window.localStorage.getItem("autoplayLog")+'</textarea></div>',
-	['All done!']);
+  var theLog="";
+  try {
+    theLog=window.localStorage.getItem("autoplayLog");
+  } catch (e) { theLog=""; }
+  var str=
+    Game.Prompt('<h3>Cookie Bot Log</h3><div class="block">'+
+      'This is the log of the bot with saves at important stages.<br>'+
+	  'Copy it and use it as you like.</div>'+
+	  '<div class="block"><textarea id="textareaPrompt" '+
+	  'style="width:100%;height:128px;" readonly>'+
+	  theLog+'</textarea></div>',
+	  ['All done!']);
 }
 
 AutoPlay.handleNotes = function() {
