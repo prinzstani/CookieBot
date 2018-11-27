@@ -48,6 +48,8 @@ AutoPlay.run = function() {
   AutoPlay.handleNotes();
 }
 
+AutoPlay.runRightCount=0;
+
 AutoPlay.runJustRight = function() {
   AutoPlay.activities = "Running just right.";
   AutoPlay.handleAscend();
@@ -67,14 +69,15 @@ AutoPlay.runJustRight = function() {
   } else {
 	var cookieDiff = goal-Game.cookies;
 	if (Game.BuildingsOwned==0) { // almost there
+	  if (cookieDiff<0) AutoPlay.runRightCount++;
       if (Math.round(Game.cookiesd)==goal) 
 		AutoPlay.doAscend("Fixed run just right.",1);
 	  else if ((cookieDiff < -goal) && (AutoPlay.now-Game.startDate>60000)) 
 		AutoPlay.doAscend("runJustRight does not work, retry.",0);
-	  else if (cookieDiff < -2000000000) Game.ObjectsById[0].buy(130);
-	  else if (cookieDiff < -6000000) Game.ObjectsById[0].buy(90);
-	  else if (cookieDiff < -30000) Game.ObjectsById[0].buy(50);
-	  else if (cookieDiff < 0) Game.ObjectsById[0].buy(22);
+	  else if (cookieDiff < -2000000000) Game.ObjectsById[0].buy(130+AutoPlay.runRightCount);
+	  else if (cookieDiff < -6000000) Game.ObjectsById[0].buy(90+AutoPlay.runRightCount);
+	  else if (cookieDiff < -30000) Game.ObjectsById[0].buy(50+AutoPlay.runRightCount);
+	  else if (cookieDiff < 0) Game.ObjectsById[0].buy(22+AutoPlay.runRightCount);
 	  else if (cookieDiff > 10000000) Game.ObjectsById[5].buy(1);
 	  else if (cookieDiff > 500000) Game.ObjectsById[4].buy(1);
 	  else if (cookieDiff > 5000) Game.ObjectsById[2].buy(1);
@@ -105,6 +108,7 @@ AutoPlay.preNightMode = function() {
 }
 
 AutoPlay.nightMode = function() { 
+  if (Game.OnAscend) return false;
   if (AutoPlay.Config.NightMode==0) return false;
   if (AutoPlay.grinding() && !AutoPlay.endPhase()) 
 	return false; //do not sleep while grinding
@@ -212,7 +216,7 @@ AutoPlay.handleUpgrades = function() {
     if (e.unlocked && !e.bought && e.canBuy() && !AutoPlay.avoidbuy(e)) 
 	  e.buy(true); 
   });
-  if (Game.lumps>120 && Game.Upgrades["Sugar frenzy"].unlocked && 
+  if (Game.lumps>100 && Game.Upgrades["Sugar frenzy"].unlocked && 
       !Game.Upgrades["Sugar frenzy"].bought && 
 	  (AutoPlay.now-Game.startDate) > 3*24*60*60*1000) 
     Game.Upgrades["Sugar frenzy"].buy();
@@ -349,21 +353,25 @@ AutoPlay.handleSugarLumps = function() {
 AutoPlay.cheatSugarLumps = function(age) {
   AutoPlay.cheatLumps = false;
   if (AutoPlay.Config.CheatLumps==0) return;
+  var cheatReduction = 25; 
   if (AutoPlay.Config.CheatLumps==1) {
 	if (AutoPlay.finished) return;
-    for (var a in Game.AchievementsById) { 
-	  var me=Game.AchievementsById[a]; 
-	  if (!(me.won || me.pool=="dungeon" || 
-	      AutoPlay.lumpRelatedAchievements.indexOf(me.id)>=0)) 
-		return; 
-	}
+	if (!AutoPlay.endPhase()) return;
+	if (AutoPlay.lumpRelatedAchievements.every(
+	    function(a) { return Game.AchievementsById[a].won; }))
+	  return;
+	if (AutoPlay.lumpRelatedAchievements.includes(AutoPlay.nextAchievement))
+	  cheatReduction*=25;
   }
-  AutoPlay.cheatLumps = true; // only heavy lump related achievements are missing
+  AutoPlay.cheatLumps = true;
   AutoPlay.addActivity('Cheating sugar lumps.');
   // divide lump ripe time, making days into hours, minutes or seconds
-  var cheatReduction = 25*25; 
   if (AutoPlay.Config.CheatLumps==2) cheatReduction = 25;
-  if (AutoPlay.Config.CheatLumps==4) cheatReduction = 25*cheatReduction;
+  if (AutoPlay.Config.CheatLumps==3) cheatReduction = 25*25;
+  if (AutoPlay.Config.CheatLumps==4) {
+	cheatReduction = 25*25*25; 
+	AutoPlay.setDeadline(0); 
+  }
   var cheatDelay = Game.lumpRipeAge/cheatReduction;
   if (age<Game.lumpRipeAge-cheatDelay) Game.lumpT -= cheatDelay*(cheatReduction-1);
 }
@@ -1033,15 +1041,18 @@ AutoPlay.canContinue = function() {
 	return true; 
   } else if (!Game.Achievements["Speed baking I"].won && 
             (AutoPlay.now-Game.startDate <= 1000*60*35)) { 
-	AutoPlay.activities="Trying to get achievement: Speed baking I."; 
+	AutoPlay.activities="Trying to get achievement: Speed baking I.";
+    AutoPlay.setDeadline(0);
 	return true; 
   } else if (!Game.Achievements["Speed baking II"].won && 
             (AutoPlay.now-Game.startDate <= 1000*60*25)) { 
     AutoPlay.activities="Trying to get achievement: Speed baking II."; 
+    AutoPlay.setDeadline(0);
 	return true; 
   } else if (!Game.Achievements["Speed baking III"].won && 
             (AutoPlay.now-Game.startDate <= 1000*60*15)) { 
 	AutoPlay.activities="Trying to get achievement: Speed baking III."; 
+    AutoPlay.setDeadline(0);
 	return true; 
   } else return false;
 }
@@ -1070,8 +1081,10 @@ AutoPlay.doAscend = function(str,log) {
   if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant
   if (Game.hasBuff("Sugar frenzy")) return; // do not ascend during sugar frenzy
   AutoPlay.setDeadline(0); 
-  if (Game.wrinklers.some(function(w) { return w.close; } )) 
+  if (Game.wrinklers.some(function(w) { return w.close; } )) {
 	AutoPlay.assignSpirit(0,"scorn",1);
+	AutoPlay.delay = 10;
+  }
   Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp=0; } ); // pop wrinklers
   if (Game.isMinigameReady(Game.Objects["Farm"])) 
 	Game.Objects["Farm"].minigame.harvestAll(); // harvest garden
@@ -1083,6 +1096,7 @@ AutoPlay.doAscend = function(str,log) {
 	}
 	Game.ObjectsById.forEach(function(e) { e.sell(e.amount); } );
     Game.Upgrades["Chocolate egg"].buy();
+	AutoPlay.delay = 10;
   } else { 
     AutoPlay.info(str); AutoPlay.loggingInfo=log?str:0; 
 	AutoPlay.logging(); AutoPlay.delay=10; Game.Ascend(true); 
@@ -1266,25 +1280,29 @@ AutoPlay.Disp = {};
 AutoPlay.ConfigPrefix = 'autoplayConfig';
 
 AutoPlay.SaveConfig = function(config) {
-  localStorage.setItem(AutoPlay.ConfigPrefix, JSON.stringify(config));
+  try {
+    window.localStorage.setItem(AutoPlay.ConfigPrefix, JSON.stringify(config));
+  } catch (e) {}
 }
 
 AutoPlay.LoadConfig = function() {
-  if (localStorage.getItem(AutoPlay.ConfigPrefix) != null) {
-	AutoPlay.Config = JSON.parse(localStorage.getItem(AutoPlay.ConfigPrefix));
-	// Check values
-	var mod = false;
-	for (var i in AutoPlay.ConfigDefault) {
-      if (typeof AutoPlay.Config[i]==='undefined' || AutoPlay.Config[i]<0 || 
-	      AutoPlay.Config[i]>=AutoPlay.ConfigData[i].label.length) {
-		mod = true;
-		AutoPlay.Config[i] = AutoPlay.ConfigDefault[i];
+  try {
+    if (window.localStorage.getItem(AutoPlay.ConfigPrefix) != null) {
+	  AutoPlay.Config = JSON.parse(window.localStorage.getItem(AutoPlay.ConfigPrefix));
+     // Check values
+	  var mod = false;
+	  for (var i in AutoPlay.ConfigDefault) {
+        if (typeof AutoPlay.Config[i]==='undefined' || AutoPlay.Config[i]<0 || 
+	        AutoPlay.Config[i]>=AutoPlay.ConfigData[i].label.length) {
+		  mod = true;
+		  AutoPlay.Config[i] = AutoPlay.ConfigDefault[i];
+	    }
 	  }
-	}
-	if (mod) AutoPlay.SaveConfig(AutoPlay.Config);
-  } else { // Default values
-	AutoPlay.RestoreDefault();
-  }
+	  if (mod) AutoPlay.SaveConfig(AutoPlay.Config);
+    } else { // Default values
+	  AutoPlay.RestoreDefault();
+    }
+  } catch (e) {}
 }
 
 AutoPlay.RestoreDefault = function() {
@@ -1395,26 +1413,34 @@ AutoPlay.setDeadline = function(d) {
 }
 
 AutoPlay.logging = function() {
-  var before = window.localStorage.getItem("autoplayLog");
-  var toAdd = "#logging autoplay V" + AutoPlay.version + " with " + 
-              AutoPlay.loggingInfo + "\n" + Game.WriteSave(1) + "\n";
-  AutoPlay.loggingInfo = 0;
-  window.localStorage.setItem("autoplayLog",before+toAdd);
+  try {
+	var before = window.localStorage.getItem("autoplayLog");
+    var toAdd = "#logging autoplay V" + AutoPlay.version + " with " + 
+                AutoPlay.loggingInfo + "\n" + Game.WriteSave(1) + "\n";
+    AutoPlay.loggingInfo = 0;
+    window.localStorage.setItem("autoplayLog",before+toAdd);
+  } catch (e) {}
 }
 
 AutoPlay.cleanLog = function() {
-  window.localStorage.setItem("autoplayLog","");
+  try {
+    window.localStorage.setItem("autoplayLog","");
+  } catch (e) {}
 }
 
 AutoPlay.showLog = function() {
-	var str=
-  Game.Prompt('<h3>Cookie Bot Log</h3><div class="block">'+
-    'This is the log of the bot with saves at important stages.<br>'+
-	'Copy it and use it as you like.</div>'+
-	'<div class="block"><textarea id="textareaPrompt" '+
-	'style="width:100%;height:128px;" readonly>'+
-	window.localStorage.getItem("autoplayLog")+'</textarea></div>',
-	['All done!']);
+  var theLog="";
+  try {
+    theLog=window.localStorage.getItem("autoplayLog");
+  } catch (e) { theLog=""; }
+  var str=
+    Game.Prompt('<h3>Cookie Bot Log</h3><div class="block">'+
+      'This is the log of the bot with saves at important stages.<br>'+
+	  'Copy it and use it as you like.</div>'+
+	  '<div class="block"><textarea id="textareaPrompt" '+
+	  'style="width:100%;height:128px;" readonly>'+
+	  theLog+'</textarea></div>',
+	  ['All done!']);
 }
 
 AutoPlay.handleNotes = function() {
