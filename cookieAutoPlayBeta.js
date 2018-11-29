@@ -16,6 +16,7 @@ AutoPlay.run = function() {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
+  AutoPlay.activities = AutoPlay.mainActivity;
   if (AutoPlay.nightMode()) { 
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT); 
 	return; 
@@ -33,7 +34,6 @@ AutoPlay.run = function() {
 	  AutoPlay.cpsMult*=Game.buffs[i].multCpS;
   // if high cps then do not wait
   if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0);
-  AutoPlay.activities = AutoPlay.mainActivity;
   if (AutoPlay.plantPending || AutoPlay.harvestPlant) 
     AutoPlay.addActivity("Wait with ascend until plants are harvested!");
   AutoPlay.handleClicking();
