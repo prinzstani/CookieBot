@@ -16,7 +16,6 @@ AutoPlay.run = function() {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
-  AutoPlay.activities = AutoPlay.mainActivity;
   if (AutoPlay.nightMode()) { 
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT); 
 	return; 
@@ -27,6 +26,7 @@ AutoPlay.run = function() {
 	AutoPlay.handleGoldenCookies(); 
 	return; 
   }
+  AutoPlay.activities = AutoPlay.mainActivity;
   AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
   AutoPlay.cpsMult = 1;
   for (var i in Game.buffs) 
@@ -1116,6 +1116,7 @@ AutoPlay.endPhase = function() {
 AutoPlay.grinding = function() { return Game.AchievementsById[373].won; }
 
 AutoPlay.mainActivity = "Doing nothing in particular.";
+AutoPlay.activities = AutoPlay.mainActivity;
 
 AutoPlay.setMainActivity = function(str) {
   AutoPlay.mainActivity = str;
