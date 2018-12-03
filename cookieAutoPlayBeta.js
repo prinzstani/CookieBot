@@ -1004,18 +1004,18 @@ AutoPlay.handleAscend = function() {
   var newPrestige = (Game.prestige+Game.ascendMeterLevel)%1000000;
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky digit"].bought && 
       Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) 
-	AutoPlay.doAscend("ascend for lucky digit.",0);
+	AutoPlay.doAscend("ascend for heavenly upgrade lucky digit.",0);
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky number"].bought && 
       Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) 
-    AutoPlay.doAscend("ascend for lucky number.",0);
+    AutoPlay.doAscend("ascend for heavenly upgrade lucky number.",0);
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky payout"].bought && 
       Game.heavenlyChips>77777777) {
 	AutoPlay.wantAscend = true; //avoid byuing plants
 	AutoPlay.setDeadline(0);
-    AutoPlay.addActivity("Trying to get Lucky Payout.");
+    AutoPlay.addActivity("Trying to get heavenly upgrade Lucky Payout.");
     if (Game.ascendMeterLevel>0 && (newPrestige <= 777777) && 
 	    (newPrestige+Game.ascendMeterLevel >= 777777))
-      AutoPlay.doAscend("ascend for lucky payout.",0);
+      AutoPlay.doAscend("ascend for heavenly upgrade lucky payout.",0);
   }
   if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
 	var date = new Date();
