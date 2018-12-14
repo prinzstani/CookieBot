@@ -15,12 +15,12 @@ AutoPlay.deadline = 0;
 AutoPlay.run = function() {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
+  AutoPlay.now=Date.now();
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
   if (AutoPlay.nightMode()) { 
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT); 
 	return; 
   }
-  AutoPlay.now=Date.now();
   if (AutoPlay.now<AutoPlay.deadline) { 
     AutoPlay.handleClicking(); 
 	AutoPlay.handleGoldenCookies(); 
@@ -1150,11 +1150,10 @@ AutoPlay.checkAllAchievementsOK = function() { //We do not stop for one-year leg
   for (var i in Game.Upgrades) {
     var me = Game.Upgrades[i];
     if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
-      AutoPlay.nextAchievement = 
-	    AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
+      AutoPlay.nextAchievement = 99; // follow the white rabbit (from dungeons)
       AutoPlay.setMainActivity("Prestige upgrade " + me.name + 
 	    " is missing, waiting to buy it.");
-	  Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); 
+//	  Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); 
 	  return false;
     } 
   }
