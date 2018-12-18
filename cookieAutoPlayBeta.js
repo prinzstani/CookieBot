@@ -284,6 +284,12 @@ AutoPlay.handleBuildings = function() {
 
 //===================== Handle Seasons ==========================
 AutoPlay.handleSeasons = function() {
+  if (Game.Upgrades["A festive hat"].bought && 
+      !Game.Upgrades["Santa's dominion"].unlocked) { // develop santa
+    Game.specialTab = "santa"; 
+	Game.UpgradeSanta(); 
+	Game.ToggleSpecialMenu(0);
+  } 
   if (!Game.Upgrades["Season switcher"].bought || Game.ascensionMode==1) return;
   if (AutoPlay.seasonFinished(Game.season)) {
     switch (Game.season) {
@@ -294,12 +300,6 @@ AutoPlay.handleSeasons = function() {
     } 
   } else if (!(AutoPlay.allUnlocked(AutoPlay.allSeasonUpgrades))) 
 	AutoPlay.addActivity('Waiting for all results in '+Game.season+'.'); 
-  if (Game.Upgrades["A festive hat"].bought && 
-      !Game.Upgrades["Santa's dominion"].unlocked) { // develop santa
-    Game.specialTab = "santa"; 
-	Game.UpgradeSanta(); 
-	Game.ToggleSpecialMenu(0);
-  } 
 }
 
 AutoPlay.valentineUpgrades = range(169,174);
@@ -1016,6 +1016,10 @@ AutoPlay.handleAscend = function() {
     if (Game.ascendMeterLevel>0 && (newPrestige <= 777777) && 
 	    (newPrestige+Game.ascendMeterLevel >= 777777))
       AutoPlay.doAscend("ascend for heavenly upgrade lucky payout.",0);
+  }
+  if (!Game.Upgrades["Season switcher"].bought && 
+      AutoPlay.nextAchievement==108 && Game.ascendMeterLevel>1111) {
+    AutoPlay.doAscend("getting season switcher.",1);
   }
   if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
 	var date = new Date();
