@@ -718,43 +718,43 @@ AutoPlay.seedCalendar = function(game,sector) {
   if (sector==0) AutoPlay.plantCookies = true;
   var doPrint = 
     (sector==0) || (sector!=3 && Game.Objects["Farm"].level==sector+6);
-  if (!Game.Upgrades["Wheat slims"].bought && 
+  if (!Game.Upgrades["Wheat slims"].unlocked && 
       game.plants["bakerWheat"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Wheat slims."); 
 	return "bakerWheat"; 
   }
-  if (!Game.Upgrades["Elderwort biscuits"].bought && 
+  if (!Game.Upgrades["Elderwort biscuits"].unlocked && 
       game.plants["elderwort"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Elderwort cookies."); 
 	return "elderwort"; 
   }
-  if (!Game.Upgrades["Bakeberry cookies"].bought && 
+  if (!Game.Upgrades["Bakeberry cookies"].unlocked && 
       game.plants["bakeberry"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Bakeberry cookies."); 
 	return "bakeberry"; 
   }
-  if (!Game.Upgrades["Fern tea"].bought && 
+  if (!Game.Upgrades["Fern tea"].unlocked && 
       game.plants["drowsyfern"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Fern tea."); 
 	return "drowsyfern"; 
   }
-  if (!Game.Upgrades["Duketater cookies"].bought && 
+  if (!Game.Upgrades["Duketater cookies"].unlocked && 
       game.plants["duketater"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Duketater cookies."); 
 	return "duketater"; 
   }
-  if (!Game.Upgrades["Green yeast digestives"].bought && 
+  if (!Game.Upgrades["Green yeast digestives"].unlocked && 
       game.plants["greenRot"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Green yeast digestives."); 
 	return "greenRot"; 
   }
-  if (!Game.Upgrades["Ichor syrup"].bought && 
+  if (!Game.Upgrades["Ichor syrup"].unlocked && 
       game.plants["ichorpuff"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Ichor syrup."); 
@@ -1417,6 +1417,7 @@ AutoPlay.setDeadline = function(d) {
 }
 
 AutoPlay.logging = function() {
+  if(!AutoPlay.loggingInfo) return;
   try {
 	var before = window.localStorage.getItem("autoplayLog");
     var toAdd = "#logging autoplay V" + AutoPlay.version + " with " + 
