@@ -15,18 +15,18 @@ AutoPlay.deadline = 0;
 AutoPlay.run = function() {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
+  AutoPlay.now=Date.now();
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
-  AutoPlay.activities = AutoPlay.mainActivity;
   if (AutoPlay.nightMode()) { 
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT); 
 	return; 
   }
-  AutoPlay.now=Date.now();
   if (AutoPlay.now<AutoPlay.deadline) { 
     AutoPlay.handleClicking(); 
 	AutoPlay.handleGoldenCookies(); 
 	return; 
   }
+  AutoPlay.activities = AutoPlay.mainActivity;
   AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
   AutoPlay.cpsMult = 1;
   for (var i in Game.buffs) 
@@ -283,6 +283,12 @@ AutoPlay.handleBuildings = function() {
 
 //===================== Handle Seasons ==========================
 AutoPlay.handleSeasons = function() {
+  if (Game.Upgrades["A festive hat"].bought && 
+      !Game.Upgrades["Santa's dominion"].unlocked) { // develop santa
+    Game.specialTab = "santa"; 
+	Game.UpgradeSanta(); 
+	Game.ToggleSpecialMenu(0);
+  } 
   if (!Game.Upgrades["Season switcher"].bought || Game.ascensionMode==1) return;
   if (AutoPlay.seasonFinished(Game.season)) {
     switch (Game.season) {
@@ -293,12 +299,6 @@ AutoPlay.handleSeasons = function() {
     } 
   } else if (!(AutoPlay.allUnlocked(AutoPlay.allSeasonUpgrades))) 
 	AutoPlay.addActivity('Waiting for all results in '+Game.season+'.'); 
-  if (Game.Upgrades["A festive hat"].bought && 
-      !Game.Upgrades["Santa's dominion"].unlocked) { // develop santa
-    Game.specialTab = "santa"; 
-	Game.UpgradeSanta(); 
-	Game.ToggleSpecialMenu(0);
-  } 
 }
 
 AutoPlay.valentineUpgrades = range(169,174);
@@ -717,43 +717,43 @@ AutoPlay.seedCalendar = function(game,sector) {
   if (sector==0) AutoPlay.plantCookies = true;
   var doPrint = 
     (sector==0) || (sector!=3 && Game.Objects["Farm"].level==sector+6);
-  if (!Game.Upgrades["Wheat slims"].bought && 
+  if (!Game.Upgrades["Wheat slims"].unlocked && 
       game.plants["bakerWheat"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Wheat slims."); 
 	return "bakerWheat"; 
   }
-  if (!Game.Upgrades["Elderwort biscuits"].bought && 
+  if (!Game.Upgrades["Elderwort biscuits"].unlocked && 
       game.plants["elderwort"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Elderwort cookies."); 
 	return "elderwort"; 
   }
-  if (!Game.Upgrades["Bakeberry cookies"].bought && 
+  if (!Game.Upgrades["Bakeberry cookies"].unlocked && 
       game.plants["bakeberry"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Bakeberry cookies."); 
 	return "bakeberry"; 
   }
-  if (!Game.Upgrades["Fern tea"].bought && 
+  if (!Game.Upgrades["Fern tea"].unlocked && 
       game.plants["drowsyfern"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Fern tea."); 
 	return "drowsyfern"; 
   }
-  if (!Game.Upgrades["Duketater cookies"].bought && 
+  if (!Game.Upgrades["Duketater cookies"].unlocked && 
       game.plants["duketater"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Duketater cookies."); 
 	return "duketater"; 
   }
-  if (!Game.Upgrades["Green yeast digestives"].bought && 
+  if (!Game.Upgrades["Green yeast digestives"].unlocked && 
       game.plants["greenRot"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Green yeast digestives."); 
 	return "greenRot"; 
   }
-  if (!Game.Upgrades["Ichor syrup"].bought && 
+  if (!Game.Upgrades["Ichor syrup"].unlocked && 
       game.plants["ichorpuff"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Ichor syrup."); 
@@ -1003,18 +1003,22 @@ AutoPlay.handleAscend = function() {
   var newPrestige = (Game.prestige+Game.ascendMeterLevel)%1000000;
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky digit"].bought && 
       Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) 
-	AutoPlay.doAscend("ascend for lucky digit.",0);
+	AutoPlay.doAscend("ascend for heavenly upgrade lucky digit.",0);
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky number"].bought && 
       Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) 
-    AutoPlay.doAscend("ascend for lucky number.",0);
+    AutoPlay.doAscend("ascend for heavenly upgrade lucky number.",0);
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky payout"].bought && 
       Game.heavenlyChips>77777777) {
 	AutoPlay.wantAscend = true; //avoid byuing plants
 	AutoPlay.setDeadline(0);
-    AutoPlay.addActivity("Trying to get Lucky Payout.");
+    AutoPlay.addActivity("Trying to get heavenly upgrade Lucky Payout.");
     if (Game.ascendMeterLevel>0 && (newPrestige <= 777777) && 
 	    (newPrestige+Game.ascendMeterLevel >= 777777))
-      AutoPlay.doAscend("ascend for lucky payout.",0);
+      AutoPlay.doAscend("ascend for heavenly upgrade lucky payout.",0);
+  }
+  if (!Game.Upgrades["Season switcher"].bought && 
+      AutoPlay.nextAchievement==108 && Game.ascendMeterLevel>1111) {
+    AutoPlay.doAscend("getting season switcher.",1);
   }
   if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
 	var date = new Date();
@@ -1115,6 +1119,7 @@ AutoPlay.endPhase = function() {
 AutoPlay.grinding = function() { return Game.AchievementsById[373].won; }
 
 AutoPlay.mainActivity = "Doing nothing in particular.";
+AutoPlay.activities = AutoPlay.mainActivity;
 
 AutoPlay.setMainActivity = function(str) {
   AutoPlay.mainActivity = str;
@@ -1148,11 +1153,10 @@ AutoPlay.checkAllAchievementsOK = function() { //We do not stop for one-year leg
   for (var i in Game.Upgrades) {
     var me = Game.Upgrades[i];
     if (me.pool=='prestige' && !me.bought) { // we have not all prestige upgrades yet
-      AutoPlay.nextAchievement = 
-	    AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-1];
+      AutoPlay.nextAchievement = 99; // follow the white rabbit (from dungeons)
       AutoPlay.setMainActivity("Prestige upgrade " + me.name + 
 	    " is missing, waiting to buy it.");
-	  Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); 
+//	  Game.RemoveAchiev(Game.AchievementsById[AutoPlay.nextAchievement].name); 
 	  return false;
     } 
   }
@@ -1414,6 +1418,7 @@ AutoPlay.setDeadline = function(d) {
 }
 
 AutoPlay.logging = function() {
+  if(!AutoPlay.loggingInfo) return;
   try {
 	var before = window.localStorage.getItem("autoplayLog");
     var toAdd = "#logging autoplay V" + AutoPlay.version + " with " + 
