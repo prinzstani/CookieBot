@@ -1269,6 +1269,11 @@ AutoPlay.handleDragon = function() {
     Game.specialTab = "dragon"; Game.SetDragonAura(17,0); 
     Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
   }
+  if ((Game.dragonAura==17) && (Game.lumps > 99)) { 
+  // set first aura to radiant appetite
+    Game.specialTab = "dragon"; Game.SetDragonAura(15,0); 
+    Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
+  }
   if ((Game.dragonAura2==0) && 
       (Game.dragonLevel>=Game.dragonLevels.length-1)) { 
   // set second aura to kitten (breath of milk)
