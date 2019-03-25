@@ -227,8 +227,7 @@ AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, ...
     case 71: return Game.Achievements["Elder nap"].won && 
 	  Game.Achievements["Elder slumber"].won && 
 	  Game.Achievements["Elder calm"].won && 
-	  (!Game.Achievements["Reincarnation"].won || 
-	    Game.Upgrades["Arcane sugar"].bought); // brainsweep
+	  (!Game.Achievements["Reincarnation"].won); // brainsweep
 	case 73: return Game.Achievements["Elder nap"].won && 
 	  Game.Achievements["Elder slumber"].won && 
 	  Game.Achievements["Elder calm"].won; // elder pact
@@ -1202,8 +1201,14 @@ AutoPlay.prioUpgrades = [363, 323, // legacy, dragon
   282, 283, 284, 291, 393, 394]; // better golden cookies, kittens, synergies
 AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494];
 AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189];
-AutoPlay.chancemakers = [416,417,418,419,420,421,422,423,441,493];
+AutoPlay.chancemakers = [416,417,418,419,420,421,422,423,441,493,519];
 AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497];
+AutoPlay.expensive = [38,39,40,41,42,55,56,80,81,88,89,90,104,105,106,107,
+  120,121,122,123,150,151,256,257,258,259,260,261,262,263,
+  338,339,340,341,342,343,350,351,352,403,404,405,406,407,
+  444,445,446,447,448,453,454,455,456,457,458,464,465,466,467,468,469,
+  498,499,500,501,535,536,538,565,566,567,568,569,570,571,572,573,574,
+  575,576,577,578,579,580,581,582,583,584,585,586,587,588];
 
 AutoPlay.buyHeavenlyUpgrades = function() {
   AutoPlay.prioUpgrades.forEach(function(id) { 
@@ -1226,11 +1231,7 @@ AutoPlay.buyHeavenlyUpgrades = function() {
   } else { //collect rare things
     AutoPlay.assignPermanentSlot(0,AutoPlay.butterBiscuits);
     AutoPlay.assignPermanentSlot(3,[226]); // omelette
-	if (Game.Achievements["Elder nap"].won && 
-	    Game.Achievements["Elder slumber"].won && 
-		Game.Achievements["Elder calm"].won)
-      AutoPlay.assignPermanentSlot(4,[72]); // arcane sugar
-	else AutoPlay.assignPermanentSlot(4,[53]); // serendipity
+    AutoPlay.assignPermanentSlot(4,AutoPlay.expensive);
   }
 }
 
