@@ -126,9 +126,7 @@ AutoPlay.nightMode = function() {
   var gs = Game.Upgrades["Golden switch [off]"]; 
   if (gs.unlocked) {
     AutoPlay.handleGoldenCookies();
-    var buffCount=0;
-    for (var i in Game.buffs) if (Game.buffs[i].time>=0) buffCount++;
-	if ((buffCount==1 && Game.hasBuff("Clot")) || h<7) { 
+	if ((AutoPlay.cpsMult<0.8) || h<7) { 
       var sv = Game.Upgrades["Shimmering veil [off]"]; 
       if (sv.unlocked && sv.canBuy() && 
 	    Game.Upgrades["Reinforced membrane"].bought) sv.buy();
