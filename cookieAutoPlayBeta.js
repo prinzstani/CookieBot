@@ -4,8 +4,8 @@
 var AutoPlay;
 
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.016"
-AutoPlay.gameVersion = "2.016";
+AutoPlay.version = "2.017"
+AutoPlay.gameVersion = "2.018";
 AutoPlay.robotName = "Automated ";
 AutoPlay.delay = 0;
 AutoPlay.night = false;
@@ -28,10 +28,7 @@ AutoPlay.run = function() {
   }
   AutoPlay.activities = AutoPlay.mainActivity;
   AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
-  AutoPlay.cpsMult = 1;
-  for (var i in Game.buffs) 
-    if (typeof Game.buffs[i].multCpS != 'undefined') 
-	  AutoPlay.cpsMult*=Game.buffs[i].multCpS;
+  AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   // if high cps then do not wait
   if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0);
   if (AutoPlay.plantPending || AutoPlay.harvestPlant) 
@@ -102,7 +99,7 @@ AutoPlay.runJustRight = function() {
 
 //===================== Night Mode ==========================
 AutoPlay.preNightMode = function() { 
-  if(AutoPlay.Config.NightMode!=1) return false; 
+  if(AutoPlay.Config.NightMode==0) return false; 
   var h=(new Date).getHours(); 
   return(h>=22); 
 }
@@ -110,10 +107,10 @@ AutoPlay.preNightMode = function() {
 AutoPlay.nightMode = function() { 
   if (Game.OnAscend) return false;
   if (AutoPlay.Config.NightMode==0) return false;
-  if (AutoPlay.grinding() && !AutoPlay.endPhase()) 
-	return false; //do not sleep while grinding
+  if (AutoPlay.Config.NightMode==1 && AutoPlay.grinding() && !AutoPlay.endPhase()) 
+	return false; //do not auto-sleep while grinding
   var h = (new Date).getHours();
-  if (AutoPlay.Config.NightMode==1 && h>=7 && h<23) { // be active
+  if (h>=7 && h<23) { // be active
     if (AutoPlay.night) AutoPlay.useLump();
     AutoPlay.night = false;
     AutoPlay.nightAtTemple(false);
@@ -704,7 +701,7 @@ AutoPlay.plantSector = function(game,sector,plant1,plant2,plant0) {
 AutoPlay.plantCookies = false;
 
 AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
-  if (AutoPlay.cpsMult>10) return; // do not plant when it is expensive
+  if (AutoPlay.cpsMult>1) return; // do not plant when it is expensive
   if (!game.isTileUnlocked(whereX,whereY)) return; // do not plant on locked tiles
   var oldPlant = (game.getTile(whereX,whereY))[0];
   if (oldPlant!=0) { // slot is already planted, try to get rid of it
@@ -971,7 +968,7 @@ AutoPlay.handleAscend = function() {
   }
   if (Game.ascensionMode==1 && !AutoPlay.canContinue()) 
     AutoPlay.doAscend("reborn mode did not work, retry.",0);
-  if (AutoPlay.preNightMode() && AutoPlay.Config.NightMode==5) 
+  if (AutoPlay.preNightMode() && AutoPlay.Config.NightMode>0) 
 	return; //do not ascend right before the night 
   var daysInRun = (AutoPlay.now-Game.startDate)/1000/60/60/24;
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && 
@@ -1206,7 +1203,7 @@ AutoPlay.findMissingAchievements = function() { // just for testing purposes
 //===================== Handle Heavenly Upgrades ==========================
 AutoPlay.prioUpgrades = [363, 323, // legacy, dragon 
   411, 412, 413, // lucky upgrades, 
-  264, 265, 266, 267, 268, 181, // permanent slots, season switcher, 
+  264, 265, 266, 267, 268, 520, 181, // permanent slots, season switcher, 
   282, 283, 284, 291, 393, 394]; // better golden cookies, kittens, synergies
 AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494];
 AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189];
