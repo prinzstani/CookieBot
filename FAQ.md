@@ -1,4 +1,5 @@
 # Cookie Bot Frequently Asked Questions
+
 ##General Questions
 ### What is the bot aiming at right now?
 You can see the current steps the bot is working on by hovering over the version information of the bot (bottom left of game screen). 
@@ -9,7 +10,13 @@ First, you might want to create an issue about the problem, in particular if the
 If you have mixed up the bot strategy because you bought something alongside that the bot would not have bought, you best ascend and let the bot run without interference.
 
 ### How do I ask a question about the bot?
-First, you want to carefully check this FAQ and the [README](https://github.com/prinzstani/CookieBot/blob/master/README.md). If you request is related to a bug or suggestion, please **create it as an issue** [in the repository](https://github.com/prinzstani/CookieBot) for easier tracking. This allows to follow the status of the issue. If none of this is applicable, send your question to theprinzstani@gmail.com.
+First, you want to carefully check this FAQ and the [README](https://github.com/prinzstani/CookieBot/blob/master/README.md). If you request is related to a bug or suggestion, please [**create it as an issue**](https://github.com/prinzstani/CookieBot/issues) [in the repository](https://github.com/prinzstani/CookieBot) for easier tracking. This allows to follow the status of the issue. If none of this is applicable, send your question to theprinzstani@gmail.com.
+
+### The bot does not support the current version of cookie clicker - what can I do?
+Relax. The bot will still work, it only does not handle all of the new features. Make sure that there is [an issue](https://github.com/prinzstani/CookieBot/issues) about the new version. Enjoy the bot as usual.
+
+### How can I contribute?
+The bot needs regular maintenance, in particular when there is a new version of cookie clicker. If you are interested in contributing, please contact theprinzstani@gmail.com.
 
 ## Buying Algorithm
 ### What is the next building to be bought?
@@ -57,8 +64,6 @@ Wrinklers are normally left alone unless we need them to get easter eggs or othe
 ### What is the Grandmapocalypse strategy?
 In the first possible round, the bot will complete the Grandmapocalypse in order to get all the achievements.
 After all the Grandmapocalypse achievements are in place, the bot will not buy the Communal brainsweep.
-
-In order to maximize cps, the bot will save the Arcane sugar (which is after the Communal brainsweep) into the fifth permanent slot.
 
 ## Minigame Strategy
 ### What is the strategy for the garden?
