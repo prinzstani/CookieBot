@@ -1,6 +1,8 @@
 # Cookie Bot Frequently Asked Questions
+Many questions have been asked before - check here whether your question is already answered.
 
 ##General Questions
+
 ### What is the bot aiming at right now?
 You can see the current steps the bot is working on by hovering over the version information of the bot (bottom left of game screen). 
 Please note that bot has a main goal as displayed in the first line, and several activities it is pursuing just now.
@@ -10,7 +12,7 @@ First, you might want to create an issue about the problem, in particular if the
 If you have mixed up the bot strategy because you bought something alongside that the bot would not have bought, you best ascend and let the bot run without interference.
 
 ### How do I ask a question about the bot?
-First, you want to carefully check this FAQ and the [README](https://github.com/prinzstani/CookieBot/blob/master/README.md). If you request is related to a bug or suggestion, please [**create it as an issue**](https://github.com/prinzstani/CookieBot/issues) [in the repository](https://github.com/prinzstani/CookieBot) for easier tracking. This allows to follow the status of the issue. If none of this is applicable, send your question to theprinzstani@gmail.com.
+First, you want to carefully check this FAQ and the [README](https://github.com/prinzstani/CookieBot/blob/master/README.md). If you request is related to a bug or suggestion, please [**create it as an issue**](https://github.com/prinzstani/CookieBot/issues) for easier tracking. This allows to follow the status of the issue. If none of this is applicable, send your question to theprinzstani@gmail.com.
 
 ### The bot does not support the current version of cookie clicker - what can I do?
 Relax. The bot will still work, it only does not handle all of the new features. Make sure that there is [an issue](https://github.com/prinzstani/CookieBot/issues) about the new version. Enjoy the bot as usual.
@@ -19,6 +21,7 @@ Relax. The bot will still work, it only does not handle all of the new features.
 The bot needs regular maintenance, in particular when there is a new version of cookie clicker. If you are interested in contributing, please contact theprinzstani@gmail.com.
 
 ## Buying Algorithm
+
 ### What is the next building to be bought?
 The next building is the cheapest building that gives at least 50% of the max possible gain in cpc per cookie invested.
 Buildings that are 10 or less from the next interesting limit (50, 100, 150, ...) are bought if possible.
@@ -32,6 +35,7 @@ Moreover, the Grandmapocalypse is stopped before the Communal brainsweep (see be
 The buying strategy is provided by the object selection algorithm, based on a simple cost-gain analysis. Then the bot waits until there are enough cookies to buy what is selected.
 
 ## Game Strategy
+
 ### What is the playthrough strategy?
 The following steps are taken, and if you start somewhere in the middle, the procedure is adapted accordingly.
 * Step 1: keep quiet until hardcore and neverclick, then buy everything until all grandma achievements are there, maybe get the first permanent slot with maximum cursors: this takes about 6 days.
@@ -66,6 +70,7 @@ In the first possible round, the bot will complete the Grandmapocalypse in order
 After all the Grandmapocalypse achievements are in place, the bot will not buy the Communal brainsweep.
 
 ## Minigame Strategy
+
 ### What is the strategy for the garden?
 Overall: at night, the garden is frozen.
 * Step 1: Enable the garden minigame.

@@ -103,9 +103,9 @@ Before submitting a bug report, please reload the bot, as it is continuously imp
 * Export save of the status when the problem arises.
 
 # Contributors
-We need more contributors. Please contact theprinzstani@gmail.com if you are interested.
-
 * **[Prinz Stani](https://github.com/prinzstani)**: Original author and current maintainer
 * **[SearchAndDestroy](https://github.com/SearchAndDestroy)**: Tampermonkey script
 * **[AlexFolland](https://github.com/AlexFolland)**: Options and small fixes
 * **[corvidian](https://github.com/corvidian)**: Elder handling and optimization
+
+We need more contributors. Please contact theprinzstani@gmail.com if you are interested.
