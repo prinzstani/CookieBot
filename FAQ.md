@@ -1,8 +1,5 @@
 # Cookie Bot Frequently Asked Questions
-Many questions have been asked before - check here whether your question is already answered.
-
-##General Questions
-
+## General Questions
 ### What is the bot aiming at right now?
 You can see the current steps the bot is working on by hovering over the version information of the bot (bottom left of game screen). 
 Please note that bot has a main goal as displayed in the first line, and several activities it is pursuing just now.
