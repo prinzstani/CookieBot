@@ -1252,6 +1252,7 @@ AutoPlay.assignPermanentSlot = function(slot,options) {
 
 //===================== Handle Dragon ==========================
 AutoPlay.handleDragon = function() {
+  var wantedAura=0;
   if (Game.Upgrades["A crumbly egg"].unlocked) {
     if (Game.dragonLevel<Game.dragonLevels.length-1 && 
 	    Game.dragonLevels[Game.dragonLevel].cost()) {
@@ -1259,22 +1260,15 @@ AutoPlay.handleDragon = function() {
 	  Game.UpgradeDragon(); Game.ToggleSpecialMenu(0);
     } 
   }
-  if ((Game.dragonAura==0) && (Game.dragonLevel>=5)) { 
-  // set first aura to kitten (breath of milk)
-    Game.specialTab = "dragon"; Game.SetDragonAura(1,0); 
-    Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
+  if (Game.dragonLevel>=5) wantedAura=1; // kitten (breath of milk)
+  if (Game.dragonLevel>=21) wantedAura=17; // fractal (dragons curve)
+  if ((Game.dragonLevel>=21) && (Game.lumps > 99))
+    wantedAura=15; // radiant appetite
+  if (Game.dragonAura!=wantedAura) {
+    Game.specialTab = "dragon"; Game.SetDragonAura(wantedAura,0);
+    Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0);
   }
-  if ((Game.dragonAura==1) && (Game.dragonLevel>=21)) { 
-  // set first aura to fractal (dragons curve)
-    Game.specialTab = "dragon"; Game.SetDragonAura(17,0); 
-    Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
-  }
-  if ((Game.dragonAura==17) && (Game.lumps > 99)) { 
-  // set first aura to radiant appetite
-    Game.specialTab = "dragon"; Game.SetDragonAura(15,0); 
-    Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
-  }
-  if ((Game.dragonAura2==0) && 
+  if ((Game.dragonAura2!=1) &&
       (Game.dragonLevel>=Game.dragonLevels.length-1)) { 
   // set second aura to kitten (breath of milk)
     Game.specialTab = "dragon"; Game.SetDragonAura(1,1); 
