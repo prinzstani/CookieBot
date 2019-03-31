@@ -4,7 +4,7 @@
 var AutoPlay;
 
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.017"
+AutoPlay.version = "2.018"
 AutoPlay.gameVersion = "2.018";
 AutoPlay.robotName = "Automated ";
 AutoPlay.delay = 0;
@@ -224,13 +224,9 @@ AutoPlay.handleUpgrades = function() {
 
 AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, ...
   switch(up.id) {
-    case 71: return Game.Achievements["Elder nap"].won && 
+    case 71: case 73: return Game.Achievements["Elder nap"].won && 
 	  Game.Achievements["Elder slumber"].won && 
-	  Game.Achievements["Elder calm"].won && 
-	  (!Game.Achievements["Reincarnation"].won); // brainsweep
-	case 73: return Game.Achievements["Elder nap"].won && 
-	  Game.Achievements["Elder slumber"].won && 
-	  Game.Achievements["Elder calm"].won; // elder pact
+	  Game.Achievements["Elder calm"].won; // brainsweep
 	case 74: return Game.Achievements["Elder nap"].won && 
 	  Game.Achievements["Elder slumber"].won && 
 	  Game.Upgrades["Elder Covenant"].unlocked; // elder pledge
