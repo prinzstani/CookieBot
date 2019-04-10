@@ -233,8 +233,8 @@ AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, ...
 	case 84: return Game.Upgrades["Elder Pledge"].bought || 
 	  Game.Achievements["Elder calm"].won; // elder covenant
     case 227: return true; // choco egg
-	case 563: return AutoPlay.nextAchievement!=432 && 
-	  !Game.Achievements["Thick-skinned"].won; //shimmering veil
+	case 563: return AutoPlay.nextAchievement!=432 ||
+	  Game.Achievements["Thick-skinned"].won; //shimmering veil
 	default: return up.pool=="toggle";
   } 
 }
