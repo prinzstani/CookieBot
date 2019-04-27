@@ -17,6 +17,9 @@ AutoPlay.run = function() {
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   AutoPlay.now=Date.now();
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
+  AutoPlay.activities = AutoPlay.mainActivity;
+  AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
+  AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   if (AutoPlay.nightMode()) { 
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT); 
 	return; 
@@ -26,9 +29,6 @@ AutoPlay.run = function() {
 	AutoPlay.handleGoldenCookies(); 
 	return; 
   }
-  AutoPlay.activities = AutoPlay.mainActivity;
-  AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
-  AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   // if high cps then do not wait
   if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0);
   if (AutoPlay.plantPending || AutoPlay.harvestPlant) 
