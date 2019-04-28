@@ -20,6 +20,7 @@ AutoPlay.run = function() {
   if (AutoPlay.now<AutoPlay.deadline) { 
     AutoPlay.handleClicking(); 
 	AutoPlay.handleGoldenCookies(); 
+//    AutoPlay.addActivity("Activity speed reduced.");
 	return; 
   }
   AutoPlay.activities = AutoPlay.mainActivity;
