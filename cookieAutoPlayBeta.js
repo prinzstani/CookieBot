@@ -17,14 +17,14 @@ AutoPlay.run = function() {
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   AutoPlay.now=Date.now();
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
-  AutoPlay.activities = AutoPlay.mainActivity;
-  AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
-  AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   if (AutoPlay.now<AutoPlay.deadline) { 
     AutoPlay.handleClicking(); 
 	AutoPlay.handleGoldenCookies(); 
 	return; 
   }
+  AutoPlay.activities = AutoPlay.mainActivity;
+  AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
+  AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   if (AutoPlay.nightMode()) { 
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT); 
 	return; 
