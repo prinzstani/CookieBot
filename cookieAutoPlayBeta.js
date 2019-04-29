@@ -24,12 +24,12 @@ AutoPlay.run = function() {
 	return; 
   }
   AutoPlay.activities = AutoPlay.mainActivity;
-  AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
   AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   if (AutoPlay.nightMode()) { 
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT); 
 	return; 
   }
+  AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
   // if high cps then do not wait
   if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0);
   if (AutoPlay.plantPending || AutoPlay.harvestPlant) 
