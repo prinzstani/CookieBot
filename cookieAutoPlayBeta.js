@@ -701,7 +701,7 @@ AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
   if (!game.isTileUnlocked(whereX,whereY)) return; // do not plant on locked tiles
   var oldPlant = (game.getTile(whereX,whereY))[0];
   if (oldPlant!=0) { // slot is already planted, try to get rid of it
-    if( game.plantsById[oldPlant-1].key!=seed) 
+    if (game.plantsById[oldPlant-1].key!=seed) 
 	  AutoPlay.cleanSeed(game,whereX,whereY);
 	return;
   }
@@ -823,6 +823,8 @@ AutoPlay.cleanSeed = function(game,x,y) {
   game.harvest(x,y);
 }
 
+// could harvest cookie-giving plants while slot 0 produces plants
+// this is difficult since harvesting is not related to sectors
 AutoPlay.harvesting = function(game) {
   AutoPlay.cleaningGarden(game);
   AutoPlay.plantPending=false;

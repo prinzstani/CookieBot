@@ -1,8 +1,12 @@
 # Cookie Bot Frequently Asked Questions
 ## General Questions
+### The bot is not doing anything - what is wrong?
+When you start the bot right after a fresh start of cookie clicker, it will wait for the true neverclick and the hardcore achievements and therefore not clock and not buy upgrades. Just be patient and wait.
+You can see the status of the bot when hovering over the version information of the bot (bottom left of game screen).
+
 ### What is the bot aiming at right now?
 You can see the current steps the bot is working on by hovering over the version information of the bot (bottom left of game screen). 
-Please note that bot has a main goal as displayed in the first line, and several activities it is pursuing just now.
+Please note that the bot has a main goal as displayed in the first line, and several activities it is pursuing just now.
 
 ### The bot is stuck - what do I do?
 First, you might want to create an issue about the problem, in particular if the bot has run itself into the problem.
