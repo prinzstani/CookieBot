@@ -17,18 +17,19 @@ AutoPlay.run = function() {
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   AutoPlay.now=Date.now();
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
+  if (AutoPlay.now<AutoPlay.deadline) { 
+    AutoPlay.handleClicking(); 
+	AutoPlay.handleGoldenCookies(); 
+//    AutoPlay.addActivity("Activity speed reduced.");
+	return; 
+  }
+  AutoPlay.activities = AutoPlay.mainActivity;
+  AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   if (AutoPlay.nightMode()) { 
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT); 
 	return; 
   }
-  if (AutoPlay.now<AutoPlay.deadline) { 
-    AutoPlay.handleClicking(); 
-	AutoPlay.handleGoldenCookies(); 
-	return; 
-  }
-  AutoPlay.activities = AutoPlay.mainActivity;
   AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
-  AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   // if high cps then do not wait
   if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0);
   if (AutoPlay.plantPending || AutoPlay.harvestPlant) 
@@ -101,7 +102,7 @@ AutoPlay.runJustRight = function() {
 AutoPlay.preNightMode = function() { 
   if(AutoPlay.Config.NightMode==0) return false; 
   var h=(new Date).getHours(); 
-  return(h>=22); 
+  return (h>=22); 
 }
 
 AutoPlay.nightMode = function() { 
@@ -110,6 +111,7 @@ AutoPlay.nightMode = function() {
   if (AutoPlay.Config.NightMode==1 && AutoPlay.grinding() && !AutoPlay.endPhase()) 
 	return false; //do not auto-sleep while grinding
   var h = (new Date).getHours();
+  if (AutoPlay.preNightMode()) AutoPlay.setDeadline(0);
   if (h>=7 && h<23) { // be active
     if (AutoPlay.night) AutoPlay.useLump();
     AutoPlay.night = false;
