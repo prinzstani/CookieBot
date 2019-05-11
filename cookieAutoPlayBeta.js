@@ -393,10 +393,9 @@ AutoPlay.useLump = function() { // recursive call to handle many sugar lumps
 	  return; 
 	} 
   }
-  if (Game.lumps<99) return; // collect lumps for  better cps
   for (var i = Game.ObjectsById.length-1; i>=0; i--) {
     var me = Game.ObjectsById[i]; 
-	if (me.level<10 && me.level<Game.lumps) { 
+	if (me.level<10 && me.level+99<Game.lumps) { 
 	  me.levelUp(); AutoPlay.useLump(); return;
 	} 
   }
