@@ -11,6 +11,7 @@ AutoPlay.delay = 0;
 AutoPlay.night = false;
 AutoPlay.finished = false;
 AutoPlay.deadline = 0;
+AutoPlay.useLumps = false;
 
 AutoPlay.run = function() {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
@@ -381,6 +382,7 @@ AutoPlay.harvestLump = function() {
 }
 
 AutoPlay.useLump = function() { // recursive call to handle many sugar lumps
+  AutoPlay.useLumps = false;
   if (!Game.lumps) return;
   for (var i in AutoPlay.level1Order) { 
     var me = Game.ObjectsById[AutoPlay.level1Order[i]]; 
@@ -393,12 +395,16 @@ AutoPlay.useLump = function() { // recursive call to handle many sugar lumps
 	  return; 
 	} 
   }
-  if (Game.lumps<99) return; // collect lumps for  better cps
+  AutoPlay.useLumps = true;
   for (var i = Game.ObjectsById.length-1; i>=0; i--) {
     var me = Game.ObjectsById[i]; 
-	if (me.level<10 && me.level<Game.lumps) { 
-	  me.levelUp(); AutoPlay.useLump(); return;
-	} 
+    if (me.level<10) {
+      if (me.level+100<Game.lumps) {
+        me.levelUp(); AutoPlay.useLump(); return;
+      } else {
+        AutoPlay.useLumps = false;
+      }
+    } 
   }
 }
 
@@ -468,7 +474,7 @@ AutoPlay.handleMinigames = function() {
     sp = g.spells["conjure baked goods"];
 	if (AutoPlay.cpsMult>100) {
 	  if (g.magic>=g.getSpellCost(sp)) { g.castSpell(sp); return; }
-	  if (Game.lumps>100) { g.lumpRefill.click(); }
+	  if (AutoPlay.useLumps && Game.lumps>100) { g.lumpRefill.click(); }
 	}
   }
   // temples: pantheon =============================
