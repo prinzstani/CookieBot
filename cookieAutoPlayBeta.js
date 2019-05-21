@@ -494,6 +494,13 @@ AutoPlay.handleMinigames = function() {
     var g = Game.Objects["Farm"].minigame;
 	AutoPlay.harvesting(g);
 	AutoPlay.planting(g);
+    if (!Game.AchievementsById[382].won && g.plantsUnlockedN==g.plantsN) {
+        // get "Seedless to nay" achievement to improve future plant/upgrade growth
+        AutoPlay.plantCookies = false;
+        g.harvestAll(); g.askConvert(); Game.ConfirmPrompt();
+        AutoPlay.plantList=[0,0,0,0];
+        return;
+    }
     if(Game.lumps<100 && AutoPlay.gardenReady(g) && !AutoPlay.finished && 
 	    !AutoPlay.harvestPlant && !AutoPlay.lumpRelatedAchievements.every(
 		  function(a) { return Game.AchievementsById[a].won; })) {
