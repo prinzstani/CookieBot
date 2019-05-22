@@ -494,10 +494,10 @@ AutoPlay.handleMinigames = function() {
     var g = Game.Objects["Farm"].minigame;
 	AutoPlay.harvesting(g);
 	AutoPlay.planting(g);
-    if (!Game.AchievementsById[382].won && g.plantsUnlockedN==g.plantsN) {
+    if (AutoPlay.gardenSacrificeReady(g)) {
         // get "Seedless to nay" achievement to improve future plant/upgrade growth
         AutoPlay.plantCookies = false;
-        g.harvestAll(); g.askConvert(); Game.ConfirmPrompt();
+        g.askConvert(); Game.ConfirmPrompt();
         AutoPlay.plantList=[0,0,0,0];
         return;
     }
@@ -506,13 +506,26 @@ AutoPlay.handleMinigames = function() {
 		  function(a) { return Game.AchievementsById[a].won; })) {
       AutoPlay.plantCookies = false;
 	  //convert garden in order to get more sugar lumps
-	  g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); 
+	  g.askConvert(); Game.ConfirmPrompt(); 
 	  AutoPlay.plantList=[0,0,0,0];
 	}
   }
 }
 
 AutoPlay.gardenUpgrades = range(470,476);
+
+AutoPlay.gardenSacrificeReady = function(g) {
+  AutoPlay.wantGardenSacrifice = false;
+  if (!Game.AchievementsById[382].won && g.plantsUnlockedN==g.plantsN) {
+    // we'd like to get the achievement; check if we can
+    if (!AutoPlay.harvestPlant) {
+      return true;
+    }
+    AutoPlay.wantGardenSacrifice = true;
+    AutoPlay.addActivity('Waiting for harvest before getting Seedless to Nay.'); 
+  }
+  return false;
+}
 
 AutoPlay.gardenReady = function(g) { // have all plants and all cookies
   return (Game.Objects["Farm"].level>8) &&
@@ -710,6 +723,7 @@ AutoPlay.plantSector = function(game,sector,plant1,plant2,plant0) {
 }
 
 AutoPlay.plantCookies = false;
+AutoPlay.wantGardenSacrifice = false;
 
 AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
   if (AutoPlay.cpsMult>1) return; // do not plant when it is expensive
@@ -725,7 +739,7 @@ AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
 }
 
 AutoPlay.seedCalendar = function(game,sector) {
-  if (AutoPlay.wantAscend) return 'bakerWheat'; // plant cheap before ascend
+  if (AutoPlay.wantAscend || AutoPlay.wantGardenSacrifice) return 'bakerWheat'; // plant cheap before ascend
   AutoPlay.plantsMissing=false;
   if (sector==0) AutoPlay.plantCookies = true;
   var doPrint = 
