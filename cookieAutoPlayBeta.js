@@ -414,7 +414,6 @@ AutoPlay.copyWindows=[]; // need to init in the code some place
 AutoPlay.masterSaveCopy=0;
 AutoPlay.masterLoadCopy=0;
 AutoPlay.copyCount=100;
-
 // golden sugar lumps = 1 in 2000 (ordinary) -> about 5 years
 // this is tested and it works (some kind of cheating) - do this only in endgame
 AutoPlay.farmGoldenSugarLumps = function(age) { 
@@ -494,18 +493,38 @@ AutoPlay.handleMinigames = function() {
     var g = Game.Objects["Farm"].minigame;
 	AutoPlay.harvesting(g);
 	AutoPlay.planting(g);
+    if (AutoPlay.gardenSacrificeReady(g)) {
+        // get "Seedless to nay" achievement to improve future plant/upgrade growth
+        AutoPlay.plantCookies = false;
+        g.askConvert(); Game.ConfirmPrompt();
+        AutoPlay.plantList=[0,0,0,0];
+        return;
+    }
     if(Game.lumps<100 && AutoPlay.gardenReady(g) && !AutoPlay.finished && 
 	    !AutoPlay.harvestPlant && !AutoPlay.lumpRelatedAchievements.every(
 		  function(a) { return Game.AchievementsById[a].won; })) {
       AutoPlay.plantCookies = false;
 	  //convert garden in order to get more sugar lumps
-	  g.harvestAll(); g.askConvert(); Game.ConfirmPrompt(); 
+	  g.askConvert(); Game.ConfirmPrompt(); 
 	  AutoPlay.plantList=[0,0,0,0];
 	}
   }
 }
 
 AutoPlay.gardenUpgrades = range(470,476);
+
+AutoPlay.gardenSacrificeReady = function(g) {
+  AutoPlay.wantGardenSacrifice = false;
+  if (!Game.AchievementsById[382].won && g.plantsUnlockedN==g.plantsN) {
+    // we'd like to get the achievement; check if we can
+    if (!AutoPlay.harvestPlant) {
+      return true;
+    }
+    AutoPlay.wantGardenSacrifice = true;
+    AutoPlay.addActivity('Waiting for harvest before getting Seedless to Nay.'); 
+  }
+  return false;
+}
 
 AutoPlay.gardenReady = function(g) { // have all plants and all cookies
   return (Game.Objects["Farm"].level>8) &&
@@ -703,6 +722,7 @@ AutoPlay.plantSector = function(game,sector,plant1,plant2,plant0) {
 }
 
 AutoPlay.plantCookies = false;
+AutoPlay.wantGardenSacrifice = false;
 
 AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
   if (AutoPlay.cpsMult>1) return; // do not plant when it is expensive
@@ -718,7 +738,7 @@ AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
 }
 
 AutoPlay.seedCalendar = function(game,sector) {
-  if (AutoPlay.wantAscend) return 'bakerWheat'; // plant cheap before ascend
+  if (AutoPlay.wantAscend || AutoPlay.wantGardenSacrifice) return 'bakerWheat'; // plant cheap before ascend
   AutoPlay.plantsMissing=false;
   if (sector==0) AutoPlay.plantCookies = true;
   var doPrint = 
@@ -847,11 +867,10 @@ AutoPlay.harvesting = function(game) {
 		  AutoPlay.addActivity(plant.name + " is still growing, do not disturb!");
           if (tile[1]>=game.plantsById[tile[0]-1].mature) 
 			game.harvest(x,y); // is mature
-	    } else if (!AutoPlay.plantsMissing && 
-		           AutoPlay.harvestable.indexOf(plant.key)>=0) {
+	    } else if (AutoPlay.harvestable.indexOf(plant.key)>=0) {
 	      AutoPlay.harvestPlant = true;
 	      AutoPlay.addActivity("Waiting to harvest " + plant.name + ".");
-          if (tile[1]>=game.plantsById[tile[0]-1].mature) { // is mature
+          if (game.plantsUnlockedN==game.plantsN && tile[1]>=game.plantsById[tile[0]-1].mature) { // is mature
 		    if (AutoPlay.cpsMult>300) game.harvest(x,y); // harvest when it pays
 		  }
 	    }
