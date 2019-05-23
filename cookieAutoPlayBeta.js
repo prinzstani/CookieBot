@@ -414,7 +414,6 @@ AutoPlay.copyWindows=[]; // need to init in the code some place
 AutoPlay.masterSaveCopy=0;
 AutoPlay.masterLoadCopy=0;
 AutoPlay.copyCount=100;
-
 // golden sugar lumps = 1 in 2000 (ordinary) -> about 5 years
 // this is tested and it works (some kind of cheating) - do this only in endgame
 AutoPlay.farmGoldenSugarLumps = function(age) { 
@@ -868,11 +867,10 @@ AutoPlay.harvesting = function(game) {
 		  AutoPlay.addActivity(plant.name + " is still growing, do not disturb!");
           if (tile[1]>=game.plantsById[tile[0]-1].mature) 
 			game.harvest(x,y); // is mature
-	    } else if (!AutoPlay.plantsMissing && 
-		           AutoPlay.harvestable.indexOf(plant.key)>=0) {
+	    } else if (AutoPlay.harvestable.indexOf(plant.key)>=0) {
 	      AutoPlay.harvestPlant = true;
 	      AutoPlay.addActivity("Waiting to harvest " + plant.name + ".");
-          if (tile[1]>=game.plantsById[tile[0]-1].mature) { // is mature
+          if (game.plantsUnlockedN==game.plantsN && tile[1]>=game.plantsById[tile[0]-1].mature) { // is mature
 		    if (AutoPlay.cpsMult>300) game.harvest(x,y); // harvest when it pays
 		  }
 	    }
