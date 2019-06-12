@@ -787,6 +787,7 @@ AutoPlay.seedCalendar = function(game,sector) {
   }
   AutoPlay.plantCookies = false;
   AutoPlay.switchSoil(game,sector,(AutoPlay.plantPending)?'fertilizer':'clay');
+  if (AutoPlay.poppingWrinklers && game.plants['wrinklegill'].unlocked) return 'wrinklegill'; // faster wrinklers
   //use garden to get cps and sugarlumps
   if (game.plants['bakeberry'].unlocked && 
       AutoPlay.lumpRelatedAchievements.every(function(a) { 
@@ -912,8 +913,10 @@ AutoPlay.removeSpirit = function(slot, god) {
 //===================== Handle Wrinklers ==========================
 AutoPlay.nextWrinkler = 0;
 AutoPlay.wrinklerTime = 0;
+AutoPlay.poppingWrinklers = false;
 
 AutoPlay.handleWrinklers = function() {
+  AutoPlay.poppingWrinklers = false;
   if (!Game.Upgrades["One mind"].bought) return;
   var doPop = (Game.season=="easter" || Game.season=="halloween");
   doPop = doPop && !AutoPlay.seasonFinished(Game.season);
@@ -923,6 +926,7 @@ AutoPlay.handleWrinklers = function() {
     (AutoPlay.endPhase() && !Game.Achievements["Last Chance to See"].won);
   if (doPop) {
 	AutoPlay.setDeadline(AutoPlay.now+20000);
+    AutoPlay.poppingWrinklers = true;
     AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
   } else if ((((AutoPlay.now-Game.startDate) > 10*24*60*60*1000) || AutoPlay.grinding()) && 
