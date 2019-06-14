@@ -1284,6 +1284,8 @@ AutoPlay.assignPermanentSlot = function(slot,options) {
 }
 
 //===================== Handle Dragon ==========================
+AutoPlay.lumpHarvestAchievements = range(266,272).concat([396]);
+
 AutoPlay.handleDragon = function() {
   var wantedAura=0;
   if (Game.Upgrades["A crumbly egg"].unlocked) {
@@ -1295,7 +1297,8 @@ AutoPlay.handleDragon = function() {
   }
   if (Game.dragonLevel>=5) wantedAura=1; // kitten (breath of milk)
   if (Game.dragonLevel>=21) wantedAura=17; // fractal (dragons curve)
-  if ((Game.dragonLevel>=21) && (Game.lumps > 99))
+  if ((Game.dragonLevel>=21) && (Game.lumps > 99) &&
+      !AutoPlay.lumpHarvestAchievements.includes(AutoPlay.nextAchievement)) // keep dragons curve for lump harvest achievements
     wantedAura=15; // radiant appetite
   if (Game.dragonAura!=wantedAura) {
     Game.specialTab = "dragon"; Game.SetDragonAura(wantedAura,0);
