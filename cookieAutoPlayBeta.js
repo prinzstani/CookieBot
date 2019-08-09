@@ -1060,7 +1060,7 @@ AutoPlay.handleAscend = function() {
 	date.setTime(AutoPlay.now-Game.fullDate);
 	var fullTime=Game.sayTime(date.getTime()/1000*Game.fps,-1);
     AutoPlay.doAscend("have achievement: " + 
-	  Game.AchievementsById[AutoPlay.nextAchievement].desc + 
+	  Game.AchievementsById[AutoPlay.nextAchievement].desc.replace(/<q>.*?<\/q>/ig, '') + 
       " after " + legacyTime + "(total: " + fullTime + ")",1);
   } 
 }
@@ -1166,7 +1166,7 @@ AutoPlay.findNextAchievement = function() {
     if (!(Game.AchievementsById[AutoPlay.wantedAchievements[i]].won)) { 
 	  AutoPlay.nextAchievement = AutoPlay.wantedAchievements[i]; 
 	  AutoPlay.setMainActivity("Trying to get achievement: " + 
-	    Game.AchievementsById[AutoPlay.nextAchievement].desc);
+	    Game.AchievementsById[AutoPlay.nextAchievement].desc.replace(/<q>.*?<\/q>/ig, ''));
 	  return; 
 	}
   }
@@ -1178,7 +1178,7 @@ AutoPlay.checkAllAchievementsOK = function() { //We do not stop for one-year leg
     var me = Game.Achievements[i];
     if (!me.won && me.pool!="dungeon" && me.id!=367) { // missing achievement
       AutoPlay.setMainActivity("Missing achievement #" + me.id + 
-	    ": " + me.desc + ", try to get it now.");
+	    ": " + me.desc.replace(/<q>.*?<\/q>/ig, '') + ", try to get it now.");
 	  AutoPlay.nextAchievement = me.id; 
 	  return false;
     } 
@@ -1196,7 +1196,7 @@ AutoPlay.checkAllAchievementsOK = function() { //We do not stop for one-year leg
   if (!Game.Achievements["So much to do so much to see"].won) { //wait until one-year legacy (367)
     var me = Game.Achievements["So much to do so much to see"];
     AutoPlay.setMainActivity("Missing achievement #" + me.id + 
-	  ": " + me.desc + ", try to get it now."); 
+	  ": " + me.desc.replace(/<q>.*?<\/q>/ig, '') + ", try to get it now."); 
 	AutoPlay.nextAchievement = me.id; 
 	return false;
   }
@@ -1221,7 +1221,7 @@ AutoPlay.findMissingAchievements = function() { // just for testing purposes
   for (var i in Game.Achievements) {
     var me = Game.Achievements[i];
     if (!me.won && me.pool!="dungeon") { // missing achievement
-      AutoPlay.info("missing achievement #" + me.id + ": " + me.desc);
+      AutoPlay.info("missing achievement #" + me.id + ": " + me.desc.replace(/<q>.*?<\/q>/ig, ''));
   } }
   for (var i in Game.Upgrades) {
     var me=Game.Upgrades[i];
