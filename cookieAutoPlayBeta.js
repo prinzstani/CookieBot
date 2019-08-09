@@ -12,6 +12,7 @@ AutoPlay.night = false;
 AutoPlay.finished = false;
 AutoPlay.deadline = 0;
 AutoPlay.canUseLumps = false;
+AutoPlay.savingsGoal = 0;
 
 AutoPlay.run = function() {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
@@ -37,6 +38,7 @@ AutoPlay.run = function() {
     AutoPlay.addActivity("Wait with ascend until plants are harvested!");
   AutoPlay.handleClicking();
   AutoPlay.handleGoldenCookies();
+  AutoPlay.handleSavings();
   AutoPlay.handleBuildings();
   AutoPlay.handleUpgrades();
   AutoPlay.handleSeasons();
@@ -210,6 +212,51 @@ AutoPlay.speedClicking = function() {
   Game.ClickCookie();
   var clickCount = 1<<(10*(AutoPlay.Config.ClickMode-2));
   Game.ClickCookie(0, clickCount*Game.computedMouseCps);
+}
+//
+//======================== Handle Savings Calculation =========================
+AutoPlay.handleSavings = function() {
+  if (AutoPlay.Config.SavingStrategy == 0) {  // None
+    AutoPlay.savingsGoal = 0;
+    return;
+  }
+  if (AutoPlay.Config.SavingStrategy == 2) {  // LUCKY
+    AutoPlay.savingsGoal = Game.unbuffedCps * 60 * 100;
+    AutoPlay.addActivity('Saving to lucky (' +
+      Beautify(AutoPlay.savingsGoal) + ' cookies)');
+    return;
+  }
+  if (AutoPlay.Config.SavingStrategy == 3) {  // LUCKY FRENZY
+    AutoPlay.savingsGoal = Game.unbuffedCps * 60 * 100 * 7;
+    AutoPlay.addActivity('Saving to lucky frenzy (' +
+      Beautify(AutoPlay.savingsGoal) + ' cookies)');
+    return;
+  }
+  // Auto: Save nothing for first 10 minutes, then linearly ramp up savings
+  // to equal target at an hour.  Target is lucky until upgrade 'get lucky'
+  // is bought, then it's lucky frenzy
+  const startMinutes = 30;  // minutes before starting to save
+  const targetMinutes = 200;  // after start, minutes to target amount
+  let elapsedMinutes = (AutoPlay.now-Game.startDate) / 60 / 1000;
+  if (elapsedMinutes < startMinutes) {
+    AutoPlay.savingsGoal = 0;
+    AutoPlay.addActivity('Not saving for first ' + startMinutes + ' minutes!');
+    return;
+  }
+  AutoPlay.savingsGoal = Game.unbuffedCps * 60 * 100;
+  if (Game.UpgradesById[86].bought)  // get lucky
+    AutoPlay.savingsGoal *= 7;
+  // if not to target, scale goal between 0 and 1 based on elapsed time
+  if (elapsedMinutes < targetMinutes) {
+    let scaling = (elapsedMinutes - startMinutes) / (targetMinutes - startMinutes);
+    AutoPlay.savingsGoal *= scaling;
+    AutoPlay.addActivity('Saving to ' + Beautify(AutoPlay.savingsGoal) + 
+      ' cookies (' + (scaling * 100) + '%)');
+  }
+  else {
+    AutoPlay.addActivity('Saving to ' + Beautify(AutoPlay.savingsGoal) + 
+      ' cookies');
+  }
 }
 
 //===================== Handle Upgrades ==========================
@@ -1373,6 +1420,9 @@ AutoPlay.ConfigData.ClickMode =
    desc: 'Clicking speed'};
 AutoPlay.ConfigData.GoldenClickMode = 
   {label: ['OFF', 'AUTO', 'ALL'], desc: 'Golden Cookie clicking mode'};
+AutoPlay.ConfigData.SavingStrategy = 
+  {label: ['NONE', 'AUTO', 'LUCKY', 'LUCKY FRENZY'],
+   desc: 'Saving strategy'};
 AutoPlay.ConfigData.CheatLumps = 
   {label: ['OFF', 'AUTO', 'LITTLE', 'MEDIUM', 'MUCH'], desc: 'Cheating of sugar lumps'};
 AutoPlay.ConfigData.CheatGolden = 
@@ -1381,7 +1431,8 @@ AutoPlay.ConfigData.CleanLog = {label: ['Clean Log'], desc: 'Cleaning the log'};
 AutoPlay.ConfigData.ShowLog = {label: ['Show Log'], desc: 'Showing the log'};
 
 AutoPlay.ConfigDefault = {NightMode: 1, ClickMode: 1, GoldenClickMode: 1, 
-                          CheatLumps: 1, CheatGolden: 1, CleanLog: 0, ShowLog: 0};
+                          SavingStrategy: 1, CheatLumps: 1, CheatGolden: 1,
+                          CleanLog: 0, ShowLog: 0};
 
 AutoPlay.LoadConfig();
 
@@ -1424,6 +1475,7 @@ AutoPlay.Disp.AddMenuPref = function() {
   frag.appendChild(listing('NightMode',null));
   frag.appendChild(listing('ClickMode',null));
   frag.appendChild(listing('GoldenClickMode',null));
+  frag.appendChild(listing('SavingStrategy',null));
   frag.appendChild(header('Cheating'));
   frag.appendChild(listing('CheatLumps',null));
   frag.appendChild(listing('CheatGolden',null));
