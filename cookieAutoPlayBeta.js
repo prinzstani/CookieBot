@@ -4,7 +4,7 @@
 var AutoPlay;
 
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.019"
+AutoPlay.version = "2.019";
 AutoPlay.gameVersion = "2.019";
 AutoPlay.robotName = "Automated ";
 AutoPlay.delay = 0;
@@ -13,6 +13,7 @@ AutoPlay.finished = false;
 AutoPlay.deadline = 0;
 AutoPlay.canUseLumps = false;
 AutoPlay.savingsGoal = 0;
+AutoPlay.savingsStart = Game.startDate;  // time since start of saving
 
 AutoPlay.run = function() {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
@@ -21,7 +22,7 @@ AutoPlay.run = function() {
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
   if (AutoPlay.now<AutoPlay.deadline) { 
     AutoPlay.handleClicking(); 
-	AutoPlay.handleGoldenCookies(); 
+    AutoPlay.handleGoldenCookies(); 
 //    AutoPlay.addActivity("Activity speed reduced.");
 	return; 
   }
@@ -52,6 +53,7 @@ AutoPlay.run = function() {
 AutoPlay.runRightCount=0;
 
 AutoPlay.runJustRight = function() {
+  AutoPlay.savingsGoal = 0;  // don't want to interfere
   AutoPlay.activities = "Running just right.";
   AutoPlay.handleAscend();
   if (Game.ObjectsById[Game.ObjectsById.length-1].amount) 
@@ -233,38 +235,63 @@ AutoPlay.handleSavings = function() {
     return;
   }
   // Auto: Save nothing for first 10 minutes, then linearly ramp up savings
-  // to equal target at an hour.  Target is lucky until upgrade 'get lucky'
+  // to equal target.  Target is lucky until upgrade 'get lucky'
   // is bought, then it's lucky frenzy
-  const startMinutes = 30;  // minutes before starting to save
-  const targetMinutes = 200;  // after start, minutes to target amount
-  let elapsedMinutes = (AutoPlay.now-Game.startDate) / 60 / 1000;
-  if (elapsedMinutes < startMinutes) {
+  const startTime = 30 * 60 * 1000;  // wait before starting to save
+  const targetTime = 400 * 60 * 1000;  // after start, time to target amount
+  let elapsedTime = AutoPlay.now-AutoPlay.savingsStart - startTime;
+  let scaling = Math.min(elapsedTime / targetTime, 1);  //fraction of time to target
+  if (elapsedTime < 0) {
     AutoPlay.savingsGoal = 0;
-    AutoPlay.addActivity('Not saving for first ' + startMinutes + ' minutes!');
+    AutoPlay.addActivity('Not saving for first ' + (startTime / 60 / 1000) + 
+          ' minutes!');
     return;
   }
   AutoPlay.savingsGoal = Game.unbuffedCps * 60 * 100;
   if (Game.UpgradesById[86].bought)  // get lucky
     AutoPlay.savingsGoal *= 7;
-  // if not to target, scale goal between 0 and 1 based on elapsed time
-  if (elapsedMinutes < targetMinutes) {
-    let scaling = (elapsedMinutes - startMinutes) / (targetMinutes - startMinutes);
+  // scale goal between 0 and 1 based on elapsed time
+  if (elapsedTime < targetTime) {
     AutoPlay.savingsGoal *= scaling;
     AutoPlay.addActivity('Saving to ' + Beautify(AutoPlay.savingsGoal) + 
-      ' cookies (' + (scaling * 100) + '%)');
+      ' cookies (' + (scaling * 100).toFixed(1) + '%)');
   }
   else {
     AutoPlay.addActivity('Saving to ' + Beautify(AutoPlay.savingsGoal) + 
       ' cookies');
+  }
+  let fractionSaved = Game.cookies / AutoPlay.savingsGoal;
+  // if fallen behind savings plan, reset to current fraction
+  // this happens if you stop the bot for a while or buy something with
+  // a big payback
+  if (scaling > fractionSaved - 0.05) {
+    console.log('rescaling');
+    AutoPlay.savingsStart = AutoPlay.now - startTime - targetTime * fractionSaved;
+  }
+}
+
+AutoPlay.buyBuilding = function(building, amount=1) {
+  if (building.getSumPrice(amount) < Game.cookies - AutoPlay.savingsGoal) {
+    console.log('Buying ' + building.displayName);
+    building.buy(amount);
+    AutoPlay.setDeadline(0); 
+  }
+}
+
+AutoPlay.buyUpgrade = function(upgrade, bypass=true) {
+  if (upgrade.getPrice() < Game.cookies - AutoPlay.savingsGoal) {
+    console.log('Buying ' + upgrade.name);
+    upgrade.buy(bypass);
+    AutoPlay.setDeadline(0); 
   }
 }
 
 //===================== Handle Upgrades ==========================
 AutoPlay.handleUpgrades = function() {
   if (!Game.Achievements["Hardcore"].won && Game.UpgradesOwned==0) return;
-  Game.UpgradesById.forEach(function(e) { 
-    if (e.unlocked && !e.bought && e.canBuy() && !AutoPlay.avoidbuy(e)) 
-	  e.buy(true); 
+  Game.UpgradesById.forEach(function(e) {
+    if (e.unlocked && !e.bought && !AutoPlay.avoidbuy(e)) 
+      AutoPlay.buyUpgrade(e, true);  // checks price, bypass = true
   });
   if (Game.lumps>100 && Game.Upgrades["Sugar frenzy"].unlocked && 
       !Game.Upgrades["Sugar frenzy"].bought && 
@@ -308,12 +335,10 @@ AutoPlay.handleBuildings = function() {
   } 
   for (var i = Game.ObjectsById.length-1; i>=0; i--) { 
     var me = Game.ObjectsById[i]; 
-    if ((me.storedCps/me.price > cpc/2 || me.amount % 50 >= 40) && 
-	    (me.getSumPrice(checkAmount)<Game.cookies)) { 
-	  me.buy(buyAmount); 
-	  AutoPlay.setDeadline(0); 
-	  return; 
-	}
+    if (me.storedCps/me.price > cpc/2 || me.amount % 50 >= 40) {
+      AutoPlay.buyBuilding(me, buyAmount); //this checks price, sets deadline
+      return; 
+    }
   }
   if (Game.resets && Game.ascensionMode!=1 && 
       Game.isMinigameReady(Game.Objects["Temple"]) && 
@@ -325,7 +350,7 @@ AutoPlay.handleBuildings = function() {
         minPrice = Game.ObjectsById[i].price; 
 		minIdx = i; 
 	  }
-	Game.ObjectsById[minIdx].buy();
+	AutoPlay.buyBuilding(Game.ObjectsById[minIdx]);
   } 
 }
 
@@ -717,21 +742,26 @@ AutoPlay.planting = function(game) {
   }
   AutoPlay.switchSoil(game,0,AutoPlay.plantPending?'fertilizer':'woodchips'); // want mutations
   if (Game.Objects["Farm"].level<4) {
-    AutoPlay.plantSeed(game,AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,2); 
-	AutoPlay.plantSeed(game,AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],3,3);
+    var targets = [[AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,2],
+      [AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],3,3]];
 	if(game.isTileUnlocked(3,4)) 
-	  AutoPlay.plantSeed(game,AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,4);
+	  targets = targets.concat([[AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,4]]);
+  AutoPlay.plantSeeds(game, targets);
 	return;
   }
   AutoPlay.findPlants(game,1);
   if (Game.Objects["Farm"].level==4) { // now we are at level 4
     if(AutoPlay.plantList[1]==0) { AutoPlay.info("ERROR 42?"); return; }
-    AutoPlay.plantSeed(game,AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],4,2); 
-	AutoPlay.plantSeed(game,AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],4,3); 
-	AutoPlay.plantSeed(game,AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],4,4); 
-    AutoPlay.plantSeed(game,AutoPlay.plantDependencies[AutoPlay.plantList[1]][1],1,2); 
-	AutoPlay.plantSeed(game,AutoPlay.plantDependencies[AutoPlay.plantList[1]][2],1,3); 
-	AutoPlay.plantSeed(game,AutoPlay.plantDependencies[AutoPlay.plantList[1]][1],1,4); 
+    AutoPlay.plantSeeds(game, [
+      [AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],4,2],
+      [AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],4,3],
+      [AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],4,4]
+    ]);
+    AutoPlay.plantSeeds(game, [
+      [AutoPlay.plantDependencies[AutoPlay.plantList[1]][1],1,2], 
+      [AutoPlay.plantDependencies[AutoPlay.plantList[1]][2],1,3], 
+      [AutoPlay.plantDependencies[AutoPlay.plantList[1]][1],1,4] 
+    ]);
 	return;
   }
   AutoPlay.findPlants(game,2); AutoPlay.findPlants(game,3); // plant on four areas 
@@ -744,30 +774,34 @@ AutoPlay.planting = function(game) {
 AutoPlay.plantSector = function(game,sector,plant1,plant2,plant0) {
   var X = (sector%2)?0:3, Y = (sector>1)?0:3;
   if (plant0=="dummy") {
-	var thePlant=AutoPlay.seedCalendar(game,sector);
-	for (var x = X; x<X+3; x++) for (var y = Y; y<Y+3; y++) 
-	  AutoPlay.plantSeed(game,thePlant,x,y);
+    var thePlant=AutoPlay.seedCalendar(game,sector);
+    for (var x = X; x<X+3; x++) for (var y = Y; y<Y+3; y++) 
+      AutoPlay.plantSeed(game,thePlant,x,y);
     return;	
   }
   if (plant0=="queenbeetLump") {
-	for (var y = Y; y<Y+3; y++) { 
-	  AutoPlay.plantSeed(game,plant1,X,y); 
-	  AutoPlay.plantSeed(game,plant2,X+2,y); 
-	} 
-	AutoPlay.plantSeed(game,plant1,X+1,Y); 
-	AutoPlay.plantSeed(game,plant2,X+1,Y+2);
-	return;
+    for (var y = Y; y<Y+3; y++) { 
+      AutoPlay.plantSeed(game,plant1,X,y); 
+      AutoPlay.plantSeed(game,plant2,X+2,y); 
+    } 
+    AutoPlay.plantSeed(game,plant1,X+1,Y); 
+    AutoPlay.plantSeed(game,plant2,X+1,Y+2);
+    return;
   }
   if (plant0=="everdaisy") {
-	for (var y = Y; y < Y+3; y++) { 
-	  AutoPlay.plantSeed(game,plant1,X,y); 
-	  AutoPlay.plantSeed(game,plant2,X+2,y); 
-	} 
-	return;
+    for (var y = Y; y < Y+3; y++) { 
+      AutoPlay.plantSeeds(game,[
+        [plant1,X,y],
+        [plant2,X+2,y]
+      ]); 
+    } 
+    return;
   }
-  AutoPlay.plantSeed(game,plant1,X+1,Y); 
-  AutoPlay.plantSeed(game,plant2,X+1,Y+1); 
-  AutoPlay.plantSeed(game,plant1,X+1,Y+2);
+  AutoPlay.plantSeeds(game,[
+    [plant1,X+1,Y],
+    [plant2,X+1,Y+1],
+    [plant1,X+1,Y+2]
+  ]);
 }
 
 AutoPlay.plantCookies = false;
@@ -783,7 +817,52 @@ AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
 	return;
   }
   if (!game.canPlant(game.plants[seed])) return;
-  game.useTool(game.plants[seed].id,whereX,whereY)
+  if (game.plants[seed].cost * 60 * Game.cookiesPs > Game.cookies - AutoPlay.savingsGoal)
+    return;
+  game.useTool(game.plants[seed].id,whereX,whereY);
+}
+
+AutoPlay.plantSeeds = function(game, targets) {
+  // plant target locations.  Will only plant if can afford all targets.
+  // targets is an array of arrays with seed, x, y positions
+  if (AutoPlay.cpsMult > 1) return; // do not plant when it is expensive
+
+  // calculate costs
+  let cost = 0;
+  let toPlant = []; // array of targets to plant
+  for (var target in targets){
+    var seed = target[0],
+      x = target[1],
+      y = target[2];
+    // check if valid position and can plant
+    if (!game.isTileUnlocked(x, y) || !game.canPlant(game.plants[seed]))
+      return;
+    // check if position is already occupied by target
+    var oldPlant = (game.getTile(x,y))[0];
+    if (oldPlant!=0) { // slot is already planted
+      // get rid of it if it isn't the target
+      if (game.plantsById[oldPlant-1].key!=seed){
+        AutoPlay.cleanSeed(game,x,y);
+        return;
+      }
+    }
+    // here we know that nothing is in the spot
+    else {
+      cost += game.plants[seed].cost
+      toPlant = toPlant.concat([target])
+    }
+  }
+  // cost is cost in minutes of current CPS
+  cost *= 60 * Game.cookiesPs
+  if (cost > Game.cookies - AutoPlay.savingsGoal)
+    return;
+
+  for (var target in targets){
+    var seed = target[0],
+      x = target[1],
+      y = target[2];
+    game.useTool(game.plants[seed].id, x, y);
+  }
 }
 
 AutoPlay.seedCalendar = function(game,sector) {
