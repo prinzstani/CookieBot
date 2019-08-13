@@ -234,7 +234,7 @@ AutoPlay.handleSavings = function() {
       Beautify(AutoPlay.savingsGoal) + ' cookies)');
     return;
   }
-  // Auto: Save nothing for first 10 minutes, then linearly ramp up savings
+  // Auto: Save nothing for first 30 minutes, then linearly ramp up savings
   // to equal target.  Target is lucky until upgrade 'get lucky'
   // is bought, then it's lucky frenzy
   const startTime = 30 * 60 * 1000;  // wait before starting to save
@@ -264,9 +264,10 @@ AutoPlay.handleSavings = function() {
   // if fallen behind savings plan, reset to current fraction
   // this happens if you stop the bot for a while or buy something with
   // a big payback
-  if (scaling > fractionSaved - 0.05) {
+  if (fractionSaved < 0.8) {
     console.log('rescaling');
-    AutoPlay.savingsStart = AutoPlay.now - startTime - targetTime * fractionSaved;
+    AutoPlay.savingsStart = AutoPlay.now - startTime -
+      targetTime * fractionSaved / scaling;  // fraction towards goal
   }
 }
 
