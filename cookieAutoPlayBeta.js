@@ -265,7 +265,7 @@ AutoPlay.handleSavings = function() {
   // this happens if you stop the bot for a while or buy something with
   // a big payback
   if (fractionSaved < 0.8) {
-    console.log('rescaling');
+    console.log('Rescaling');
     AutoPlay.savingsStart = AutoPlay.now - startTime -
       targetTime * fractionSaved / scaling;  // fraction towards goal
   }
@@ -767,8 +767,8 @@ AutoPlay.planting = function(game) {
   }
   AutoPlay.findPlants(game,2); AutoPlay.findPlants(game,3); // plant on four areas 
   for (var sector = 0; sector<4; sector++) {
-	var dep=AutoPlay.plantDependencies[AutoPlay.plantList[sector]];
-	AutoPlay.plantSector(game,sector, dep[1], dep[2], dep[0]);
+    var dep=AutoPlay.plantDependencies[AutoPlay.plantList[sector]];
+    AutoPlay.plantSector(game,sector, dep[1], dep[2], dep[0]);
   }
 }
 
@@ -820,6 +820,7 @@ AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
   if (!game.canPlant(game.plants[seed])) return;
   if (game.plants[seed].cost * 60 * Game.cookiesPs > Game.cookies - AutoPlay.savingsGoal)
     return;
+  console.log("Planting " + seed + " at (" + whereX + ", " + whereY + ")");
   game.useTool(game.plants[seed].id,whereX,whereY);
 }
 
@@ -831,20 +832,23 @@ AutoPlay.plantSeeds = function(game, targets) {
   // calculate costs
   let cost = 0;
   let toPlant = []; // array of targets to plant
-  for (var target in targets){
+  for (var target of targets){
     var seed = target[0],
-      x = target[1],
-      y = target[2];
+      whereX = target[1],
+      whereY = target[2];
     // check if valid position and can plant
-    if (!game.isTileUnlocked(x, y) || !game.canPlant(game.plants[seed]))
+    if (!game.isTileUnlocked(whereX, whereY)){
+      continue;
+    }
+    if(!game.canPlant(game.plants[seed]))
       return;
     // check if position is already occupied by target
-    var oldPlant = (game.getTile(x,y))[0];
+    var oldPlant = (game.getTile(whereX,whereY))[0];
     if (oldPlant!=0) { // slot is already planted
       // get rid of it if it isn't the target
       if (game.plantsById[oldPlant-1].key!=seed){
-        AutoPlay.cleanSeed(game,x,y);
-        return;
+        AutoPlay.cleanSeed(game,whereX,whereY);
+        return;  //will try again next update
       }
     }
     // here we know that nothing is in the spot
@@ -854,15 +858,17 @@ AutoPlay.plantSeeds = function(game, targets) {
     }
   }
   // cost is cost in minutes of current CPS
-  cost *= 60 * Game.cookiesPs
-  if (cost > Game.cookies - AutoPlay.savingsGoal)
+  cost *= 60 * Game.cookiesPs;
+  if (cost > Game.cookies - AutoPlay.savingsGoal) {
     return;
+  }
 
-  for (var target in targets){
+  for (var target of toPlant){
     var seed = target[0],
-      x = target[1],
-      y = target[2];
-    game.useTool(game.plants[seed].id, x, y);
+      whereX = target[1],
+      whereY = target[2];
+    game.useTool(game.plants[seed].id, whereX, whereY);
+    console.log("Planting " + seed + " at (" + whereX + ", " + whereY + ")");
   }
 }
 
