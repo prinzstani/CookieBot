@@ -271,10 +271,10 @@ AutoPlay.handleSavings = function() {
   }
 }
 
-AutoPlay.buyBuilding = function(building, amount=1) {
-  if (building.getSumPrice(amount) < Game.cookies - AutoPlay.savingsGoal) {
+AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
+  if (building.getSumPrice(checkAmount) < Game.cookies - AutoPlay.savingsGoal) {
     console.log('Buying ' + building.displayName);
-    building.buy(amount);
+    building.buy(buyAmount);
     AutoPlay.setDeadline(0); 
   }
 }
@@ -337,7 +337,8 @@ AutoPlay.handleBuildings = function() {
   for (var i = Game.ObjectsById.length-1; i>=0; i--) { 
     var me = Game.ObjectsById[i]; 
     if (me.storedCps/me.price > cpc/2 || me.amount % 50 >= 40) {
-      AutoPlay.buyBuilding(me, buyAmount); //this checks price, sets deadline
+      //this checks price, sets deadline 
+      AutoPlay.buyBuilding(me, checkAmount, buyAmount);
       return; 
     }
   }
