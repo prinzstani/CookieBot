@@ -40,8 +40,7 @@ AutoPlay.run = function() {
   AutoPlay.handleClicking();
   AutoPlay.handleGoldenCookies();
   AutoPlay.handleSavings();
-  AutoPlay.handleBuildings();
-  AutoPlay.handleUpgrades();
+  AutoPlay.bestBuy();
   AutoPlay.handleSeasons();
   AutoPlay.handleDragon();
   AutoPlay.handleWrinklers();
@@ -273,7 +272,7 @@ AutoPlay.handleSavings = function() {
 
 AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
   if (building.getSumPrice(checkAmount) < Game.cookies - AutoPlay.savingsGoal) {
-    console.log('Buying ' + building.displayName);
+    console.log('Buying ' + building.name);
     building.buy(buyAmount);
     AutoPlay.setDeadline(0); 
   }
@@ -285,6 +284,91 @@ AutoPlay.buyUpgrade = function(upgrade, bypass=true) {
     upgrade.buy(bypass);
     AutoPlay.setDeadline(0); 
   }
+}
+
+//======================= CM Strategy ============================
+AutoPlay.bestBuy = function() {
+  // if cookie monster isn't installed or within first 10 minutes
+  if (typeof CM == 'undefined') {
+    AutoPlay.handleBuildings();
+    AutoPlay.handleUpgrades();
+    return;
+  }
+
+  let best = null;
+  let minpp = Infinity;
+  let type = null;
+
+  // change cookie monster values for some 'infinite' pp upgrades
+  for(var u in CM.Cache.Upgrades) {
+    if( ['Plastic mouse', 'Iron mouse', 'Titanium mouse',
+         'Adamantium mouse', 'Unobtainium mouse',
+         'Eludium mouse', 'Wishalloy mouse', 'Fantasteel mouse',
+         'Nevercrack mouse', 'Armythril mouse',
+         'Technobsidian mouse', 'Plasmarble mouse'].includes(u)){
+      // bonus is 1% of cps * AvgClicks
+      CM.Cache.Upgrades[u].bonus = CM.Cache.AvgClicks * Game.cookiesPS * 0.01;
+      CM.Cache.Upgrades[u].pp = (Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (Game.Upgrades[u].getPrice() / CM.Cache.Upgrades[u].bonus);
+    }
+    if( ['Lucky day', 'Serendipity', 'Get lucky'].includes(u)){
+      // bonus is 50% of cps (just guessing!)
+      CM.Cache.Upgrades[u].bonus = Game.cookiesPS * 0.5;
+      CM.Cache.Upgrades[u].pp = (Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (Game.Upgrades[u].getPrice() / CM.Cache.Upgrades[u].bonus);
+
+    }
+  }
+
+  // upgrades
+  if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned==0){
+    for(var u of Game.UpgradesInStore){
+      if(!AutoPlay.avoidbuy(u) && CM.Cache.Upgrades[u.name].pp < minpp){
+        minpp = CM.Cache.Upgrades[u.name].pp;
+        best = u.name;
+        type = 'upgrade';
+      }
+    }
+  }
+
+  // buildings
+  let check_obj = CM.Cache.Objects;
+  let buy_amt = 1;
+  if (Game.resets && Game.ascensionMode!=1 && 
+      Game.isMinigameReady(Game.Objects["Temple"]) && 
+      Game.Objects["Temple"].minigame.slot[0]==10 && // Rigidel is in slot 0
+      Game.BuildingsOwned%10==0 && (AutoPlay.now-Game.startDate) > 2*60*1000){
+    // if owned % 10 != 0, will just buy one
+    buy_amt = 10;
+    check_obj = CM.Cache.Objects10;
+  }
+
+  for(var b in check_obj){
+    if(check_obj[b].pp < minpp){
+      minpp = check_obj[b].pp;
+      best = b;
+      type = 'building';
+    }
+  }
+
+  console.log('Next buy is ' + best);
+  if (type == 'building')
+    AutoPlay.buyBuilding(Game.Objects[best], buy_amt, buy_amt);
+
+  else if (type == 'upgrade')
+    AutoPlay.buyUpgrade(Game.Upgrades[best], true);
+
+  // sugar frenzy check
+  if (Game.lumps>100 && Game.Upgrades["Sugar frenzy"].unlocked && 
+        !Game.Upgrades["Sugar frenzy"].bought && 
+      (AutoPlay.now-Game.startDate) > 3*24*60*60*1000) 
+      Game.Upgrades["Sugar frenzy"].buy();
+
+  // nothing bought, within first 10 minutes
+  if (AutoPlay.deadline != 0 &&
+      (AutoPlay.now-Game.startDate) < 10*60*1000) {
+    AutoPlay.deadline = AutoPlay.now+1000; // wait one second before next step
+  }
+
+  return;
 }
 
 //===================== Handle Upgrades ==========================
@@ -322,10 +406,10 @@ AutoPlay.handleBuildings = function() {
   var buyAmount = 100, checkAmount = 1;
   if (Game.buyMode==-1) Game.storeBulkButton(0);
   if ((AutoPlay.now-Game.startDate) > 10*60*1000) 
-	buyAmount = 1; // buy single after 10 minutes
+    buyAmount = 1; // buy single after 10 minutes
   if (Game.resets && Game.ascensionMode!=1 && 
       Game.isMinigameReady(Game.Objects["Temple"]) && 
-	  Game.Objects["Temple"].minigame.slot[0]==10 && // Rigidel is in slot 0
+      Game.Objects["Temple"].minigame.slot[0]==10 && // Rigidel is in slot 0
       Game.BuildingsOwned%10==0 && (AutoPlay.now-Game.startDate) > 2*60*1000)
     buyAmount = checkAmount = 10;
   var cpc = 0; // relative strength of cookie production
