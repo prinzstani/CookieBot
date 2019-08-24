@@ -246,7 +246,14 @@ AutoPlay.handleSavings = function() {
           ' minutes!');
     return;
   }
-  AutoPlay.savingsGoal = Game.unbuffedCps * 60 * 100;
+  if (Game.UpgradesById[52].bought && Game.UpgradesById[53].bought) {
+    AutoPlay.savingsGoal = Game.unbuffedCps * 60 * 100;
+  }
+  else {
+    AutoPlay.savingsGoal = 0;
+    AutoPlay.addActivity('Not saving until GC upgrades purchased');
+    return;
+  }
   if (Game.UpgradesById[86].bought)  // get lucky
     AutoPlay.savingsGoal *= 7;
   // scale goal between 0 and 1 based on elapsed time
@@ -295,9 +302,9 @@ AutoPlay.bestBuy = function() {
     return;
   }
 
-  let best = null;
+  let best = Game.ObjectsById[0].name;
   let minpp = Infinity;
-  let type = null;
+  let type = 'building';
 
   // change cookie monster values for some 'infinite' pp upgrades
   for(var u in CM.Cache.Upgrades) {
@@ -319,7 +326,7 @@ AutoPlay.bestBuy = function() {
   }
 
   // upgrades
-  if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned==0){
+  if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned!=0){
     for(var u of Game.UpgradesInStore){
       if(!AutoPlay.avoidbuy(u) && CM.Cache.Upgrades[u.name].pp < minpp){
         minpp = CM.Cache.Upgrades[u.name].pp;
@@ -362,9 +369,10 @@ AutoPlay.bestBuy = function() {
       (AutoPlay.now-Game.startDate) > 3*24*60*60*1000) 
       Game.Upgrades["Sugar frenzy"].buy();
 
-  // nothing bought, within first 10 minutes
+  // nothing bought, within first 10 minutes, have income
   if (AutoPlay.deadline != 0 &&
-      (AutoPlay.now-Game.startDate) < 10*60*1000) {
+      (AutoPlay.now-Game.startDate) < 10*60*1000 &&
+      Game.cookiesPs != 0) {
     AutoPlay.deadline = AutoPlay.now+1000; // wait one second before next step
   }
 
