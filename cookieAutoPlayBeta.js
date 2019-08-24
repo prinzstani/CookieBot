@@ -314,12 +314,12 @@ AutoPlay.bestBuy = function() {
          'Nevercrack mouse', 'Armythril mouse',
          'Technobsidian mouse', 'Plasmarble mouse'].includes(u)){
       // bonus is 1% of cps * AvgClicks
-      CM.Cache.Upgrades[u].bonus = CM.Cache.AvgClicks * Game.cookiesPS * 0.01;
+      CM.Cache.Upgrades[u].bonus = CM.Cache.AvgClicks * Game.cookiesPs * 0.01;
       CM.Cache.Upgrades[u].pp = (Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (Game.Upgrades[u].getPrice() / CM.Cache.Upgrades[u].bonus);
     }
     if( ['Lucky day', 'Serendipity', 'Get lucky'].includes(u)){
       // bonus is 50% of cps (just guessing!)
-      CM.Cache.Upgrades[u].bonus = Game.cookiesPS * 0.5;
+      CM.Cache.Upgrades[u].bonus = Game.cookiesPs * 0.5;
       CM.Cache.Upgrades[u].pp = (Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (Game.Upgrades[u].getPrice() / CM.Cache.Upgrades[u].bonus);
 
     }
