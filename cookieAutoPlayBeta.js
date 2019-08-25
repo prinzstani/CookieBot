@@ -271,7 +271,6 @@ AutoPlay.handleSavings = function() {
   // this happens if you stop the bot for a while or buy something with
   // a big payback
   if (fractionSaved < 0.8) {
-    console.log('Rescaling');
     AutoPlay.savingsStart = AutoPlay.now - startTime -
       targetTime * fractionSaved / scaling;  // fraction towards goal
   }
@@ -295,13 +294,14 @@ AutoPlay.buyUpgrade = function(upgrade, bypass=true) {
 
 //======================= CM Strategy ============================
 AutoPlay.bestBuy = function() {
-  // if cookie monster isn't installed or within first 10 minutes
+  // if cookie monster isn't installed
   if (typeof CM == 'undefined') {
     AutoPlay.handleBuildings();
     AutoPlay.handleUpgrades();
     return;
   }
 
+  // initialize with cursor, when cps = 0 all pp = inf
   let best = Game.ObjectsById[0].name;
   let minpp = Infinity;
   let type = 'building';
@@ -356,7 +356,6 @@ AutoPlay.bestBuy = function() {
     }
   }
 
-  console.log('Next buy is ' + best);
   if (type == 'building')
     AutoPlay.buyBuilding(Game.Objects[best], buy_amt, buy_amt);
 
@@ -370,10 +369,12 @@ AutoPlay.bestBuy = function() {
       Game.Upgrades["Sugar frenzy"].buy();
 
   // nothing bought, within first 10 minutes, have income
-  if (AutoPlay.deadline != 0 &&
-      (AutoPlay.now-Game.startDate) < 10*60*1000 &&
-      Game.cookiesPs != 0) {
-    AutoPlay.deadline = AutoPlay.now+1000; // wait one second before next step
+  if (AutoPlay.deadline != 0) {
+    if ((AutoPlay.now-Game.startDate) < 10*60*1000 &&
+        Game.cookiesPs != 0)
+      AutoPlay.deadline = AutoPlay.now+1000; // wait one second before next step
+    else
+      AutoPlay.addActivity('Next buy is ' + best);
   }
 
   return;
