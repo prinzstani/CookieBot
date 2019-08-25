@@ -374,7 +374,7 @@ AutoPlay.bestBuy = function() {
         Game.cookiesPs != 0)
       AutoPlay.deadline = AutoPlay.now+1000; // wait one second before next step
     else
-      AutoPlay.addActivity('Next buy is ' + best);
+      AutoPlay.addActivity('Waiting to buy ' + best);
   }
 
   return;
