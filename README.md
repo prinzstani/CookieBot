@@ -107,5 +107,6 @@ Before submitting a bug report, please reload the bot, as it is continuously imp
 * **[SearchAndDestroy](https://github.com/SearchAndDestroy)**: Tampermonkey script
 * **[AlexFolland](https://github.com/AlexFolland)**: Options and small fixes
 * **[corvidian](https://github.com/corvidian)**: Elder handling and optimization
+* **[troycomi](https://github.com/troycomi)**: Savings, cookie monster integration
 
 We need more contributors. Please contact theprinzstani@gmail.com if you are interested.
