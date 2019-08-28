@@ -301,34 +301,62 @@ AutoPlay.bestBuy = function() {
     return;
   }
 
+  // this happens with cursed finger
+  if (AutoPlay.cpsMult == 0)
+    return;
+
   // initialize with cursor, when cps = 0 all pp = inf
   let best = Game.ObjectsById[0].name;
   let minpp = Infinity;
   let type = 'building';
 
+  // these values are multiplied by game.cps below
+  const overrides = {
+    'Plastic mouse': CM.Cache.AvgClicks * 0.01,
+    'Iron mouse': CM.Cache.AvgClicks * 0.01,
+    'Titanium mouse': CM.Cache.AvgClicks * 0.01,
+    'Adamantium mouse': CM.Cache.AvgClicks * 0.01,
+    'Unobtainium mouse': CM.Cache.AvgClicks * 0.01,
+    'Eludium mouse': CM.Cache.AvgClicks * 0.01,
+    'Wishalloy mouse': CM.Cache.AvgClicks * 0.01,
+    'Fantasteel mouse': CM.Cache.AvgClicks * 0.01,
+    'Nevercrack mouse': CM.Cache.AvgClicks * 0.01,
+    'Armythril mouse': CM.Cache.AvgClicks * 0.01,
+    'Technobsidian mouse': CM.Cache.AvgClicks * 0.01,
+    'Plasmarble mouse': CM.Cache.AvgClicks * 0.01,
+    'Lucky day': 0.5,
+    'Serendipity': 0.5,
+    'Get lucky': 0.5,
+    'A crumbly egg': 0.5,
+    'A festive hat': 0.1,
+    'Reindeer baking grounds': 0.1,
+    'Weighted sleighs': 0.1,
+    'Ho ho ho-flavored frosting': 0.1,
+    'Season savings': 0.01,
+    'Toy workshop': 0.05,
+    'Santa\'s bottomless bag': 0.1,
+    'Santa\'s helpers': CM.Cache.AvgClicks * 0.1,
+    'Golden goose egg': 0.05,
+    'Faberge egg': 0.01,
+    'Wrinklerspawn': 0.05,
+    'Cookie egg': CM.Cache.AvgClicks * 0.1,
+    'Omelette': 0.1,
+    'Elder Pledge': 0.1, // avoidbuy will catch this if have achievement
+  }
+
   // change cookie monster values for some 'infinite' pp upgrades
   for(var u in CM.Cache.Upgrades) {
-    if( ['Plastic mouse', 'Iron mouse', 'Titanium mouse',
-         'Adamantium mouse', 'Unobtainium mouse',
-         'Eludium mouse', 'Wishalloy mouse', 'Fantasteel mouse',
-         'Nevercrack mouse', 'Armythril mouse',
-         'Technobsidian mouse', 'Plasmarble mouse'].includes(u)){
-      // bonus is 1% of cps * AvgClicks
-      CM.Cache.Upgrades[u].bonus = CM.Cache.AvgClicks * Game.cookiesPs * 0.01;
+    if (u in overrides){
+      CM.Cache.Upgrades[u].bonus = overrides[u]* Game.cookiesPs;
       CM.Cache.Upgrades[u].pp = (Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (Game.Upgrades[u].getPrice() / CM.Cache.Upgrades[u].bonus);
-    }
-    if( ['Lucky day', 'Serendipity', 'Get lucky'].includes(u)){
-      // bonus is 50% of cps (just guessing!)
-      CM.Cache.Upgrades[u].bonus = Game.cookiesPs * 0.5;
-      CM.Cache.Upgrades[u].pp = (Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (Game.Upgrades[u].getPrice() / CM.Cache.Upgrades[u].bonus);
-
     }
   }
 
   // upgrades
   if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned!=0){
     for(var u of Game.UpgradesInStore){
-      if(!AutoPlay.avoidbuy(u) && CM.Cache.Upgrades[u.name].pp < minpp){
+      if(!AutoPlay.avoidbuy(u) &&
+          CM.Cache.Upgrades[u.name].pp < minpp){
         minpp = CM.Cache.Upgrades[u.name].pp;
         best = u.name;
         type = 'upgrade';
@@ -376,8 +404,6 @@ AutoPlay.bestBuy = function() {
     else
       AutoPlay.addActivity('Waiting to buy ' + best);
   }
-
-  return;
 }
 
 //===================== Handle Upgrades ==========================
@@ -460,9 +486,9 @@ AutoPlay.handleSeasons = function() {
   if (!Game.Upgrades["Season switcher"].bought || Game.ascensionMode==1) return;
   if (AutoPlay.seasonFinished(Game.season)) {
     switch (Game.season) {
-	  case "christmas": Game.Upgrades["Bunny biscuit"].buy(); break; // to easter
-	  case "easter": Game.Upgrades["Lovesick biscuit"].buy(); break; // to valentine
-	  case "valentines": Game.Upgrades["Ghostly biscuit"].buy(); break; // to halloween
+	  case "christmas": Game.Upgrades["Lovesick biscuit"].buy(); break; // to valentine
+	  case "valentines": Game.Upgrades["Bunny biscuit"].buy(); break; // to easter
+	  case "easter": Game.Upgrades["Ghostly biscuit"].buy(); break; // to halloween
 	  default: Game.Upgrades["Festive biscuit"].buy(); break; // to christmas
     } 
   } else if (!(AutoPlay.allUnlocked(AutoPlay.allSeasonUpgrades))) 
@@ -470,7 +496,8 @@ AutoPlay.handleSeasons = function() {
 }
 
 AutoPlay.valentineUpgrades = range(169,174);
-AutoPlay.christmasUpgrades = [168].concat(range(152,166)).concat(range(143,149));
+// AutoPlay.christmasUpgrades = [168].concat(range(152,166)).concat(range(143,149));
+AutoPlay.christmasUpgrades = [168];  // just wait for dominion
 AutoPlay.easterUpgrades = range(210,229);
 AutoPlay.halloweenUpgrades = range(134,140);
 AutoPlay.allSeasonUpgrades = 
@@ -1140,8 +1167,7 @@ AutoPlay.removeSpirit = function(slot, god) {
 }  
 
 //===================== Handle Wrinklers ==========================
-AutoPlay.nextWrinkler = 0;
-AutoPlay.wrinklerTime = 0;
+AutoPlay.nextWrinkler = -1;
 AutoPlay.poppingWrinklers = false;
 
 AutoPlay.handleWrinklers = function() {
@@ -1158,17 +1184,29 @@ AutoPlay.handleWrinklers = function() {
     AutoPlay.poppingWrinklers = true;
     AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
-  } else if ((((AutoPlay.now-Game.startDate) > 10*24*60*60*1000) || AutoPlay.grinding()) && 
-            !AutoPlay.endPhase() && !AutoPlay.wantAscend) {
-    AutoPlay.addActivity("Popping one wrinkler per 2 hours, last " + 
-	  (((AutoPlay.now-AutoPlay.wrinklerTime)/1000/60)>>0) + " minutes ago.");
-	if (AutoPlay.now-AutoPlay.wrinklerTime >= 2*60*60*1000) {
-      var w = Game.wrinklers[AutoPlay.nextWrinkler];
-	  if (w.close==1) w.hp = 0;
-	  AutoPlay.wrinklerTime=AutoPlay.now;
-	  AutoPlay.nextWrinkler=(AutoPlay.nextWrinkler+1)%Game.getWrinklersMax();
-	}
+  } else {
+    AutoPlay.findNextWrinkler();
+    if (AutoPlay.nextWrinkler != -1){
+      AutoPlay.addActivity("Keeping one wrinkler spot open")
+      Game.wrinklers[AutoPlay.nextWrinkler].hp = 0;  // pop
+    }
   }
+}
+
+AutoPlay.findNextWrinkler = function() {
+  let next = -1;
+  let maxSucked = 0;
+  for (var w of Game.wrinklers){
+    if (w.close == 0 && w.id < Game.getWrinklersMax()) { // empty spot
+      AutoPlay.nextWrinkler = -1;
+      return;
+    }
+    else if (w.sucked > maxSucked){
+      maxSucked = w.sucked;
+      next = w.id;
+    }
+  }
+  AutoPlay.nextWrinkler = next;
 }
 
 //===================== Handle Small Achievements ==========================
@@ -1220,21 +1258,21 @@ AutoPlay.wantAscend = false;
 AutoPlay.handleAscend = function() {
   if (Game.OnAscend) { 
     AutoPlay.doReincarnate(); 
-	AutoPlay.findNextAchievement(); 
+    AutoPlay.findNextAchievement(); 
     AutoPlay.setDeadline(0); 
-	return; 
+    return; 
   }
   if (Game.ascensionMode==1 && !AutoPlay.canContinue()) 
     AutoPlay.doAscend("reborn mode did not work, retry.",0);
   if (AutoPlay.preNightMode() && AutoPlay.Config.NightMode>0) 
-	return; //do not ascend right before the night 
+    return; //do not ascend right before the night 
   var daysInRun = (AutoPlay.now-Game.startDate)/1000/60/60/24;
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && 
       !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) { 
-	// this costs approx. 2 minutes per 2 ascend
+    // this costs approx. 2 minutes per 2 ascend
     AutoPlay.activities = "Going for 1000 ascends.";
-	AutoPlay.setDeadline(0);
-	AutoPlay.wantAscend = true; //avoid byuing plants
+    AutoPlay.setDeadline(0);
+    AutoPlay.wantAscend = true; //avoid byuing plants
     if ((Game.ascendMeterLevel>0) && 
          (AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent || 
 	        (Game.prestige+Game.ascendMeterLevel)%1000==777)) 
@@ -1242,10 +1280,10 @@ AutoPlay.handleAscend = function() {
   }
   if (Game.Upgrades["Permanent upgrade slot V"].bought && 
       !Game.Achievements["Reincarnation"].won && !Game.ascensionMode) { 
-	// this costs 3+2 minute per 2 ascend
+    // this costs 3+2 minute per 2 ascend
     AutoPlay.activities = "Going for 100 ascends.";
-	AutoPlay.setDeadline(0);
-	AutoPlay.wantAscend = true; //avoid byuing plants
+    AutoPlay.setDeadline(0);
+    AutoPlay.wantAscend = true; //avoid byuing plants
     if (Game.ascendMeterLevel>0 && 
 	    AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent) 
 	  AutoPlay.doAscend("go for 100 ascends",0);
@@ -1253,8 +1291,8 @@ AutoPlay.handleAscend = function() {
   var extraDaysInRun = 
         daysInRun + daysInRun*Game.ascendMeterLevel/(Game.prestige+1000000000);
   if (AutoPlay.grinding() && !AutoPlay.wantAscend) 
-	AutoPlay.addActivity("Still " + (40-(extraDaysInRun<<0)) + 
-      " days until next hard ascend.");
+    AutoPlay.addActivity("Still " + (40-(extraDaysInRun<<0)) + 
+        " days until next hard ascend.");
   if (extraDaysInRun>40) {
 	for (var x = Game.cookies; x>10; x/=10);
 	if (x<9) AutoPlay.doAscend("ascend after " + daysInRun + 
@@ -1281,14 +1319,14 @@ AutoPlay.handleAscend = function() {
     AutoPlay.doAscend("getting season switcher.",1);
   }
   if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
-	var date = new Date();
-	date.setTime(AutoPlay.now-Game.startDate);
-	var legacyTime = Game.sayTime(date.getTime()/1000*Game.fps,-1);
-	date.setTime(AutoPlay.now-Game.fullDate);
-	var fullTime=Game.sayTime(date.getTime()/1000*Game.fps,-1);
-    AutoPlay.doAscend("have achievement: " + 
-	  Game.AchievementsById[AutoPlay.nextAchievement].desc.replace(/<q>.*?<\/q>/ig, '') + 
-      " after " + legacyTime + "(total: " + fullTime + ")",1);
+    var date = new Date();
+    date.setTime(AutoPlay.now-Game.startDate);
+    var legacyTime = Game.sayTime(date.getTime()/1000*Game.fps,-1);
+    date.setTime(AutoPlay.now-Game.fullDate);
+    var fullTime=Game.sayTime(date.getTime()/1000*Game.fps,-1);
+      AutoPlay.doAscend("have achievement: " + 
+      Game.AchievementsById[AutoPlay.nextAchievement].desc.replace(/<q>.*?<\/q>/ig, '') + 
+        " after " + legacyTime + "(total: " + fullTime + ")",1);
   } 
 }
 
@@ -1519,7 +1557,13 @@ AutoPlay.handleDragon = function() {
     if (Game.dragonLevel<Game.dragonLevels.length-1 && 
 	    Game.dragonLevels[Game.dragonLevel].cost()) {
       Game.specialTab = "dragon"; 
-	  Game.UpgradeDragon(); Game.ToggleSpecialMenu(0);
+      let obj = null;
+      if (Game.dragonLevel >= 5 && Game.dragonLevel < 21)
+        obj = Game.ObjectsById[Game.dragonLevel - 5];
+      Game.UpgradeDragon();
+      if (obj != null)
+        obj.buy(100);
+      Game.ToggleSpecialMenu(0);
     } 
   }
   if (Game.dragonLevel>=5) wantedAura=1; // kitten (breath of milk)
