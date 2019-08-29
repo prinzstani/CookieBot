@@ -14,6 +14,7 @@ AutoPlay.deadline = 0;
 AutoPlay.canUseLumps = false;
 AutoPlay.savingsGoal = 0;
 AutoPlay.savingsStart = Game.startDate;  // time since start of saving
+AutoPlay.buy10 = false;
 
 AutoPlay.run = function() {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
@@ -352,35 +353,42 @@ AutoPlay.bestBuy = function() {
     }
   }
 
-  // upgrades
-  if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned!=0){
-    for(var u of Game.UpgradesInStore){
-      if(!AutoPlay.avoidbuy(u) &&
-          CM.Cache.Upgrades[u.name].pp < minpp){
-        minpp = CM.Cache.Upgrades[u.name].pp;
-        best = u.name;
-        type = 'upgrade';
-      }
-    }
-  }
-
   // buildings
   let check_obj = CM.Cache.Objects;
   let buy_amt = 1;
-  if (Game.resets && Game.ascensionMode!=1 && 
-      Game.isMinigameReady(Game.Objects["Temple"]) && 
-      Game.Objects["Temple"].minigame.slot[0]==10 && // Rigidel is in slot 0
-      Game.BuildingsOwned%10==0 && (AutoPlay.now-Game.startDate) > 2*60*1000){
+  if ((Game.resets && Game.ascensionMode!=1 && 
+       Game.isMinigameReady(Game.Objects["Temple"]) && 
+       Game.Objects["Temple"].minigame.slot[0]==10 && // Rigidel is in slot 0
+       Game.BuildingsOwned%10==0 && (AutoPlay.now-Game.startDate) > 2*60*1000) 
+      || AutoPlay.buy10){
     // if owned % 10 != 0, will just buy one
     buy_amt = 10;
     check_obj = CM.Cache.Objects10;
   }
 
   for(var b in check_obj){
-    if(check_obj[b].pp < minpp){
+    if(AutoPlay.checkDragon(b) && check_obj[b].pp < minpp){
       minpp = check_obj[b].pp;
       best = b;
       type = 'building';
+    }
+  }
+
+  // if payback period is very short, buy 10 buildings next time
+  AutoPlay.buy10 = minpp < 1;
+
+  // upgrades
+  if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned!=0){
+    for(var u of Game.UpgradesInStore){
+      if(!AutoPlay.avoidbuy(u)) {
+        if(CM.Cache.Upgrades[u.name].pp < 1)
+          AutoPlay.buyUpgrade(u);
+        else if(CM.Cache.Upgrades[u.name].pp < minpp){
+          minpp = CM.Cache.Upgrades[u.name].pp;
+          best = u.name;
+          type = 'upgrade';
+        }
+      }
     }
   }
 
@@ -1307,8 +1315,8 @@ AutoPlay.handleAscend = function() {
     AutoPlay.doAscend("ascend for heavenly upgrade lucky number.",0);
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky payout"].bought && 
       Game.heavenlyChips>77777777) {
-	AutoPlay.wantAscend = true; //avoid byuing plants
-	AutoPlay.setDeadline(0);
+    AutoPlay.wantAscend = true; //avoid byuing plants
+    AutoPlay.setDeadline(0);
     AutoPlay.addActivity("Trying to get heavenly upgrade Lucky Payout.");
     if (Game.ascendMeterLevel>0 && (newPrestige <= 777777) && 
 	    (newPrestige+Game.ascendMeterLevel >= 777777))
@@ -1557,12 +1565,7 @@ AutoPlay.handleDragon = function() {
     if (Game.dragonLevel<Game.dragonLevels.length-1 && 
 	    Game.dragonLevels[Game.dragonLevel].cost()) {
       Game.specialTab = "dragon"; 
-      let obj = null;
-      if (Game.dragonLevel >= 5 && Game.dragonLevel < 21)
-        obj = Game.ObjectsById[Game.dragonLevel - 5];
       Game.UpgradeDragon();
-      if (obj != null)
-        obj.buy(100);
       Game.ToggleSpecialMenu(0);
     } 
   }
@@ -1581,6 +1584,28 @@ AutoPlay.handleDragon = function() {
     Game.specialTab = "dragon"; Game.SetDragonAura(1,1); 
     Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
 } }
+
+AutoPlay.checkDragon = function(building){
+  // determine if buying the building is efficient based on sacrifices to krumblor
+  if(!Game.Achievements['Here be dragon'].won)
+    return true;  // don't limit when first fully training
+
+  building = Game.Objects[building]
+
+  // haven't sacrificed first 100, buy no more than 100
+  if(Game.dragonLevel - 5 <= building.id)
+    return building.amount < 100;
+
+  // waiting to sacrifice 50 of all
+  if(Game.dragonLevel < 22)
+    return building.amount < 50;
+
+  // waiting to sacrifice 200 of all
+  if(Game.dragonLevel < 23)
+    return building.amount < 200;
+
+  return true;
+}
 
 //===================== Menu ==========================
 if(!AutoPlay.Backup) AutoPlay.Backup = {};
