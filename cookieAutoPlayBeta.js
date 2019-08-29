@@ -366,11 +366,17 @@ AutoPlay.bestBuy = function() {
     check_obj = CM.Cache.Objects10;
   }
 
+  // for the following, pp < 1 indicates we can pay off the cost in less
+  // than a second.  It's better to just buy it instead of checking it repeatedly
   for(var b in check_obj){
-    if(AutoPlay.checkDragon(b) && check_obj[b].pp < minpp){
-      minpp = check_obj[b].pp;
-      best = b;
-      type = 'building';
+    if(AutoPlay.checkDragon(b)){
+      if(check_obj[b].pp < 1)
+        AutoPlay.buyBuilding(Game.Objects[b], buy_amt, buy_amt);
+      if(check_obj[b].pp < minpp){
+        minpp = check_obj[b].pp;
+        best = b;
+        type = 'building';
+      }
     }
   }
 
@@ -1268,6 +1274,7 @@ AutoPlay.handleAscend = function() {
     AutoPlay.doReincarnate(); 
     AutoPlay.findNextAchievement(); 
     AutoPlay.setDeadline(0); 
+    AutoPlay.savingsStart = AutoPlay.now;
     return; 
   }
   if (Game.ascensionMode==1 && !AutoPlay.canContinue()) 
@@ -1564,9 +1571,21 @@ AutoPlay.handleDragon = function() {
   if (Game.Upgrades["A crumbly egg"].unlocked) {
     if (Game.dragonLevel<Game.dragonLevels.length-1 && 
 	    Game.dragonLevels[Game.dragonLevel].cost()) {
+      let obj = null;
+      if (Game.dragonLevel >=5 && Game.dragonLevel < 21)
+        obj = Game.ObjectsById[Game.dragonLevel - 5];
+      else if (Game.dragonLevel == 21 || Game.dragonLevel == 22)
+        obj = 'buy150';
       Game.specialTab = "dragon"; 
       Game.UpgradeDragon();
       Game.ToggleSpecialMenu(0);
+      if (obj == null)
+        return;
+      if (obj == 'buy150')  // after sacrificing 50 or 200 of all
+        for (var o of Game.ObjectsById)
+          o.buy(150 - o.amount);
+      else  // after sacrificing 100
+        obj.buy(50 - obj.amount);
     } 
   }
   if (Game.dragonLevel>=5) wantedAura=1; // kitten (breath of milk)
