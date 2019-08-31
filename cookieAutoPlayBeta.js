@@ -1575,10 +1575,15 @@ AutoPlay.handleDragon = function() {
       Game.ToggleSpecialMenu(0);
       if (obj == null)
         return;
-      if (obj == 'buy150')  // after sacrificing 50 or 200 of all
+      if (obj == 'buy150'){  // after sacrificing 50 or 200 of all
+        // handle garden before buying (low cps)
+        if (Game.Objects['Farm'].amount == 0)
+          Game.Objects['Farm'].buy(1);
+        AutoPlay.handleMinigames()
         for (var o of Game.ObjectsById)
           o.buy(150 - o.amount);
-      else  // after sacrificing 100
+      }
+      else  // after sacrificing 100, get 50 back immediately
         obj.buy(50 - obj.amount);
     } 
   }
