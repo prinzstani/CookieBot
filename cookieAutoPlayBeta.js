@@ -279,7 +279,6 @@ AutoPlay.handleSavings = function() {
 
 AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
   if (building.getSumPrice(checkAmount) < Game.cookies - AutoPlay.savingsGoal) {
-    console.log('Buying ' + building.name);
     building.buy(buyAmount);
     AutoPlay.setDeadline(0); 
   }
@@ -287,7 +286,6 @@ AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
 
 AutoPlay.buyUpgrade = function(upgrade, bypass=true) {
   if (upgrade.getPrice() < Game.cookies - AutoPlay.savingsGoal) {
-    console.log('Buying ' + upgrade.name);
     upgrade.buy(bypass);
     AutoPlay.setDeadline(0); 
   }
@@ -368,15 +366,14 @@ AutoPlay.bestBuy = function() {
 
   // for the following, pp < 1 indicates we can pay off the cost in less
   // than a second.  It's better to just buy it instead of checking it repeatedly
+  // CheckDragon twice in case the pp < 1 case set us over the limit
   for(var b in check_obj){
-    if(AutoPlay.checkDragon(b)){
-      if(check_obj[b].pp < 1)
-        AutoPlay.buyBuilding(Game.Objects[b], buy_amt, buy_amt);
-      if(check_obj[b].pp < minpp){
-        minpp = check_obj[b].pp;
-        best = b;
-        type = 'building';
-      }
+    if(AutoPlay.checkDragon(b) && check_obj[b].pp < 1)
+      AutoPlay.buyBuilding(Game.Objects[b], buy_amt, buy_amt);
+    if(check_obj[b].pp < minpp && AutoPlay.checkDragon(b)){
+      minpp = check_obj[b].pp;
+      best = b;
+      type = 'building';
     }
   }
 
@@ -414,7 +411,7 @@ AutoPlay.bestBuy = function() {
   if (AutoPlay.deadline != 0) {
     if ((AutoPlay.now-Game.startDate) < 10*60*1000 &&
         Game.cookiesPs != 0)
-      AutoPlay.deadline = AutoPlay.now+1000; // wait one second before next step
+      AutoPlay.deadline = AutoPlay.now+5000; // wait five seconds before next step
     else
       AutoPlay.addActivity('Waiting to buy ' + best);
   }
@@ -510,7 +507,6 @@ AutoPlay.handleSeasons = function() {
 }
 
 AutoPlay.valentineUpgrades = range(169,174);
-// AutoPlay.christmasUpgrades = [168].concat(range(152,166)).concat(range(143,149));
 AutoPlay.christmasUpgrades = [168];  // just wait for dominion
 AutoPlay.easterUpgrades = range(210,229);
 AutoPlay.halloweenUpgrades = range(134,140);
@@ -955,7 +951,6 @@ AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
   if (!game.canPlant(game.plants[seed])) return;
   if (game.plants[seed].cost * 60 * Game.cookiesPs > Game.cookies - AutoPlay.savingsGoal)
     return;
-  console.log("Planting " + seed + " at (" + whereX + ", " + whereY + ")");
   game.useTool(game.plants[seed].id,whereX,whereY);
 }
 
@@ -1003,7 +998,6 @@ AutoPlay.plantSeeds = function(game, targets) {
       whereX = target[1],
       whereY = target[2];
     game.useTool(game.plants[seed].id, whereX, whereY);
-    console.log("Planting " + seed + " at (" + whereX + ", " + whereY + ")");
   }
 }
 
