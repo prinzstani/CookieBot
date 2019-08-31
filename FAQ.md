@@ -52,6 +52,8 @@ modifications:
 second and CPS.
 - The estimated bonus for golden cookie upgrades are estimated as 50% of the 
 current CPS.
+- Upgrades that affect costs of upgrades or other aspects of the game are
+given reasonable estimates as bonuses (but mostly guesses).
 Other upgrades (season switcher, etc) are handled separately from this
 calculation.
 
