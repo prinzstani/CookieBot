@@ -21,7 +21,43 @@ Relax. The bot will still work, it only does not handle all of the new features.
 ### How can I contribute?
 The bot needs regular maintenance, in particular when there is a new version of cookie clicker. If you are interested in contributing, please contact theprinzstani@gmail.com.
 
+## Saving Strategy
+The bot will maintain a bank of cookies to try and maximize profits from
+Lucky golden cookies without delaying purchasing too much.  Within the options,
+the strategy can be set to no savings, luck, or lucky-frenzy.  These manual
+settings will just wait until the amount of cookies are saved before purchasing
+buildings, upgrades, or plants.
+
+### Auto
+The automatic saving strategy dynamically adjusts the amount saved based on the
+current bank and upgrades purchased.  No cookies will be saved for the first
+30 minutes of any run.  Once lucky day and serendipity are purchase, the bot 
+will start to save to the max for lucky cookies.  When get lucky is purchased,
+it then starts to save to the max lucky during frenzy.
+
+Any time the bank is less than 80% of the current target, the bot will rescale
+the target.  This occurs if something is bought manually to decrease the bank
+or if a large income multiplier is purchased.  After rescaling, the bot will
+slowly increase the savings.  The current saving target and percentage towards
+goal are displayed when hovering over the version in the lower left.
+
 ## Buying Algorithm
+
+### Cookie Monster Integration
+If the [Cookie Monster](https://github.com/Aktanusa/CookieMonster/)
+plugin is active, the bot will use the payback
+period calculated by CM to determine which item to purchase next, with a few
+modifications:
+- The estimated bonus for mouse upgrades are based on the current clicks per
+second and CPS.
+- The estimated bonus for golden cookie upgrades are estimated as 50% of the 
+current CPS.
+- Upgrades that affect costs of upgrades or other aspects of the game are
+given reasonable estimates as bonuses (but mostly guesses).
+Other upgrades (season switcher, etc) are handled separately from this
+calculation.
+
+If CM isn't running, the bot will fall back on the algorithm described below.
 
 ### What is the next building to be bought?
 The next building is the cheapest building that gives at least 50% of the max possible gain in cpc per cookie invested.
