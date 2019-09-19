@@ -193,21 +193,23 @@ AutoPlay.cheatGoldenCookies = function() {
 AutoPlay.handleClicking = function() {
   if (AutoPlay.Config.ClickMode==0) return;
   if (!Game.Achievements["Neverclick"].won && (Game.cookieClicks<=15) ) { 
-    AutoPlay.addActivity('Waiting for neverclick.'); 
-	return; 
+    return;
   }
   if (Game.ascensionMode==1 && AutoPlay.endPhase() && 
       !Game.Achievements["True Neverclick"].won && !Game.cookieClicks) { 
-	AutoPlay.addActivity('Waiting for true neverclick.'); 
-	return; 
+    return;
   }
   if (!Game.Achievements["Uncanny clicker"].won) 
     for (var i = 1; i<6; i++) setTimeout(Game.ClickCookie, 50*i);
-  if (Game.ascensionMode==1 && Game.Achievements["Hardcore"].won) 
-	setTimeout(Game.ClickCookie, 150); // extra clicking for speed baking
   if (AutoPlay.Config.ClickMode>1) 
     for (var i = 1; i<10; i++) setTimeout(AutoPlay.speedClicking, 30*i);
-  Game.ClickCookie();
+  else{  // ClickMode == 1
+    Game.ClickCookie();
+    if ('Click frenzy' in Game.buffs || 'Dragonflight' in Game.buffs){
+      for (var i = 1; i<10; i++)
+        setTimeout(function(){Game.ClickCookie(0, 10*Game.computedMouseCps);}, 30*i);
+    }
+  }
 }
 
 AutoPlay.speedClicking = function() {
@@ -280,14 +282,14 @@ AutoPlay.handleSavings = function() {
 AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
   if (building.getSumPrice(checkAmount) < Game.cookies - AutoPlay.savingsGoal) {
     building.buy(buyAmount);
-    AutoPlay.setDeadline(0); 
+    AutoPlay.setDeadline(-1);  // -1 for flag to indicate something bought
   }
 }
 
 AutoPlay.buyUpgrade = function(upgrade, bypass=true) {
   if (upgrade.getPrice() < Game.cookies - AutoPlay.savingsGoal) {
     upgrade.buy(bypass);
-    AutoPlay.setDeadline(0); 
+    AutoPlay.setDeadline(-1);  // -1 for flag to indicate something bought
   }
 }
 
@@ -383,7 +385,7 @@ AutoPlay.bestBuy = function() {
   // upgrades
   if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned!=0){
     for(var u of Game.UpgradesInStore){
-      if(!AutoPlay.avoidbuy(u)) {
+      if(!AutoPlay.avoidbuy(u) && !u.bought) {
         if(CM.Cache.Upgrades[u.name].pp < 1)
           AutoPlay.buyUpgrade(u);
         else if(CM.Cache.Upgrades[u.name].pp < minpp){
@@ -407,13 +409,14 @@ AutoPlay.bestBuy = function() {
       (AutoPlay.now-Game.startDate) > 3*24*60*60*1000) 
       Game.Upgrades["Sugar frenzy"].buy();
 
-  // nothing bought, within first 10 minutes, have income
-  if (AutoPlay.deadline != 0) {
+  // nothing bought, within first 10 minutes, have neverclick
+  if (AutoPlay.deadline != -1) {
     if ((AutoPlay.now-Game.startDate) < 10*60*1000 &&
-        Game.cookiesPs != 0)
-      AutoPlay.deadline = AutoPlay.now+5000; // wait five seconds before next step
-    else
-      AutoPlay.addActivity('Waiting to buy ' + best);
+        Game.Achievements['Neverclick'].won)
+    {
+      AutoPlay.setDeadline(AutoPlay.now+5000); // wait five seconds before next step
+    }
+    AutoPlay.addActivity('Waiting to buy ' + best);
   }
 }
 
@@ -1271,6 +1274,8 @@ AutoPlay.handleAscend = function() {
     AutoPlay.savingsStart = AutoPlay.now;
     return; 
   }
+  if (Game.ascensionMode == 0 && Game.prestige == 0)
+    AutoPlay.canContinue();  // update achievement goals
   if (Game.ascensionMode==1 && !AutoPlay.canContinue()) 
     AutoPlay.doAscend("reborn mode did not work, retry.",0);
   if (AutoPlay.preNightMode() && AutoPlay.Config.NightMode>0) 
@@ -1340,31 +1345,35 @@ AutoPlay.handleAscend = function() {
 }
 
 AutoPlay.canContinue = function() {
-  if (!Game.Achievements["Neverclick"].won && Game.cookieClicks<=15) { 
-    AutoPlay.activities="Trying to get achievement: Neverclick."; 
-	return true; 
-  } else if (!Game.Achievements["True Neverclick"].won && Game.cookieClicks==0) { 
-    AutoPlay.activities="Trying to get achievement: True Neverclick."; 
-	return true; 
-  } else if (!Game.Achievements["Hardcore"].won && Game.UpgradesOwned==0) { 
-    AutoPlay.activities="Trying to get achievement: Hardcore."; 
-	return true; 
-  } else if (!Game.Achievements["Speed baking I"].won && 
-            (AutoPlay.now-Game.startDate <= 1000*60*35)) { 
-	AutoPlay.activities="Trying to get achievement: Speed baking I.";
-    AutoPlay.setDeadline(0);
-	return true; 
-  } else if (!Game.Achievements["Speed baking II"].won && 
-            (AutoPlay.now-Game.startDate <= 1000*60*25)) { 
-    AutoPlay.activities="Trying to get achievement: Speed baking II."; 
-    AutoPlay.setDeadline(0);
-	return true; 
-  } else if (!Game.Achievements["Speed baking III"].won && 
-            (AutoPlay.now-Game.startDate <= 1000*60*15)) { 
-	AutoPlay.activities="Trying to get achievement: Speed baking III."; 
-    AutoPlay.setDeadline(0);
-	return true; 
+  var needAchievement = false;
+  if (!Game.Achievements["True Neverclick"].won && Game.cookieClicks==0) {
+    AutoPlay.addActivity("Trying to get achievement: True Neverclick.");
+    needAchievement = true;
+  } else if (!Game.Achievements["Neverclick"].won && Game.cookieClicks<=15) {
+    AutoPlay.addActivity("Trying to get achievement: Neverclick.");
+    needAchievement = true;
+  }
+  if (!Game.Achievements["Hardcore"].won && Game.UpgradesOwned==0) {
+    AutoPlay.addActivity("Trying to get achievement: Hardcore.");
+    needAchievement = true;
+  }
+  if (needAchievement) return true;
+
+  if (!Game.Achievements["Speed baking III"].won &&
+            (AutoPlay.now-Game.startDate <= 1000*60*15)) {
+    AutoPlay.addActivity("Trying to get achievement: Speed baking III.");
+    for (var i = 1; i<10; i++)
+      setTimeout(function(){Game.ClickCookie(0, 10*Game.computedMouseCps);}, 30*i);
+  } else if (!Game.Achievements["Speed baking II"].won &&
+            (AutoPlay.now-Game.startDate <= 1000*60*25)) {
+    AutoPlay.addActivity("Trying to get achievement: Speed baking II.");
+  } else if (!Game.Achievements["Speed baking I"].won &&
+            (AutoPlay.now-Game.startDate <= 1000*60*35)) {
+    AutoPlay.addActivity("Trying to get achievement: Speed baking I.");
   } else return false;
+
+  AutoPlay.setDeadline(0);
+  return true;
 }
 
 AutoPlay.doReincarnate = function() {
