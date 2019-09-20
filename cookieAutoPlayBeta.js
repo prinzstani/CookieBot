@@ -206,8 +206,8 @@ AutoPlay.handleClicking = function() {
   else{  // ClickMode == 1
     Game.ClickCookie();
     if ('Click frenzy' in Game.buffs || 'Dragonflight' in Game.buffs){
-      for (var i = 1; i<10; i++)
-        setTimeout(function(){Game.ClickCookie(0, 10*Game.computedMouseCps);}, 30*i);
+      for (var i = 1; i<5; i++)
+        setTimeout(function(){Game.ClickCookie(0, Game.computedMouseCps);}, 30*i);
     }
   }
 }
@@ -1362,8 +1362,8 @@ AutoPlay.canContinue = function() {
   if (!Game.Achievements["Speed baking III"].won &&
             (AutoPlay.now-Game.startDate <= 1000*60*15)) {
     AutoPlay.addActivity("Trying to get achievement: Speed baking III.");
-    for (var i = 1; i<10; i++)
-      setTimeout(function(){Game.ClickCookie(0, 10*Game.computedMouseCps);}, 30*i);
+    for (var i = 1; i<5; i++)
+      setTimeout(function(){Game.ClickCookie(0, Game.computedMouseCps);}, 30*i);
   } else if (!Game.Achievements["Speed baking II"].won &&
             (AutoPlay.now-Game.startDate <= 1000*60*25)) {
     AutoPlay.addActivity("Trying to get achievement: Speed baking II.");
