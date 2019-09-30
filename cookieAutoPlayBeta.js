@@ -206,8 +206,7 @@ AutoPlay.handleClicking = function() {
   else{  // ClickMode == 1
     Game.ClickCookie();
     if ('Click frenzy' in Game.buffs || 'Dragonflight' in Game.buffs){
-      for (var i = 1; i<5; i++)
-        setTimeout(function(){Game.ClickCookie(0, Game.computedMouseCps);}, 30*i);
+      for (var i = 1; i<5; i++) setTimeout(Game.ClickCookie, 30*i);
     }
   }
 }
