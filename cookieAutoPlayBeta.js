@@ -1423,8 +1423,8 @@ AutoPlay.doAscend = function(str,log) {
 
 //===================== Handle Achievements ==========================
 AutoPlay.wantedAchievements = [82, 89, 108, // elder calm, 100 antimatter, halloween
-    225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 429, // bake xx cookies
-	428, 395, 397]; // max cps, max buildings, ascend right 
+    225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 429, 451, 452, 453, // bake xx cookies
+	450, 395, 397]; // max cps, max buildings, ascend right 
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { 
@@ -1518,16 +1518,17 @@ AutoPlay.prioUpgrades = [363, 323, // legacy, dragon
   411, 412, 413, // lucky upgrades, 
   264, 265, 266, 267, 268, 520, 181, // permanent slots, season switcher, 
   282, 283, 284, 291, 393, 394]; // better golden cookies, kittens, synergies
-AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494];
+AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494,613];
 AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189];
-AutoPlay.fractals = [522,523,524,525,526,527,528,529,530,531,532];
+AutoPlay.consoles = [594,595,596,597,598,599,600,601,602,603,604];
 AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497];
 AutoPlay.expensive = [38,39,40,41,42,55,56,80,81,88,89,90,104,105,106,107,
   120,121,122,123,150,151,256,257,258,259,260,261,262,263,
   338,339,340,341,342,343,350,351,352,403,404,405,406,407,
   444,445,446,447,448,453,454,455,456,457,458,464,465,466,467,468,469,
   498,499,500,501,535,536,538,565,566,567,568,569,570,571,572,573,574,
-  575,576,577,578,579,580,581,582,583,584,585,586,587,588];
+  575,576,577,578,579,580,581,582,583,584,585,586,587,588,
+  607,608,609,615,616,617];
 
 AutoPlay.buyHeavenlyUpgrades = function() {
   AutoPlay.prioUpgrades.forEach(function(id) { 
@@ -1542,7 +1543,7 @@ AutoPlay.buyHeavenlyUpgrades = function() {
 	} 
   });
   AutoPlay.assignPermanentSlot(1,AutoPlay.kittens);
-  AutoPlay.assignPermanentSlot(2,AutoPlay.fractals);
+  AutoPlay.assignPermanentSlot(2,AutoPlay.consoles);
   if (!Game.Achievements["Reincarnation"].won) { // for many ascends
     AutoPlay.assignPermanentSlot(0,AutoPlay.cursors);
     AutoPlay.assignPermanentSlot(3,[52]); // lucky day
