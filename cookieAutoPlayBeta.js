@@ -39,6 +39,7 @@ AutoPlay.run = function() {
   if (AutoPlay.plantPending || AutoPlay.harvestPlant) 
     AutoPlay.addActivity("Wait with ascend until plants are harvested!");
   AutoPlay.handleClicking();
+  AutoPlay.handleGameTicker();
   AutoPlay.handleGoldenCookies();
   AutoPlay.handleSavings();
   AutoPlay.bestBuy();
@@ -215,6 +216,27 @@ AutoPlay.speedClicking = function() {
   Game.ClickCookie();
   var clickCount = 1<<(10*(AutoPlay.Config.ClickMode-2));
   Game.ClickCookie(0, clickCount*Game.computedMouseCps);
+}
+//
+//===================== Handle Game Ticker =====================
+//basic routine, untested
+AutoPlay.handleGameTicker = function() {
+  if (AutoPlay.Config.ClickMode==0) return;
+  if (!Game.Achievements["Neverclick"].won && (Game.cookieClicks<=15) ) { 
+    return;
+  }
+  if (Game.ascensionMode==1 && AutoPlay.endPhase() && 
+      !Game.Achievements["True Neverclick"].won && !Game.cookieClicks) { 
+    return;
+  }
+  for (var tx in Game.Ticker) {
+  	var t = Game.TickerEffect[tx];
+  	if (t.type!="fortune") { 
+		Game.TickerL.pop(); 
+		AutoPlay.setDeadline(0); 
+		return; 
+   	}
+  }
 }
 //
 //======================== Handle Savings Calculation =========================
