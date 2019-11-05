@@ -150,6 +150,7 @@ AutoPlay.nightMode = function() {
 //===================== Handle Cookies and Golden Cookies =====================
 AutoPlay.handleGoldenCookies = function() { // pop first golden cookie or reindeer
   if (AutoPlay.Config.GoldenClickMode==0) return;
+  if (Game.TickerEffect) Game.tickerL.click(); // grab fortune cookie
   if (Game.shimmerTypes['golden'].n>=4 && 
      !Game.Achievements['Four-leaf cookie'].won) return;
   for (var sx in Game.shimmers) {
