@@ -4,8 +4,8 @@
 var AutoPlay;
 
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.019";
-AutoPlay.gameVersion = "2.019";
+AutoPlay.version = "2.022";
+AutoPlay.gameVersion = "2.022";
 AutoPlay.robotName = "Automated ";
 AutoPlay.delay = 0;
 AutoPlay.night = false;
@@ -1576,9 +1576,9 @@ AutoPlay.handleDragon = function() {
     if (Game.dragonLevel<Game.dragonLevels.length-1 && 
 	    Game.dragonLevels[Game.dragonLevel].cost()) {
       let obj = null;
-      if (Game.dragonLevel >=5 && Game.dragonLevel < 21)
+      if (Game.dragonLevel >=5 && Game.dragonLevel < Game.dragonLevels.length-3)
         obj = Game.ObjectsById[Game.dragonLevel - 5];
-      else if (Game.dragonLevel == 21 || Game.dragonLevel == 22)
+      else if (Game.dragonLevel >= Game.dragonLevels.length-3)
         obj = 'buy150';
       Game.specialTab = "dragon"; 
       Game.UpgradeDragon();
@@ -1625,11 +1625,11 @@ AutoPlay.checkDragon = function(building){
     return building.amount < 100;
 
   // waiting to sacrifice 50 of all
-  if(Game.dragonLevel < 22)
+  if(Game.dragonLevel < Game.dragonLevels.length-2)
     return building.amount < 50;
 
   // waiting to sacrifice 200 of all
-  if(Game.dragonLevel < 23)
+  if(Game.dragonLevel < Game.dragonLevels.length-1)
     return building.amount < 200;
 
   return true;
