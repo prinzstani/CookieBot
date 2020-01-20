@@ -1598,6 +1598,7 @@ AutoPlay.handleDragon = function() {
     } 
   }
   if (Game.dragonLevel>=5) wantedAura=1; // kitten (breath of milk)
+  if (Game.dragonLevel>=19) wantedAura=15; // radiant appetite
   if (Game.dragonLevel>=21) wantedAura=17; // fractal (dragons curve)
   if ((Game.dragonLevel>=21) && (Game.lumps > 99) &&
       !AutoPlay.lumpHarvestAchievements.includes(AutoPlay.nextAchievement)) // keep dragons curve for lump harvest achievements
