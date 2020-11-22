@@ -1335,7 +1335,7 @@ AutoPlay.handleAscend = function() {
     AutoPlay.doAscend("ascend for heavenly upgrade lucky number.",0);
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky payout"].bought && 
       Game.heavenlyChips>77777777) {
-    AutoPlay.wantAscend = true; //avoid byuing plants
+    AutoPlay.wantAscend = true; //avoid buying plants
     AutoPlay.setDeadline(0);
     AutoPlay.addActivity("Trying to get heavenly upgrade Lucky Payout.");
     if (Game.ascendMeterLevel>0 && (newPrestige <= 777777) && 
@@ -1613,6 +1613,7 @@ AutoPlay.handleDragon = function() {
     } 
   }
   if (Game.dragonLevel>=5) wantedAura=1; // kitten (breath of milk)
+  if (Game.dragonLevel>=19) wantedAura=15; // radiant appetite
   if (Game.dragonLevel>=21) wantedAura=17; // fractal (dragons curve)
   if ((Game.dragonLevel>=21) && (Game.lumps > 99) &&
       !AutoPlay.lumpHarvestAchievements.includes(AutoPlay.nextAchievement)) // keep dragons curve for lump harvest achievements
