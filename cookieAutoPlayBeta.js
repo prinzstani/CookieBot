@@ -664,17 +664,6 @@ AutoPlay.farmGoldenSugarLumps = function(age) {
 */
 
 AutoPlay.handleMinigames = function() {
-  // banks: stock market =============================
-  // market.buyGood(1,3)
-  // market.goodsById[1].stock
-  // market.getGoodMaxStock(market.goodsById[1])
-  // market.getRestingVal(2)
-  // market=Game.Objects["Bank"].minigame
-  // market.brokers
-  // l("bankBrokersBuy").click()
-  // market.getMaxBrokers()
-  // market.getBrokerPrice() (need to be > Game.cookies)
-  
   // wizard towers: grimoires ===========================
   if (Game.isMinigameReady(Game.Objects["Wizard tower"])) {
     var g = Game.Objects["Wizard tower"].minigame;
@@ -723,13 +712,33 @@ AutoPlay.handleMinigames = function() {
         AutoPlay.plantList=[0,0,0,0];
         return;
     }
-    if(!AutoPlay.canUseLumps && AutoPlay.gardenReady(g) && !AutoPlay.finished && 
+    if (!AutoPlay.canUseLumps && AutoPlay.gardenReady(g) && !AutoPlay.finished && 
 	    !AutoPlay.harvestPlant && !AutoPlay.lumpRelatedAchievements.every(
 		  function(a) { return Game.AchievementsById[a].won; })) {
       AutoPlay.plantCookies = false;
 	  //convert garden in order to get more sugar lumps
 	  g.askConvert(); Game.ConfirmPrompt(); 
 	  AutoPlay.plantList=[0,0,0,0];
+	}
+  }
+  // banks: stock market =============================
+  if (Game.isMinigameReady(Game.Objects["Bank"])) {
+    var market = Game.Objects["Bank"].minigame;
+	if (market.brokers < market.getMaxBrokers()) {
+	  if (100*market.getBrokerPrice() < Game.cookies) {
+	    l("bankBrokersBuy").click();
+	} }
+    for (var g in market.goods) {
+      var good = market.goods[g];
+	  // market.goodDelta(id)
+	  if (good.stock < market.getGoodMaxStock(good)) { // can have more
+	    if (10*market.getGoodPrice(good) < market.getRestingVal(good.id)) { // it is just cheap
+		  market.buyGood(good.id,10000); // buy all
+	  } }
+	  if (good.stock > 0) { // have some
+	    if (market.getGoodPrice(good) > market.getRestingVal(good.id)) { // it is just expensive
+		  market.sellGood(good.id,10000); // sell all
+	  } }
 	}
   }
 }
