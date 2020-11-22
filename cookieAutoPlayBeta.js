@@ -4,8 +4,8 @@
 var AutoPlay;
 
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.022";
-AutoPlay.gameVersion = "2.022";
+AutoPlay.version = "2.023";
+AutoPlay.gameVersion = "2.031";
 AutoPlay.robotName = "Automated ";
 AutoPlay.delay = 0;
 AutoPlay.night = false;
@@ -283,7 +283,9 @@ AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
   if (building.getSumPrice(checkAmount) < Game.cookies - AutoPlay.savingsGoal) {
     building.buy(buyAmount);
     AutoPlay.setDeadline(-1);  // -1 for flag to indicate something bought
+	return true;
   }
+  return false;
 }
 
 AutoPlay.buyUpgrade = function(upgrade, bypass=true) {
@@ -464,15 +466,16 @@ AutoPlay.handleBuildings = function() {
   var cpc = 0; // relative strength of cookie production
   for (var i = Game.ObjectsById.length-1; i>=0; i--) { 
     var me = Game.ObjectsById[i]; 
+    if (me.locked) continue;
 	var mycpc = me.storedCps / me.price; 
 	if (mycpc>cpc) cpc = mycpc; 
   } 
   for (var i = Game.ObjectsById.length-1; i>=0; i--) { 
     var me = Game.ObjectsById[i]; 
+	if (me.locked) continue;
     if (me.storedCps/me.price > cpc/2 || me.amount % 50 >= 40) {
       //this checks price, sets deadline 
-      AutoPlay.buyBuilding(me, checkAmount, buyAmount);
-      return; 
+      if (AutoPlay.buyBuilding(me, checkAmount, buyAmount)) return; 
     }
   }
   if (Game.resets && Game.ascensionMode!=1 && 
@@ -661,7 +664,18 @@ AutoPlay.farmGoldenSugarLumps = function(age) {
 */
 
 AutoPlay.handleMinigames = function() {
-  // wizard towers: grimoires ===========================0
+  // banks: stock market =============================
+  // market.buyGood(1,3)
+  // market.goodsById[1].stock
+  // market.getGoodMaxStock(market.goodsById[1])
+  // market.getRestingVal(2)
+  // market=Game.Objects["Bank"].minigame
+  // market.brokers
+  // l("bankBrokersBuy").click()
+  // market.getMaxBrokers()
+  // market.getBrokerPrice() (need to be > Game.cookies)
+  
+  // wizard towers: grimoires ===========================
   if (Game.isMinigameReady(Game.Objects["Wizard tower"])) {
     var g = Game.Objects["Wizard tower"].minigame;
     var sp = g.spells["hand of fate"]; // try to get a sugar lump in backfiring
@@ -1424,8 +1438,8 @@ AutoPlay.doAscend = function(str,log) {
 
 //===================== Handle Achievements ==========================
 AutoPlay.wantedAchievements = [82, 89, 108, // elder calm, 100 antimatter, halloween
-    225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 429, 451, 452, 453, // bake xx cookies
-	450, 395, 397]; // max cps, max buildings, ascend right 
+    225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 429, 451, 452, 453, 470, 471, 472, 534, 535, 536, // bake xx cookies
+	533, 530, 397]; // max cps, max buildings, ascend right 
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() { 
@@ -1520,16 +1534,17 @@ AutoPlay.prioUpgrades = [363, 323, // legacy, dragon
   264, 265, 266, 267, 268, 520, 181, // permanent slots, season switcher, 
   282, 283, 284, 291, 393, 394]; // better golden cookies, kittens, synergies
 AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494,613];
-AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189];
-AutoPlay.consoles = [594,595,596,597,598,599,600,601,602,603,604];
-AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497];
+AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189,660];
+AutoPlay.idleverses = [683,685,686,687,688,689,690,691,692,693,694,695,716];
+AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497,659,699];
 AutoPlay.expensive = [38,39,40,41,42,55,56,80,81,88,89,90,104,105,106,107,
   120,121,122,123,150,151,256,257,258,259,260,261,262,263,
   338,339,340,341,342,343,350,351,352,403,404,405,406,407,
   444,445,446,447,448,453,454,455,456,457,458,464,465,466,467,468,469,
   498,499,500,501,535,536,538,565,566,567,568,569,570,571,572,573,574,
   575,576,577,578,579,580,581,582,583,584,585,586,587,588,
-  607,608,609,615,616,617];
+  607,608,609,615,616,617,652,653,654,655,656,657,658,
+  678,679,680,681,682,721,722,723,724];
 
 AutoPlay.buyHeavenlyUpgrades = function() {
   AutoPlay.prioUpgrades.forEach(function(id) { 
@@ -1544,7 +1559,7 @@ AutoPlay.buyHeavenlyUpgrades = function() {
 	} 
   });
   AutoPlay.assignPermanentSlot(1,AutoPlay.kittens);
-  AutoPlay.assignPermanentSlot(2,AutoPlay.consoles);
+  AutoPlay.assignPermanentSlot(2,AutoPlay.idleverses);
   if (!Game.Achievements["Reincarnation"].won) { // for many ascends
     AutoPlay.assignPermanentSlot(0,AutoPlay.cursors);
     AutoPlay.assignPermanentSlot(3,[52]); // lucky day
