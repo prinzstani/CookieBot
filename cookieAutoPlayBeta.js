@@ -1609,7 +1609,7 @@ AutoPlay.handleDragon = function() {
       Game.ToggleSpecialMenu(0);
       if (obj == null)
         return;
-      if (obj == 'buy150'){  // after sacrificing 50 or 200 of all
+      if (obj == 'buy150') {  // after sacrificing 50 or 200 of all
         // handle garden before buying (low cps)
         if (Game.Objects['Farm'].amount == 0)
           Game.Objects['Farm'].buy(1);
@@ -1619,7 +1619,8 @@ AutoPlay.handleDragon = function() {
       }
       else  // after sacrificing 100, get 50 back immediately
         obj.buy(50 - obj.amount);
-    } 
+    }
+    AutoPlay.petDragon();
   }
   if (Game.dragonLevel>=5) wantedAura=1; // kitten (breath of milk)
   if (Game.dragonLevel>=19) wantedAura=15; // radiant appetite
