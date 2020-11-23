@@ -539,7 +539,7 @@ AutoPlay.seasonFinished = function(s) {
 }
 
 //===================== Handle Sugarlumps ==========================
-AutoPlay.level1Order = [2,6,7]; // unlocking in this order for the minigames
+AutoPlay.level1Order = [2,6,7,5]; // unlocking in this order for the minigames
 AutoPlay.level10Order = [2,7]; // finishing in this order
 AutoPlay.minLumps = AutoPlay.level1Order.length+55*AutoPlay.level10Order.length;
 AutoPlay.lumpRelatedAchievements = range(307,320).concat([336,396,268,271]);
@@ -1638,7 +1638,7 @@ AutoPlay.handleDragon = function() {
     Game.ConfirmPrompt(); Game.ToggleSpecialMenu(0); 
 } }
 
-AutoPlay.checkDragon = function(building){
+AutoPlay.checkDragon = function(building) {
   // determine if buying the building is efficient based on sacrifices to krumblor
   if(!Game.Achievements['Here be dragon'].won)
     return true;  // don't limit when first fully training
@@ -1658,6 +1658,20 @@ AutoPlay.checkDragon = function(building){
     return building.amount < 200;
 
   return true;
+}
+
+AutoPlay.petDragon = function() {
+  if (Game.dragonLevel>=8) { // can pet the dragon
+    var drops=['Dragon scale','Dragon claw','Dragon fang','Dragon teddy bear'];
+    for (var drop in drops) {
+      if (!Game.Has(drops[drop]) && !Game.HasUnlocked(drops[drop])) { // still something we can get
+        Game.specialTab = "dragon";
+        Game.ClickSpecialPic();
+        Game.ToggleSpecialMenu(0);
+        return;
+      }
+    }
+  }
 }
 
 //===================== Menu ==========================
