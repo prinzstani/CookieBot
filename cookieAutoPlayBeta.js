@@ -1667,6 +1667,7 @@ AutoPlay.petDragon = function() {
     for (var drop in drops) {
       if (!Game.Has(drops[drop]) && !Game.HasUnlocked(drops[drop])) { // still something we can get
         Game.specialTab = "dragon";
+        Game.ToggleSpecialMenu(1);
         Game.ClickSpecialPic();
         Game.ToggleSpecialMenu(0);
         return;
