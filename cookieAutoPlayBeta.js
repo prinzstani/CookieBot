@@ -1664,8 +1664,8 @@ AutoPlay.checkDragon = function(building) {
 AutoPlay.petDragon = function() {
   if (Game.dragonLevel>=8) { // can pet the dragon
     var drops=['Dragon scale','Dragon claw','Dragon fang','Dragon teddy bear'];
-    for (var drop in drops) {
-      if (!Game.Has(drops[drop]) && !Game.HasUnlocked(drops[drop])) { // still something we can get
+    for (var drop of drops) {
+      if (!Game.Has(drop) && !Game.HasUnlocked(drop)) { // still something we can get
         Game.specialTab = "dragon";
         Game.ToggleSpecialMenu(1);
         Game.ClickSpecialPic();
