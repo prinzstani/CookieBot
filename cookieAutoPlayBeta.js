@@ -4,7 +4,7 @@
 var AutoPlay;
 
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.023";
+AutoPlay.version = "2.024";
 AutoPlay.gameVersion = "2.031";
 AutoPlay.robotName = "Automated ";
 AutoPlay.delay = 0;
@@ -540,7 +540,7 @@ AutoPlay.seasonFinished = function(s) {
 
 //===================== Handle Sugarlumps ==========================
 AutoPlay.level1Order = [2,6,7,5]; // unlocking in this order for the minigames
-AutoPlay.level10Order = [2,7]; // finishing in this order
+AutoPlay.level10Order = [2,7,0]; // finishing in this order
 AutoPlay.minLumps = AutoPlay.level1Order.length+55*AutoPlay.level10Order.length;
 AutoPlay.lumpRelatedAchievements = range(307,320).concat([336,396,268,271]);
 
@@ -605,6 +605,11 @@ AutoPlay.useLump = function() { // recursive call to handle many sugar lumps
 	  return; 
 	} 
   }
+  var me = Game.Objects["Cursor"]; // need 12 cursors for stock market
+  if (me.level<12) { 
+    if (me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); } 
+    return; 
+  } 
   AutoPlay.canUseLumps = true;
   for (var i = Game.ObjectsById.length-1; i>=0; i--) {
     var me = Game.ObjectsById[i]; 
@@ -724,21 +729,45 @@ AutoPlay.handleMinigames = function() {
   // banks: stock market =============================
   if (Game.isMinigameReady(Game.Objects["Bank"])) {
     var market = Game.Objects["Bank"].minigame;
-	if (market.brokers < market.getMaxBrokers()) {
+	if (market.brokers < market.getMaxBrokers()) { // buy brokers
 	  if (100*market.getBrokerPrice() < Game.cookies) {
 	    l("bankBrokersBuy").click();
 	} }
+	if (market.officeLevel < market.offices.length-1) { // upgrade offices
+      var me=market.offices[market.officeLevel];
+      if (me.cost && Game.Objects['Cursor'].amount>=me.cost[0] && Game.Objects['Cursor'].level>=me.cost[1]) {
+        l("bankOfficeUpgrade").click();
+      }
+    }
     for (var g in market.goods) {
       var good = market.goods[g];
+	  var sellHigh = market.getRestingVal(good.id) + 10;
+	  var buyLowest = market.getRestingVal(good.id) / 5;
+	  var distance = sellHigh - buyLowest;
+	  var maxStock = market.getGoodMaxStock(good);
 	  // market.goodDelta(id)
-	  if (good.stock < market.getGoodMaxStock(good)) { // can have more
-	    if (10*market.getGoodPrice(good) < market.getRestingVal(good.id)) { // it is just cheap
+	  if (good.stock < maxStock) { // can buy more
+	    var buyHigh = buyLowest + distance/2;
+	    var buyMedium = buyLowest + distance/3;
+	    var buyLow = buyLowest + distance/6;
+	    if (market.getGoodPrice(good) < buyLowest) { // it is very cheap
 		  market.buyGood(good.id,10000); // buy all
-	  } }
-	  if (good.stock > 0) { // have some
-	    if (market.getGoodPrice(good) > market.getRestingVal(good.id)) { // it is just expensive
+	    } else if (market.getGoodPrice(good) < buyLow) { // it is still cheap
+		  market.buyGood(good.id, maxStock*0.8 - good.stock); // buy 80%
+	    } else if (market.getGoodPrice(good) < buyLowest) { // it is reasonable
+		  market.buyGood(good.id, maxStock*0.6 - good.stock); // buy 60%
+	    } else if (market.getGoodPrice(good) < buyLowest) { // it is affordable
+		  market.buyGood(good.id, maxStock*0.3 - good.stock); // buy 30%
+	    } 
+	  }
+	  if (good.stock > 0) { // have something to sell
+    	var sellLow = sellHigh - distance/4;
+	    if (market.getGoodPrice(good) > sellHigh) { // it is very expensive
 		  market.sellGood(good.id,10000); // sell all
-	  } }
+	    } else if (market.getGoodPrice(good) > sellLow) { // it is reasonable
+		  market.sellGood(good.id,good.stock - maxStock/2); // sell 50%
+	    } 
+	  }
 	}
   }
 }
