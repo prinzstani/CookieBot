@@ -4,7 +4,7 @@
 var AutoPlay;
 
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.024";
+AutoPlay.version = "2.025";
 AutoPlay.gameVersion = "2.031";
 AutoPlay.robotName = "Automated ";
 AutoPlay.delay = 0;
@@ -240,13 +240,14 @@ AutoPlay.handleSavings = function() {
   // to equal target.  Target is lucky until upgrade 'get lucky'
   // is bought, then it's lucky frenzy
   const startTime = 30 * 60 * 1000;  // wait before starting to save
+  const delayTime = 5 * 60 * 1000;  // wait before starting to save
   const targetTime = 400 * 60 * 1000;  // after start, time to target amount
   let elapsedTime = AutoPlay.now-AutoPlay.savingsStart - startTime;
   let scaling = Math.min(elapsedTime / targetTime, 1);  //fraction of time to target
   if (elapsedTime < 0) {
     AutoPlay.savingsGoal = 0;
     AutoPlay.addActivity('Not saving for first ' + (startTime / 60 / 1000) + 
-          ' minutes!');
+          '+ minutes!');
     return;
   }
   if (Game.UpgradesById[52].bought && Game.UpgradesById[53].bought) {
@@ -254,7 +255,7 @@ AutoPlay.handleSavings = function() {
   }
   else {
     AutoPlay.savingsGoal = 0;
-    AutoPlay.addActivity('Not saving until GC upgrades purchased');
+    AutoPlay.addActivity('Not saving until golden cookie upgrades are purchased.');
     return;
   }
   if (Game.UpgradesById[86].bought)  // get lucky
@@ -268,6 +269,9 @@ AutoPlay.handleSavings = function() {
   else {
     AutoPlay.addActivity('Saving to ' + Beautify(AutoPlay.savingsGoal) + 
       ' cookies');
+  }
+  if (AutoPlay.savingsGoal > Game.Objects["Cursor"].getPrice()) { // saving is too expensive
+    AutoPlay.savingsStart += delayTime; // delay saving
   }
   let fractionSaved = Game.cookies / AutoPlay.savingsGoal;
   // if fallen behind savings plan, reset to current fraction
@@ -739,8 +743,14 @@ AutoPlay.handleMinigames = function() {
         l("bankOfficeUpgrade").click();
       }
     }
+    if (!Game.AchievementsById[459].won && market.getGoodMaxStock(market.goodsById[market.goodsById.length-1])>1000) { // 500 of each
+	  for (var g in market.goods) {
+		let good = market.goods[g];
+	    market.buyGood(good.id, 500-good.stock);
+	  }
+	}
     for (var g in market.goods) {
-      var good = market.goods[g];
+	  let good = market.goods[g];
 	  var sellHigh = market.getRestingVal(good.id) + 10;
 	  var buyLowest = market.getRestingVal(good.id) / 5;
 	  var distance = sellHigh - buyLowest;
@@ -1361,7 +1371,7 @@ AutoPlay.handleAscend = function() {
         " days until next hard ascend.");
   if (extraDaysInRun>40) {
 	for (var x = Game.cookies; x>10; x/=10);
-	if (x<9) AutoPlay.doAscend("ascend after " + daysInRun + 
+	if (x<9) AutoPlay.doAscend("ascend after " + (daysInRun<<0) + 
                " days just while waiting for next achievement.",1);
   }
   var newPrestige = (Game.prestige+Game.ascendMeterLevel)%1000000;
@@ -1459,6 +1469,12 @@ AutoPlay.doAscend = function(str,log) {
   Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp=0; } ); // pop wrinklers
   if (Game.isMinigameReady(Game.Objects["Farm"])) 
 	Game.Objects["Farm"].minigame.harvestAll(); // harvest garden
+  if (Game.isMinigameReady(Game.Objects["Bank"])) { // sell all goods
+    var market = Game.Objects["Bank"].minigame;
+    for (var good of market.goods) {
+      market.sellGood(good.id,10000); 
+	}
+  }
   if (Game.Upgrades["Chocolate egg"].unlocked && 
       !Game.Upgrades["Chocolate egg"].bought) {
     if (Game.dragonLevel>=9) { // setting first aura to earth shatterer
