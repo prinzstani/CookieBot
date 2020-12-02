@@ -751,6 +751,44 @@ AutoPlay.handleMinigames = function() {
 	}
     for (var g in market.goods) {
 	  let good = market.goods[g];
+	  let price = market.getGoodPrice(good);
+// ***********************
+if (AutoPlay.infoCollect) {
+	AutoPlay.addActivity("collecting info from stock market");
+      if (good.min==0) {
+		if (good.max<price) {
+//		  AutoPlay.info("setting new max for "+good.symbol+" = "+price);
+		  good.max=price;
+		  good.thisETime=AutoPlay.now;
+		} else if (good.max-5 > price) {
+		  let timing=((good.thisETime-good.lastETime)/1000/60)<<0;
+		  let lating=((AutoPlay.now-good.thisETime)/1000/60)<<0;
+		  AutoPlay.info("found max for "+good.symbol+" = "+(good.max<<0)+" after "+timing+" minutes with delta "+((good.max-good.lastExtreme)<<0)+", detected at "+(price<<0)+", "+lating+" too late.");
+		  AutoPlay.infoLog("found max for "+good.symbol+" = "+(good.max<<0)+" after "+timing+" minutes with delta "+((good.max-good.lastExtreme)<<0)+", detected at "+(price<<0)+", "+lating+" minutes too late.");
+		  good.lastExtreme=good.max;
+		  good.lastETime=good.thisETime;
+		  good.min=price;
+		  good.thisETime=AutoPlay.now;
+		}
+	  } else {
+		if (good.min>price) {
+//		  AutoPlay.info("setting new min for "+good.symbol+" = "+price);
+		  good.min=price;
+		  good.thisETime=AutoPlay.now;
+		} else if (good.min+5 < price) {
+		  let timing=((good.thisETime-good.lastETime)/1000/60)<<0;
+		  let lating=((AutoPlay.now-good.thisETime)/1000/60)<<0;
+		  AutoPlay.info("found min for "+good.symbol+" = "+(good.min<<0)+" after "+timing+" minutes with delta "+((good.lastExtreme-good.min)<<0)+", detected at "+(price<<0)+", "+lating+" minutes too late.");
+		  AutoPlay.infoLog("found min for "+good.symbol+" = "+(good.min<<0)+" after "+timing+" minutes with delta "+((good.lastExtreme-good.min)<<0)+", detected at "+(price<<0)+", "+lating+" minutes too late.");
+		  good.lastExtreme=good.min;
+		  good.lastETime=good.thisETime;
+		  good.max=price;
+		  good.min=0;
+		  good.thisETime=AutoPlay.now;
+		}
+	  }
+}
+// ***********************
 	  var sellHigh = market.getRestingVal(good.id) + 10;
 	  var buyLowest = market.getRestingVal(good.id) / 5;
 	  var distance = sellHigh - buyLowest;
@@ -760,27 +798,51 @@ AutoPlay.handleMinigames = function() {
 	    var buyHigh = buyLowest + distance/2;
 	    var buyMedium = buyLowest + distance/3;
 	    var buyLow = buyLowest + distance/6;
-	    if (market.getGoodPrice(good) < buyLowest) { // it is very cheap
+	    if (price < buyLowest) { // it is very cheap
 		  market.buyGood(good.id,10000); // buy all
-	    } else if (market.getGoodPrice(good) < buyLow) { // it is still cheap
+	    } else if (price < buyLow) { // it is still cheap
 		  market.buyGood(good.id, maxStock*0.8 - good.stock); // buy 80%
-	    } else if (market.getGoodPrice(good) < buyLowest) { // it is reasonable
+	    } else if (price < buyLowest) { // it is reasonable
 		  market.buyGood(good.id, maxStock*0.6 - good.stock); // buy 60%
-	    } else if (market.getGoodPrice(good) < buyLowest) { // it is affordable
+	    } else if (price < buyLowest) { // it is affordable
 		  market.buyGood(good.id, maxStock*0.3 - good.stock); // buy 30%
 	    } 
 	  }
 	  if (good.stock > 0) { // have something to sell
     	var sellLow = sellHigh - distance/4;
-	    if (market.getGoodPrice(good) > sellHigh) { // it is very expensive
+	    if (price > sellHigh) { // it is very expensive
 		  market.sellGood(good.id,10000); // sell all
-	    } else if (market.getGoodPrice(good) > sellLow) { // it is reasonable
+	    } else if (price > sellLow) { // it is reasonable
 		  market.sellGood(good.id,good.stock - maxStock/2); // sell 50%
 	    } 
 	  }
 	}
   }
 }
+
+// ***********************
+AutoPlay.infoCollect=0;
+
+if (Game.isMinigameReady(Game.Objects["Bank"])) {
+  AutoPlay.info("init market info");
+  var market = Game.Objects["Bank"].minigame;
+  for (var g in market.goods) {
+    let good = market.goods[g];
+    good.max=0;
+	good.min=0;
+	good.lastExtreme=0;
+	good.lastETime=0;
+  }
+}
+
+AutoPlay.infoLog = function(info) {
+  try {
+	var before = window.localStorage.getItem("autoplayLog");
+    window.localStorage.setItem("autoplayLog",before+info+"\n");
+  } catch (e) {}
+}
+
+// ***********************
 
 AutoPlay.gardenUpgrades = range(470,476);
 
@@ -1500,7 +1562,7 @@ AutoPlay.endPhase = function() {
   return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; 
 }
 
-AutoPlay.grinding = function() { return Game.AchievementsById[373].won; }
+AutoPlay.grinding = function() { return Game.AchievementsById[534].won; }
 
 AutoPlay.mainActivity = "Doing nothing in particular.";
 AutoPlay.activities = AutoPlay.mainActivity;
