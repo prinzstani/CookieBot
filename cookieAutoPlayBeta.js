@@ -1533,8 +1533,8 @@ AutoPlay.doAscend = function(str,log) {
 	Game.Objects["Farm"].minigame.harvestAll(); // harvest garden
   if (Game.isMinigameReady(Game.Objects["Bank"])) { // sell all goods
     var market = Game.Objects["Bank"].minigame;
-    for (var good of market.goods) {
-      market.sellGood(good.id,10000); 
+    for (var g in market.goods) {
+      market.sellGood(market.goods[g].id,10000); 
 	}
   }
   if (Game.Upgrades["Chocolate egg"].unlocked && 
