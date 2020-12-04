@@ -757,13 +757,12 @@ if (AutoPlay.infoCollect) {
 	AutoPlay.addActivity("collecting info from stock market");
       if (good.min==0) {
 		if (good.max<price) {
-//		  AutoPlay.info("setting new max for "+good.symbol+" = "+price);
 		  good.max=price;
 		  good.thisETime=AutoPlay.now;
 		} else if (good.max-5 > price) {
 		  let timing=((good.thisETime-good.lastETime)/1000/60)<<0;
 		  let lating=((AutoPlay.now-good.thisETime)/1000/60)<<0;
-		  AutoPlay.info("found max for "+good.symbol+" = "+(good.max<<0)+" after "+timing+" minutes with delta "+((good.max-good.lastExtreme)<<0)+", detected at "+(price<<0)+", "+lating+" too late.");
+		  AutoPlay.info("found max for "+good.symbol+" = "+(good.max<<0)+" after "+timing+" minutes with delta "+((good.max-good.lastExtreme)<<0)+", detected at "+(price<<0)+", "+lating+" minutes too late.");
 		  AutoPlay.infoLog("found max for "+good.symbol+" = "+(good.max<<0)+" after "+timing+" minutes with delta "+((good.max-good.lastExtreme)<<0)+", detected at "+(price<<0)+", "+lating+" minutes too late.");
 		  good.lastExtreme=good.max;
 		  good.lastETime=good.thisETime;
@@ -772,7 +771,6 @@ if (AutoPlay.infoCollect) {
 		}
 	  } else {
 		if (good.min>price) {
-//		  AutoPlay.info("setting new min for "+good.symbol+" = "+price);
 		  good.min=price;
 		  good.thisETime=AutoPlay.now;
 		} else if (good.min+5 < price) {
@@ -789,22 +787,19 @@ if (AutoPlay.infoCollect) {
 	  }
 }
 // ***********************
-	  var sellHigh = market.getRestingVal(good.id) + 10;
-	  var buyLowest = market.getRestingVal(good.id) / 5;
-	  var distance = sellHigh - buyLowest;
+	  var sellHigh = market.getRestingVal(good.id);
+	  var buyLow = market.getRestingVal(good.id) / 3; // could also use 2
+	  var distance = sellHigh - buyLow;
 	  var maxStock = market.getGoodMaxStock(good);
 	  // market.goodDelta(id)
 	  if (good.stock < maxStock) { // can buy more
-	    var buyHigh = buyLowest + distance/2;
-	    var buyMedium = buyLowest + distance/3;
-	    var buyLow = buyLowest + distance/6;
-	    if (price < buyLowest) { // it is very cheap
+	    var buyHigh = buyLow + distance/2;
+	    var buyMedium = buyLow + distance/4;
+	    if (price < buyLow) { // it is very cheap
 		  market.buyGood(good.id,10000); // buy all
-	    } else if (price < buyLow) { // it is still cheap
-		  market.buyGood(good.id, maxStock*0.8 - good.stock); // buy 80%
-	    } else if (price < buyLowest) { // it is reasonable
+	    } else if (price < buyMedium) { // it is reasonable
 		  market.buyGood(good.id, maxStock*0.6 - good.stock); // buy 60%
-	    } else if (price < buyLowest) { // it is affordable
+	    } else if (price < buyHigh) { // it is affordable
 		  market.buyGood(good.id, maxStock*0.3 - good.stock); // buy 30%
 	    } 
 	  }
@@ -1923,6 +1918,23 @@ Game.UpdateMenu = function() {
 AutoPlay.info = function(s) { 
   console.log("### "+s); 
   Game.Notify("CookieBot",s,1,100); 
+}
+
+AutoPlay.status = function() {
+  AutoPlay.info("testing.");
+  for (var a in Game.Achievements) {
+	var me = Game.Achievements[a];
+	if (!me.won && me.pool!="dungeon") {
+	  AutoPlay.info("Missing achievement #" + me.id + 
+	    ": " + me.desc.replace(/<q>.*?<\/q>/ig, '') + ".");
+	}
+  }
+  for (var i in Game.Upgrades) {
+    var me = Game.Upgrades[i];
+    if (!me.unlocked && me.pool!="debug" && me.pool!="toggle") {
+      AutoPlay.info("Upgrade " + me.name + " is missing.");
+    } 
+  }
 }
 
 AutoPlay.setDeadline = function(d) { 
