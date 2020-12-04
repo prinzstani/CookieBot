@@ -824,7 +824,6 @@ if (AutoPlay.infoCollect) {
 AutoPlay.infoCollect=0;
 
 if (Game.isMinigameReady(Game.Objects["Bank"])) {
-  AutoPlay.info("init market info");
   var market = Game.Objects["Bank"].minigame;
   for (var g in market.goods) {
     let good = market.goods[g];
