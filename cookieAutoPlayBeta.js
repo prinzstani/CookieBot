@@ -749,6 +749,21 @@ AutoPlay.handleMinigames = function() {
 	    market.buyGood(good.id, 500-good.stock);
 	  }
 	}
+	if (!AutoPlay.goodsList) { // need to init goodsList
+	  AutoPlay.goodsList=[];var n=0;
+      for (var g in market.goods) {
+        let good = market.goods[g];
+        let price = market.getGoodPrice(good);
+	    let highMark = market.getRestingVal(good.id);
+	    let lowMark = market.getRestingVal(good.id) / 3; // could also use 2
+	    let distance = highMark - lowMark;
+		AutoPlay.goodsList[good.id] = { min:price, max:price, 
+		  sellHigh:highMark, sellLow:(highMark-distance/4), 
+		  buyHigh:(lowMark+distance/2), buyMedium:(lowMark+distance/4),
+		  buyLow:lowMark
+		}
+	  }
+	}
     for (var g in market.goods) {
 	  let good = market.goods[g];
 	  let price = market.getGoodPrice(good);
@@ -791,16 +806,20 @@ if (AutoPlay.infoCollect) {
 	  var buyLow = market.getRestingVal(good.id) / 3; // could also use 2
 	  var distance = sellHigh - buyLow;
 	  var maxStock = market.getGoodMaxStock(good);
-	  // market.goodDelta(id)
+	  let goodItem = AutoPlay.goodsList[good.id];
 	  if (good.stock < maxStock) { // can buy more
+	    if (AutoPlay.goodsList[good.id].min > price)
+		  AutoPlay.goodsList[good.id].min = price;
+	    if (AutoPlay.goodsList[good.id].max < price)
+		  AutoPlay.goodsList[good.id].max = price;
 	    var buyHigh = buyLow + distance/2;
 	    var buyMedium = buyLow + distance/4;
 	    if (price < buyLow) { // it is very cheap
 		  market.buyGood(good.id,10000); // buy all
 	    } else if (price < buyMedium) { // it is reasonable
-		  market.buyGood(good.id, maxStock*0.6 - good.stock); // buy 60%
+		  market.buyGood(good.id, maxStock*0.8 - good.stock); // buy 60%
 	    } else if (price < buyHigh) { // it is affordable
-		  market.buyGood(good.id, maxStock*0.3 - good.stock); // buy 30%
+		  market.buyGood(good.id, maxStock*0.6 - good.stock); // buy 30%
 	    } 
 	  }
 	  if (good.stock > 0) { // have something to sell
@@ -808,7 +827,7 @@ if (AutoPlay.infoCollect) {
 	    if (price > sellHigh) { // it is very expensive
 		  market.sellGood(good.id,10000); // sell all
 	    } else if (price > sellLow) { // it is reasonable
-		  market.sellGood(good.id,good.stock - maxStock/2); // sell 50%
+		  market.sellGood(good.id,good.stock - maxStock*0.7); // sell 50%
 	    } 
 	  }
 	}
