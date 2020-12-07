@@ -807,26 +807,24 @@ if (AutoPlay.infoCollect) {
 	  var distance = sellHigh - buyLow;
 	  var maxStock = market.getGoodMaxStock(good);
 	  let goodItem = AutoPlay.goodsList[good.id];
+	  if (goodItem.min > price) goodItem.min = price;
+	  if (goodItem.max < price) goodItem.max = price;
 	  if (good.stock < maxStock) { // can buy more
-	    if (AutoPlay.goodsList[good.id].min > price)
-		  AutoPlay.goodsList[good.id].min = price;
-	    if (AutoPlay.goodsList[good.id].max < price)
-		  AutoPlay.goodsList[good.id].max = price;
 	    var buyHigh = buyLow + distance/2;
 	    var buyMedium = buyLow + distance/4;
-	    if (price < buyLow) { // it is very cheap
+	    if (price < goodItem.buyLow) { // it is very cheap
 		  market.buyGood(good.id,10000); // buy all
-	    } else if (price < buyMedium) { // it is reasonable
+	    } else if (price < goodItem.buyMedium) { // it is reasonable
 		  market.buyGood(good.id, maxStock*0.8 - good.stock); // buy 60%
-	    } else if (price < buyHigh) { // it is affordable
+	    } else if (price < goodItem.buyHigh) { // it is affordable
 		  market.buyGood(good.id, maxStock*0.6 - good.stock); // buy 30%
 	    } 
 	  }
 	  if (good.stock > 0) { // have something to sell
     	var sellLow = sellHigh - distance/4;
-	    if (price > sellHigh) { // it is very expensive
+	    if (price > goodItem.sellHigh) { // it is very expensive
 		  market.sellGood(good.id,10000); // sell all
-	    } else if (price > sellLow) { // it is reasonable
+	    } else if (price > goodItem.sellLow) { // it is reasonable
 		  market.sellGood(good.id,good.stock - maxStock*0.7); // sell 50%
 	    } 
 	  }
