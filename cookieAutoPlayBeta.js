@@ -757,7 +757,7 @@ AutoPlay.handleMinigames = function() {
 	    let highMark = market.getRestingVal(good.id);
 	    let lowMark = market.getRestingVal(good.id) / 3; // could also use 2
 	    let distance = highMark - lowMark;
-		AutoPlay.goodsList[good.id] = { min:price, max:price, delta:5,
+		AutoPlay.goodsList[good.id] = { min:price, max:price, delta:(good.id>3)?5:2,
 		  sellHigh:highMark, sellLow:(highMark-distance/4), 
 		  buyHigh:(lowMark+distance/2), buyMedium:(lowMark+distance/4),
 		  buyLow:lowMark
@@ -802,9 +802,6 @@ if (AutoPlay.infoCollect) {
 	  }
 }
 // ***********************
-	  var sellHigh = market.getRestingVal(good.id);
-	  var buyLow = market.getRestingVal(good.id) / 3; // could also use 2
-	  var distance = sellHigh - buyLow;
 	  var maxStock = market.getGoodMaxStock(good);
 	  let goodItem = AutoPlay.goodsList[good.id];
 	  if (goodItem.min > price) goodItem.min = price;
