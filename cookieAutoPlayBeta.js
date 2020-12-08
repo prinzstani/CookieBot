@@ -808,7 +808,7 @@ if (AutoPlay.infoCollect) {
 	  if (goodItem.max < price) goodItem.max = price;
 	  if (good.stock < maxStock) { // can buy more
 	    if (price - goodItem.delta > goodItem.min) { // price is rising: buy
-          if (gooditem.min < goodItem.buyLow) { // it is very cheap
+          if (goodItem.min < goodItem.buyLow) { // it is very cheap
 		    market.buyGood(good.id,10000); // buy all
 		    goodItem.max = price;
 	      } else if (goodItem.min < goodItem.buyMedium) { // it is reasonable
