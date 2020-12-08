@@ -757,7 +757,7 @@ AutoPlay.handleMinigames = function() {
 	    let highMark = market.getRestingVal(good.id);
 	    let lowMark = market.getRestingVal(good.id) / 3; // could also use 2
 	    let distance = highMark - lowMark;
-		AutoPlay.goodsList[good.id] = { min:price, max:price, 
+		AutoPlay.goodsList[good.id] = { min:price, max:price, delta:5,
 		  sellHigh:highMark, sellLow:(highMark-distance/4), 
 		  buyHigh:(lowMark+distance/2), buyMedium:(lowMark+distance/4),
 		  buyLow:lowMark
@@ -810,22 +810,28 @@ if (AutoPlay.infoCollect) {
 	  if (goodItem.min > price) goodItem.min = price;
 	  if (goodItem.max < price) goodItem.max = price;
 	  if (good.stock < maxStock) { // can buy more
-	    var buyHigh = buyLow + distance/2;
-	    var buyMedium = buyLow + distance/4;
-	    if (price < goodItem.buyLow) { // it is very cheap
-		  market.buyGood(good.id,10000); // buy all
-	    } else if (price < goodItem.buyMedium) { // it is reasonable
-		  market.buyGood(good.id, maxStock*0.8 - good.stock); // buy 60%
-	    } else if (price < goodItem.buyHigh) { // it is affordable
-		  market.buyGood(good.id, maxStock*0.6 - good.stock); // buy 30%
+	    if (price - goodItem.delta > goodItem.min) { // price is rising: buy
+          if (gooditem.min < goodItem.buyLow) { // it is very cheap
+		    market.buyGood(good.id,10000); // buy all
+		    goodItem.max = price;
+	      } else if (goodItem.min < goodItem.buyMedium) { // it is reasonable
+		    market.buyGood(good.id, maxStock*0.8 - good.stock); // buy 60%
+		    goodItem.max = price;
+	      } else if (goodItem.min < goodItem.buyHigh) { // it is affordable
+		    market.buyGood(good.id, maxStock*0.6 - good.stock); // buy 30%
+		    goodItem.max = price;
+		  }
 	    } 
 	  }
 	  if (good.stock > 0) { // have something to sell
-    	var sellLow = sellHigh - distance/4;
-	    if (price > goodItem.sellHigh) { // it is very expensive
-		  market.sellGood(good.id,10000); // sell all
-	    } else if (price > goodItem.sellLow) { // it is reasonable
-		  market.sellGood(good.id,good.stock - maxStock*0.7); // sell 50%
+	    if (price + goodItem.delta < goodItem.max) { // price is dropping: sell
+	      if (goodItem.max > goodItem.sellHigh) {
+		    market.sellGood(good.id,10000); // it is very expensive, sell all
+		    goodItem.min = price;
+	      } else if (goodItem.max > goodItem.sellLow) { // it is reasonable
+		    market.sellGood(good.id,good.stock - maxStock*0.7); // sell 50%
+		    goodItem.min = price;
+		  }
 	    } 
 	  }
 	}
