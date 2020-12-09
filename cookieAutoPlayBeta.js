@@ -1350,6 +1350,25 @@ AutoPlay.handleWrinklers = function() {
   }
 }
 
+/* old handling of wrinklers
+  if (doPop) {
+	AutoPlay.setDeadline(AutoPlay.now+20000);
+    AutoPlay.poppingWrinklers = true;
+    AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
+    Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
+  } else if ((((AutoPlay.now-Game.startDate) > 10*24*60*60*1000) || AutoPlay.grinding()) && 
+            !AutoPlay.endPhase() && !AutoPlay.wantAscend) {
+    AutoPlay.addActivity("Popping one wrinkler per 2 hours, last " + 
+	  (((AutoPlay.now-AutoPlay.wrinklerTime)/1000/60)>>0) + " minutes ago.");
+	if (AutoPlay.now-AutoPlay.wrinklerTime >= 2*60*60*1000) {
+      var w = Game.wrinklers[AutoPlay.nextWrinkler];
+	  if (w.close==1) w.hp = 0;
+	  AutoPlay.wrinklerTime=AutoPlay.now;
+	  AutoPlay.nextWrinkler=(AutoPlay.nextWrinkler+1)%Game.getWrinklersMax();
+	}
+  }
+*/
+
 AutoPlay.findNextWrinkler = function() {
   let next = -1;
   let maxSucked = 0;
