@@ -832,9 +832,9 @@ if (AutoPlay.infoCollect) {
 		    market.sellGood(good.id,10000); // it is very expensive, sell all
 		    goodItem.min = price;
 	      } else if (goodItem.max > goodItem.sellLow) { // it is reasonable
-			if (good.stock - maxStock*0.7 > 1)
+			if (good.stock - maxStock*0.3 > 1)
               AutoPlay.info("sell 70% "+good.symbol+" at "+(price<<0)+" min "+(goodItem.min<<0)+" max "+(goodItem.max<<0));
-		    market.sellGood(good.id,good.stock - maxStock*0.7); // sell 70%
+		    market.sellGood(good.id,good.stock - maxStock*0.3); // sell 70%
 		    goodItem.min = price;
 		  }
 	    } 
