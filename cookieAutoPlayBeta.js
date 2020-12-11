@@ -1435,7 +1435,6 @@ AutoPlay.handleAscend = function() {
     AutoPlay.doAscend("reborn mode did not work, retry.",0);
   if (AutoPlay.preNightMode() && AutoPlay.Config.NightMode>0) 
     return; //do not ascend right before the night 
-  var daysInRun = (AutoPlay.now-Game.startDate)/1000/60/60/24;
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && 
       !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) { 
     // this costs approx. 2 minutes per 2 ascend
@@ -1457,15 +1456,20 @@ AutoPlay.handleAscend = function() {
 	    AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent) 
 	  AutoPlay.doAscend("go for 100 ascends",0);
   }
-  var extraDaysInRun = 
-        daysInRun + daysInRun*Game.ascendMeterLevel/(Game.prestige+1000000000);
-  if (AutoPlay.grinding() && !AutoPlay.wantAscend) 
-    AutoPlay.addActivity("Still " + (40-(extraDaysInRun<<0)) + 
-        " days until next hard ascend.");
-  if (extraDaysInRun>40) {
-	for (var x = Game.cookies; x>10; x/=10);
-	if (x<9) AutoPlay.doAscend("ascend after " + (daysInRun<<0) + 
-               " days just while waiting for next achievement.",1);
+  var daysInRun = (AutoPlay.now-Game.startDate)/1000/60/60/24;
+  if (AutoPlay.nextAchievement==463 && Game.Objects["Bank"].minigame.profit > daysInRun*300000) {
+    AutoPlay.addActivity("Making money in stock market for achievements.");
+  } else {
+    var extraDaysInRun = 
+          daysInRun + daysInRun*Game.ascendMeterLevel/(Game.prestige+1000000000);
+    if (AutoPlay.grinding() && !AutoPlay.wantAscend) 
+      AutoPlay.addActivity("Still " + (40-(extraDaysInRun<<0)) + 
+          " days until next hard ascend.");
+    if (extraDaysInRun>40) {
+	  for (var x = Game.cookies; x>10; x/=10);
+	  if (x<9) AutoPlay.doAscend("ascend after " + (daysInRun<<0) + 
+                 " days just while waiting for next achievement.",1);
+    }
   }
   var newPrestige = (Game.prestige+Game.ascendMeterLevel)%1000000;
   if (AutoPlay.grinding() && !Game.Upgrades["Lucky digit"].bought && 
