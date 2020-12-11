@@ -807,7 +807,7 @@ if (AutoPlay.infoCollect) {
 	  if (goodItem.min > price) goodItem.min = price;
 	  if (goodItem.max < price) goodItem.max = price;
 	  if (good.stock < maxStock) { // can buy more
-	    if (price - goodItem.delta > goodItem.min) { // price is rising: buy
+	    if (price - goodItem.delta > goodItem.min && price < goodItem.buyHigh) { // price is rising: buy
           if (goodItem.min < goodItem.buyLow) { // it is very cheap
             AutoPlay.info("buy 100% "+good.symbol+" at "+(price<<0)+" min "+(goodItem.min<<0)+" max "+(goodItem.max<<0));
 		    market.buyGood(good.id,10000); // buy all
@@ -815,18 +815,18 @@ if (AutoPlay.infoCollect) {
 	      } else if (goodItem.min < goodItem.buyMedium) { // it is reasonable
 			if (maxStock*0.8 - good.stock > 1)
               AutoPlay.info("buy 80% "+good.symbol+" at "+(price<<0)+" min "+(goodItem.min<<0)+" max "+(goodItem.max<<0));
-		    market.buyGood(good.id, maxStock*0.8 - good.stock); // buy 80%
+		    market.buyGood(good.id, (maxStock*0.8-good.stock)<<0); // buy 80%
 		    goodItem.max = price;
 	      } else if (goodItem.min < goodItem.buyHigh) { // it is affordable
 			if (maxStock*0.6 - good.stock > 1)
               AutoPlay.info("buy 60% "+good.symbol+" at "+(price<<0)+" min "+(goodItem.min<<0)+" max "+(goodItem.max<<0));
-		    market.buyGood(good.id, maxStock*0.6 - good.stock); // buy 60%
+		    market.buyGood(good.id, (maxStock*0.6-good.stock)<<0); // buy 60%
 		    goodItem.max = price;
 		  }
 	    } 
 	  }
 	  if (good.stock > 0) { // have something to sell
-	    if (price + goodItem.delta < goodItem.max) { // price is dropping: sell
+	    if (price + goodItem.delta < goodItem.max && price > goodItem.sellLow) { // price is dropping: sell
 	      if (goodItem.max > goodItem.sellHigh) {
             AutoPlay.info("sell 100% "+good.symbol+" at "+(price<<0)+" min "+(goodItem.min<<0)+" max "+(goodItem.max<<0));
 		    market.sellGood(good.id,10000); // it is very expensive, sell all
@@ -834,7 +834,7 @@ if (AutoPlay.infoCollect) {
 	      } else if (goodItem.max > goodItem.sellLow) { // it is reasonable
 			if (good.stock - maxStock*0.3 > 1)
               AutoPlay.info("sell 70% "+good.symbol+" at "+(price<<0)+" min "+(goodItem.min<<0)+" max "+(goodItem.max<<0));
-		    market.sellGood(good.id,good.stock - maxStock*0.3); // sell 70%
+		    market.sellGood(good.id, (good.stock-maxStock*0.3)<<0); // sell 70%
 		    goodItem.min = price;
 		  }
 	    } 
