@@ -1392,6 +1392,10 @@ AutoPlay.handleSmallAchievements = function() {
 	Game.Win("Cheated cookies taste awful"); // take this after all is done
   if (!Game.Achievements["Third-party"].won) 
 	Game.Win("Third-party"); // cookie bot is a third party itself
+  if (!Game.Achievements["Olden days"].won) { // could try to click on the madeleine
+    AutoPlay.info("found the forgotten madeleine at the very bottom of the \"Info\" menu");
+    Game.Win("Olden days");
+  }
   if (!Game.Achievements["Cookie-dunker"].won && Game.milkProgress>1 && Game.milkHd>0.34) {
 	if (AutoPlay.backupHeight) { 
 	  Game.LeftBackground.canvas.height = AutoPlay.backupHeight; 
