@@ -516,7 +516,7 @@ AutoPlay.handleSeasons = function() {
 	AutoPlay.addActivity('Waiting for all results in '+Game.season+'.'); 
 }
 
-AutoPlay.valentineUpgrades = range(169,174);
+AutoPlay.valentineUpgrades = range(169,174).concat([645]);
 AutoPlay.christmasUpgrades = [168];  // just wait for dominion
 AutoPlay.easterUpgrades = range(210,229);
 AutoPlay.halloweenUpgrades = range(134,140);
@@ -1457,7 +1457,7 @@ AutoPlay.handleAscend = function() {
 	  AutoPlay.doAscend("go for 100 ascends",0);
   }
   var daysInRun = (AutoPlay.now-Game.startDate)/1000/60/60/24;
-  if (AutoPlay.nextAchievement==463 && Game.Objects["Bank"].minigame.profit > daysInRun*300000) {
+  if (AutoPlay.nextAchievement==463 && daysInRun > 10 && Game.Objects["Bank"].minigame.profit > daysInRun*300000) {
     AutoPlay.addActivity("Making money in stock market for achievements.");
   } else {
     var extraDaysInRun = 
