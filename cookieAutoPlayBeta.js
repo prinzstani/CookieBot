@@ -113,8 +113,10 @@ AutoPlay.preNightMode = function() {
 AutoPlay.nightMode = function() { 
   if (Game.OnAscend) return false;
   if (AutoPlay.Config.NightMode==0) return false;
-  if (AutoPlay.Config.NightMode==1 && AutoPlay.grinding() && !AutoPlay.endPhase()) 
+  if (AutoPlay.Config.NightMode==1 && AutoPlay.grinding() && !AutoPlay.endPhase()) {
+    AutoPlay.addActivity('Grinding cookies - do not sleep at night.');
 	return false; //do not auto-sleep while grinding
+  }
   var h = (new Date).getHours();
   if (AutoPlay.preNightMode()) AutoPlay.setDeadline(0);
   if (h>=7 && h<23) { // be active
@@ -1665,20 +1667,6 @@ AutoPlay.leaveGame = function() {
   return true;
 }
 
-AutoPlay.findMissingAchievements = function() { // just for testing purposes
-  for (var i in Game.Achievements) {
-    var me = Game.Achievements[i];
-    if (!me.won && me.pool!="dungeon") { // missing achievement
-      AutoPlay.info("missing achievement #" + me.id + ": " + me.desc.replace(/<q>.*?<\/q>/ig, ''));
-  } }
-  for (var i in Game.Upgrades) {
-    var me=Game.Upgrades[i];
-    if (me.pool=='prestige' && !me.bought) { // missing prestige upgrade
-      AutoPlay.info("prestige upgrade " + me.name + " is missing.");
-    } 
-  } 
-}
-
 //===================== Handle Heavenly Upgrades ==========================
 AutoPlay.prioUpgrades = [363, 323, // legacy, dragon 
   411, 412, 413, // lucky upgrades, 
@@ -1808,6 +1796,7 @@ AutoPlay.petDragon = function() {
     var drops=['Dragon scale','Dragon claw','Dragon fang','Dragon teddy bear'];
     for (var drop of drops) {
       if (!Game.Has(drop) && !Game.HasUnlocked(drop)) { // still something we can get
+        AutoPlay.addActivity("Petting the dragon.");
         Game.specialTab = "dragon";
         Game.ToggleSpecialMenu(1);
         Game.ClickSpecialPic();
@@ -1960,11 +1949,10 @@ AutoPlay.info = function(s) {
   Game.Notify("CookieBot",s,1,100); 
 }
 
-AutoPlay.status = function() {
-  AutoPlay.info("testing.");
+AutoPlay.status = function() { // just for testing purposes
   for (var a in Game.Achievements) {
 	var me = Game.Achievements[a];
-	if (!me.won && me.pool!="dungeon") {
+	if (!me.won && me.pool!="dungeon") { // missing achievement
 	  AutoPlay.info("Missing achievement #" + me.id + 
 	    ": " + me.desc.replace(/<q>.*?<\/q>/ig, '') + ".");
 	}
