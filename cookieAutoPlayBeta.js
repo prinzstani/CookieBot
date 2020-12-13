@@ -4,7 +4,7 @@
 var AutoPlay;
 
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.025";
+AutoPlay.version = "2.026";
 AutoPlay.gameVersion = "2.031";
 AutoPlay.robotName = "Automated ";
 AutoPlay.delay = 0;
@@ -29,7 +29,7 @@ AutoPlay.run = function() {
   }
   AutoPlay.activities = AutoPlay.mainActivity;
   AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
-  if (AutoPlay.nightMode()) { 
+  if (AutoPlay.nightMode() && !Game.ascensionMode) { 
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT); 
 	return; 
   }
@@ -114,7 +114,6 @@ AutoPlay.nightMode = function() {
   if (Game.OnAscend) return false;
   if (AutoPlay.Config.NightMode==0) return false;
   if (AutoPlay.Config.NightMode==1 && AutoPlay.grinding() && !AutoPlay.endPhase()) {
-    AutoPlay.addActivity('Grinding cookies - do not sleep at night.');
 	return false; //do not auto-sleep while grinding
   }
   var h = (new Date).getHours();
@@ -618,7 +617,7 @@ AutoPlay.useLump = function() { // recursive call to handle many sugar lumps
   } 
   AutoPlay.canUseLumps = true;
   for (var i = Game.ObjectsById.length-1; i>=0; i--) {
-    var me = Game.ObjectsById[i]; 
+    var me = Game.ObjectsById[i];
     if (me.level<10) {
       if (me.level+100<Game.lumps) {
         me.levelUp(); AutoPlay.useLump(); return;
@@ -626,6 +625,14 @@ AutoPlay.useLump = function() { // recursive call to handle many sugar lumps
         AutoPlay.canUseLumps = false;
       }
     } 
+  }
+  var me = Game.Objects["Cursor"]; // 20 cursors for luminous gloves
+  if (me.level<20) {
+    if (me.level+100<Game.lumps) {
+      me.levelUp(); AutoPlay.useLump(); return;
+    } else {
+      AutoPlay.canUseLumps = false;
+    }
   }
 }
 
@@ -1462,13 +1469,14 @@ AutoPlay.handleAscend = function() {
   if (AutoPlay.nextAchievement==463 && daysInRun > 10 && Game.Objects["Bank"].minigame.profit > daysInRun*300000) {
     AutoPlay.addActivity("Making money in stock market for achievements.");
   } else {
-    var extraDaysInRun = 
-          daysInRun + daysInRun*Game.ascendMeterLevel/(Game.prestige+1000000000);
+    var maxDaysInRun = 
+          40*(Game.prestige+1000000000)/(Game.prestige+Game.ascendMeterLevel);
     if (AutoPlay.grinding() && !AutoPlay.wantAscend) 
-      AutoPlay.addActivity("Still " + (40-(extraDaysInRun<<0)) + 
+      AutoPlay.addActivity("Still " + ((maxDaysInRun-daysInRun)<<0) + 
           " days until next hard ascend.");
-    if (extraDaysInRun>40) {
-	  for (var x = Game.cookies; x>10; x/=10);
+    if (daysInRun>maxDaysInRun) {
+	  for (var x = Game.cookiesEarned; x>10; x/=10);
+	  // do not ascend if the first digit of the total cookies is a 9
 	  if (x<9) AutoPlay.doAscend("ascend after " + (daysInRun<<0) + 
                  " days just while waiting for next achievement.",1);
     }
@@ -1599,7 +1607,14 @@ AutoPlay.endPhase = function() {
   return AutoPlay.wantedAchievements.indexOf(AutoPlay.nextAchievement)<0; 
 }
 
-AutoPlay.grinding = function() { return Game.AchievementsById[534].won; }
+AutoPlay.grinding = function() { 
+  if (Game.AchievementsById[534].won) {
+    if (!AutoPlay.endPhase())
+      AutoPlay.addActivity('Grinding cookies - do not sleep at night.');
+	return true;
+  }
+  return false; 
+}
 
 AutoPlay.mainActivity = "Doing nothing in particular.";
 AutoPlay.activities = AutoPlay.mainActivity;
