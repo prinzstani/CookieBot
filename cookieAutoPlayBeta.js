@@ -776,41 +776,6 @@ AutoPlay.handleMinigames = function() {
     for (var g in market.goods) {
 	  let good = market.goods[g];
 	  let price = market.getGoodPrice(good);
-// ***********************
-if (AutoPlay.infoCollect) {
-	AutoPlay.addActivity("collecting info from stock market");
-      if (good.min==0) {
-		if (good.max<price) {
-		  good.max=price;
-		  good.thisETime=AutoPlay.now;
-		} else if (good.max-5 > price) {
-		  let timing=((good.thisETime-good.lastETime)/1000/60)<<0;
-		  let lating=((AutoPlay.now-good.thisETime)/1000/60)<<0;
-		  AutoPlay.info("found max for "+good.symbol+" = "+(good.max<<0)+" after "+timing+" minutes with delta "+((good.max-good.lastExtreme)<<0)+", detected at "+(price<<0)+", "+lating+" minutes too late.");
-		  AutoPlay.infoLog("found max for "+good.symbol+" = "+(good.max<<0)+" after "+timing+" minutes with delta "+((good.max-good.lastExtreme)<<0)+", detected at "+(price<<0)+", "+lating+" minutes too late.");
-		  good.lastExtreme=good.max;
-		  good.lastETime=good.thisETime;
-		  good.min=price;
-		  good.thisETime=AutoPlay.now;
-		}
-	  } else {
-		if (good.min>price) {
-		  good.min=price;
-		  good.thisETime=AutoPlay.now;
-		} else if (good.min+5 < price) {
-		  let timing=((good.thisETime-good.lastETime)/1000/60)<<0;
-		  let lating=((AutoPlay.now-good.thisETime)/1000/60)<<0;
-		  AutoPlay.info("found min for "+good.symbol+" = "+(good.min<<0)+" after "+timing+" minutes with delta "+((good.lastExtreme-good.min)<<0)+", detected at "+(price<<0)+", "+lating+" minutes too late.");
-		  AutoPlay.infoLog("found min for "+good.symbol+" = "+(good.min<<0)+" after "+timing+" minutes with delta "+((good.lastExtreme-good.min)<<0)+", detected at "+(price<<0)+", "+lating+" minutes too late.");
-		  good.lastExtreme=good.min;
-		  good.lastETime=good.thisETime;
-		  good.max=price;
-		  good.min=0;
-		  good.thisETime=AutoPlay.now;
-		}
-	  }
-}
-// ***********************
 	  var maxStock = market.getGoodMaxStock(good);
 	  let goodItem = AutoPlay.goodsList[good.id];
 	  if (goodItem.min > price) goodItem.min = price;
@@ -818,17 +783,12 @@ if (AutoPlay.infoCollect) {
 	  if (good.stock < maxStock) { // can buy more
 	    if (price - goodItem.delta > goodItem.min && price < goodItem.buyHigh) { // price is rising: buy
           if (goodItem.min < goodItem.buyLow) { // it is very cheap
-            AutoPlay.info("buy 100% "+good.symbol+" at "+(price<<0)+" min "+(goodItem.min<<0)+" max "+(goodItem.max<<0));
 		    market.buyGood(good.id,10000); // buy all
 		    goodItem.max = price;
 	      } else if (goodItem.min < goodItem.buyMedium) { // it is reasonable
-			if (maxStock*0.8 - good.stock > 1)
-              AutoPlay.info("buy 80% "+good.symbol+" at "+(price<<0)+" min "+(goodItem.min<<0)+" max "+(goodItem.max<<0));
 		    market.buyGood(good.id, (maxStock*0.8-good.stock)<<0); // buy 80%
 		    goodItem.max = price;
 	      } else if (goodItem.min < goodItem.buyHigh) { // it is affordable
-			if (maxStock*0.6 - good.stock > 1)
-              AutoPlay.info("buy 60% "+good.symbol+" at "+(price<<0)+" min "+(goodItem.min<<0)+" max "+(goodItem.max<<0));
 		    market.buyGood(good.id, (maxStock*0.6-good.stock)<<0); // buy 60%
 		    goodItem.max = price;
 		  }
@@ -837,12 +797,9 @@ if (AutoPlay.infoCollect) {
 	  if (good.stock > 0) { // have something to sell
 	    if (price + goodItem.delta < goodItem.max && price > goodItem.sellLow) { // price is dropping: sell
 	      if (goodItem.max > goodItem.sellHigh) {
-            AutoPlay.info("sell 100% "+good.symbol+" at "+(price<<0)+" min "+(goodItem.min<<0)+" max "+(goodItem.max<<0));
 		    market.sellGood(good.id,10000); // it is very expensive, sell all
 		    goodItem.min = price;
 	      } else if (goodItem.max > goodItem.sellLow) { // it is reasonable
-			if (good.stock - maxStock*0.3 > 1)
-              AutoPlay.info("sell 70% "+good.symbol+" at "+(price<<0)+" min "+(goodItem.min<<0)+" max "+(goodItem.max<<0));
 		    market.sellGood(good.id, (good.stock-maxStock*0.3)<<0); // sell 70%
 		    goodItem.min = price;
 		  }
@@ -1430,6 +1387,7 @@ AutoPlay.unDunk = function() {
 AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 AutoPlay.wantAscend = false;
 
+AutoPlay.lastPrestige=0;
 AutoPlay.handleAscend = function() {
   if (Game.OnAscend) { 
     AutoPlay.doReincarnate(); 
@@ -1481,20 +1439,26 @@ AutoPlay.handleAscend = function() {
                  " days just while waiting for next achievement.",1);
     }
   }
-  var newPrestige = (Game.prestige+Game.ascendMeterLevel)%1000000;
-  if (AutoPlay.grinding() && !Game.Upgrades["Lucky digit"].bought && 
-      Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) 
+  if (!Game.Upgrades["Lucky digit"].bought && Game.heavenlyChips>777 && 
+      Game.ascendMeterLevel>0 && Game.ascendMeterLevel<20 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) 
 	AutoPlay.doAscend("ascend for heavenly upgrade lucky digit.",0);
-  if (AutoPlay.grinding() && !Game.Upgrades["Lucky number"].bought && 
-      Game.ascendMeterLevel>0 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) 
+  if (!Game.Upgrades["Lucky number"].bought && Game.heavenlyChips>77777 &&
+      Game.ascendMeterLevel>0 && Game.ascendMeterLevel<200 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) 
     AutoPlay.doAscend("ascend for heavenly upgrade lucky number.",0);
-  if (AutoPlay.grinding() && !Game.Upgrades["Lucky payout"].bought && 
-      Game.heavenlyChips>77777777) {
+  if (!Game.Upgrades["Lucky payout"].bought && Game.heavenlyChips>77777777) {
+    var newPrestige = (Game.prestige+Game.ascendMeterLevel)%1000000;
+	if (Game.prestige == Game.prestige+1) {
+	// cannot get just one heavenly chip
+      if (!AutoPlay.lastPrestige) AutoPlay.info("Impossible to get lucky payout - cheating it");
+	  AutoPlay.lastPrestige=Game.prestige%1000000;
+	}
     AutoPlay.wantAscend = true; //avoid buying plants
     AutoPlay.setDeadline(0);
     AutoPlay.addActivity("Trying to get heavenly upgrade Lucky Payout.");
-    if (Game.ascendMeterLevel>0 && (newPrestige <= 777777) && 
+    if (Game.ascendMeterLevel>0 && Game.prestige%1000000 < 777777 && 
 	    (newPrestige+Game.ascendMeterLevel >= 777777))
+      AutoPlay.doAscend("ascend for heavenly upgrade lucky payout.",0);
+    if (Game.prestige%1000000 >= 777777 && Game.ascendMeterLevel>500000)
       AutoPlay.doAscend("ascend for heavenly upgrade lucky payout.",0);
   }
   if (!Game.Upgrades["Season switcher"].bought && 
@@ -1707,6 +1671,14 @@ AutoPlay.buyHeavenlyUpgrades = function() {
 	  AutoPlay.info("buying "+e.name); 
 	} 
   });
+  if (AutoPlay.lastPrestige!=0 && !Game.Upgrades["Lucky payout"].bought) {
+    AutoPlay.info("Partly cheating lucky payout - cannot be bought regularly");
+	if (AutoPlay.lastPrestige<777777 && Game.prestige%1000000 > 777777) {
+      Game.Upgrades["Lucky digit"].unlocked=1;
+      Game.Upgrades["Lucky number"].unlocked=1;
+      Game.Upgrades["Lucky payout"].unlocked=1;
+    }
+  }
   Game.UpgradesById.forEach(function(e) { 
     if (e.canBePurchased && !e.bought && e.buy(true)) { 
 	  AutoPlay.info("buying "+e.name); 
