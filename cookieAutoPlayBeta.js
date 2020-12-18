@@ -4,7 +4,7 @@
 var AutoPlay;
 
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.026";
+AutoPlay.version = "2.027";
 AutoPlay.gameVersion = "2.031";
 AutoPlay.robotName = "Automated ";
 AutoPlay.delay = 0;
@@ -463,6 +463,11 @@ AutoPlay.handleBuildings = function() {
   if (Game.buyMode==-1) Game.storeBulkButton(0);
   if ((AutoPlay.now-Game.startDate) > 10*60*1000) 
     buyAmount = 1; // buy single after 10 minutes
+  var maxBuilding = Game.ObjectsById[Game.ObjectsById.length-1];
+  if (maxBuilding.getSumPrice(100) < Game.cookies - AutoPlay.savingsGoal)
+    buyAmount = 100;
+  else if (maxBuilding.getSumPrice(10) < Game.cookies - AutoPlay.savingsGoal)
+    buyAmount = 10;
   if (Game.resets && Game.ascensionMode!=1 && 
       Game.isMinigameReady(Game.Objects["Temple"]) && 
       Game.Objects["Temple"].minigame.slot[0]==10 && // Rigidel is in slot 0
@@ -1408,9 +1413,9 @@ AutoPlay.handleAscend = function() {
     AutoPlay.activities = "Going for 1000 ascends.";
     AutoPlay.setDeadline(0);
     AutoPlay.wantAscend = true; //avoid byuing plants
-    if ((Game.ascendMeterLevel>0) && 
+    if ((Game.ascendMeterLevel>0) /*&& 
          (AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent || 
-	        (Game.prestige+Game.ascendMeterLevel)%1000==777)) 
+	        (Game.prestige+Game.ascendMeterLevel)%1000==777)*/) 
 	  AutoPlay.doAscend("go for 1000 ascends",0);
   }
   if (Game.Upgrades["Permanent upgrade slot V"].bought && 
