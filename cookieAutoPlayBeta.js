@@ -461,13 +461,14 @@ AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, ...
 AutoPlay.handleBuildings = function() {
   var buyAmount = 100, checkAmount = 1;
   if (Game.buyMode==-1) Game.storeBulkButton(0);
-  if ((AutoPlay.now-Game.startDate) > 10*60*1000) 
+  if ((AutoPlay.now-Game.startDate) > 10*60*1000) {
     buyAmount = 1; // buy single after 10 minutes
-  var maxBuilding = Game.ObjectsById[Game.ObjectsById.length-1];
-  if (maxBuilding.getSumPrice(100) < Game.cookies - AutoPlay.savingsGoal)
-    buyAmount = 100;
-  else if (maxBuilding.getSumPrice(10) < Game.cookies - AutoPlay.savingsGoal)
-    buyAmount = 10;
+    var maxBuilding = Game.ObjectsById[Game.ObjectsById.length-1];
+    if (maxBuilding.getSumPrice(100) < Game.cookies - AutoPlay.savingsGoal)
+      buyAmount = 100;
+    else if (maxBuilding.getSumPrice(10) < Game.cookies - AutoPlay.savingsGoal)
+      buyAmount = 10;
+  }
   if (Game.resets && Game.ascensionMode!=1 && 
       Game.isMinigameReady(Game.Objects["Temple"]) && 
       Game.Objects["Temple"].minigame.slot[0]==10 && // Rigidel is in slot 0
