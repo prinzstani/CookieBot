@@ -222,6 +222,10 @@ AutoPlay.speedClicking = function() {
 //
 //======================== Handle Savings Calculation =========================
 AutoPlay.handleSavings = function() {
+  if (Game.ascensionMode==1) { // do not save in reborn mode
+    AutoPlay.savingsGoal = 0;
+    return;
+  }
   if (AutoPlay.Config.SavingStrategy == 0) {  // None
     AutoPlay.savingsGoal = 0;
     return;
