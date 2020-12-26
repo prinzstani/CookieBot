@@ -28,6 +28,7 @@ AutoPlay.run = function() {
 	return; 
   }
   AutoPlay.activities = AutoPlay.mainActivity;
+  AutoPlay.status(false);
   AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   if (AutoPlay.nightMode() && !Game.ascensionMode) { 
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT); 
@@ -1970,20 +1971,29 @@ AutoPlay.info = function(s) {
   Game.Notify("CookieBot",s,1,100); 
 }
 
-AutoPlay.status = function() { // just for testing purposes
+AutoPlay.status = function(print=true) { // just for testing purposes
+  var ach=0;
+  var sach=0;
+  var up=0;
+  let nonUp=[71,72,73,87,227];
   for (var a in Game.Achievements) {
 	var me = Game.Achievements[a];
 	if (!me.won && me.pool!="dungeon") { // missing achievement
-	  AutoPlay.info("Missing achievement #" + me.id + 
+	  if (print) AutoPlay.info("Missing achievement #" + me.id + 
 	    ": " + me.desc.replace(/<q>.*?<\/q>/ig, '') + ".");
+      if (me.pool=="shadow") sach++; 
+	  ach++;
 	}
   }
   for (var i in Game.Upgrades) {
     var me = Game.Upgrades[i];
-    if (!me.unlocked && me.pool!="debug" && me.pool!="toggle") {
-      AutoPlay.info("Upgrade " + me.name + " is missing.");
+    if (!me.bought && me.pool!="debug" && me.pool!="toggle") {
+      if (Game.resets && nonUp.includes(me.id)) continue;
+      if (print) AutoPlay.info("Upgrade " + me.name + " is missing.");
+	  up++;
     } 
   }
+  AutoPlay.addActivity("Missing "+(ach)+" achievements ("+sach+" shadow) and "+up+" upgrades.");
 }
 
 AutoPlay.setDeadline = function(d) { 
