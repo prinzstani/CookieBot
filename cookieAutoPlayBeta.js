@@ -1020,7 +1020,7 @@ AutoPlay.planting = function(game) {
       [AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],3,3]];
 	if(game.isTileUnlocked(3,4)) 
 	  targets = targets.concat([[AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,4]]);
-  AutoPlay.plantSeeds(game, targets);
+    AutoPlay.plantSeeds(game, targets);
 	return;
   }
   AutoPlay.findPlants(game,1);
@@ -1145,50 +1145,56 @@ AutoPlay.plantSeeds = function(game, targets) {
 
 AutoPlay.seedCalendar = function(game,sector) {
   if (AutoPlay.wantAscend || AutoPlay.wantGardenSacrifice) return 'bakerWheat'; // plant cheap before ascend
-  AutoPlay.plantsMissing=false;
-  if (sector==0) AutoPlay.plantCookies = true;
+  if (sector==0) AutoPlay.plantsMissing = false;
   var doPrint = 
     (sector==0) || (sector!=3 && Game.Objects["Farm"].level==sector+6);
   if (!Game.Upgrades["Wheat slims"].unlocked && 
       game.plants["bakerWheat"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Wheat slims."); 
+    AutoPlay.plantCookies = true;
 	return "bakerWheat"; 
   }
   if (!Game.Upgrades["Elderwort biscuits"].unlocked && 
       game.plants["elderwort"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Elderwort cookies."); 
+    AutoPlay.plantCookies = true;
 	return "elderwort"; 
   }
   if (!Game.Upgrades["Bakeberry cookies"].unlocked && 
       game.plants["bakeberry"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Bakeberry cookies."); 
+    AutoPlay.plantCookies = true;
 	return "bakeberry"; 
   }
   if (!Game.Upgrades["Fern tea"].unlocked && 
       game.plants["drowsyfern"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Fern tea."); 
+    AutoPlay.plantCookies = true;
 	return "drowsyfern"; 
   }
   if (!Game.Upgrades["Duketater cookies"].unlocked && 
       game.plants["duketater"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Duketater cookies."); 
+    AutoPlay.plantCookies = true;
 	return "duketater"; 
   }
   if (!Game.Upgrades["Green yeast digestives"].unlocked && 
       game.plants["greenRot"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Green yeast digestives."); 
+    AutoPlay.plantCookies = true;
 	return "greenRot"; 
   }
   if (!Game.Upgrades["Ichor syrup"].unlocked && 
       game.plants["ichorpuff"].unlocked) { 
     AutoPlay.switchSoil(game,sector,'fertilizer'); 
 	if (doPrint) AutoPlay.addActivity("Trying to get Ichor syrup."); 
+    AutoPlay.plantCookies = true;
 	return "ichorpuff"; 
   }
   AutoPlay.plantCookies = false;
@@ -1282,7 +1288,8 @@ AutoPlay.harvesting = function(game) {
 		  }
 	    }
         if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature) 
-		  game.harvest(x,y); // is mature and can give cookies
+          if (!AutoPlay.plantsMissing || !game.isTileUnlocked(x-x%3,y-y%3))
+		    game.harvest(x,y); // is mature and can give cookies
         if (plant.ageTick+plant.ageTickR+tile[1] >= 100) 
 	      AutoPlay.harvest(game,x,y); // would die in next round
       } 
