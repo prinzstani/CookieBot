@@ -1410,7 +1410,7 @@ AutoPlay.handleAscend = function() {
     return; //do not ascend right before the night 
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won && 
       !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) { 
-    // this costs approx. 2 minutes per 2 ascend
+    // this costs approx. 1 minute per ascend
     AutoPlay.activities = "Going for 1000 ascends.";
     AutoPlay.setDeadline(0);
     AutoPlay.wantAscend = true; //avoid byuing plants
