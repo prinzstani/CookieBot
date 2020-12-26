@@ -144,6 +144,7 @@ AutoPlay.nightMode = function() {
   }
   AutoPlay.nightAtTemple(true);
   AutoPlay.nightAtGarden(true);
+  AutoPlay.nightAtStocks();
   AutoPlay.night = true;
   return true;
 }
@@ -746,7 +747,7 @@ AutoPlay.handleMinigames = function() {
 	}
   }
   // banks: stock market =============================
-  if (Game.isMinigameReady(Game.Objects["Bank"])) {
+  if (Game.isMinigameReady(Game.Objects["Bank"]) && !AutoPlay.wantAscend) {
     var market = Game.Objects["Bank"].minigame;
 	if (market.brokers < market.getMaxBrokers()) { // buy brokers
 	  if (100*market.getBrokerPrice() < Game.cookies) {
@@ -765,7 +766,7 @@ AutoPlay.handleMinigames = function() {
 	  }
 	}
 	if (!AutoPlay.goodsList) { // need to init goodsList
-	  AutoPlay.goodsList=[];var n=0;
+	  AutoPlay.goodsList=[];
       for (var g in market.goods) {
         let good = market.goods[g];
         let price = market.getGoodPrice(good);
@@ -838,6 +839,40 @@ AutoPlay.infoLog = function(info) {
 
 // ***********************
 
+AutoPlay.nightAtTemple = function(on) {
+  if (!Game.isMinigameReady(Game.Objects["Temple"])) return;
+  if (on) {
+    AutoPlay.removeSpirit(1,"decadence");
+    AutoPlay.removeSpirit(2,"labor");
+    AutoPlay.assignSpirit(1,"asceticism",1);
+    AutoPlay.assignSpirit(2,"industry",1);
+  } else {
+    AutoPlay.removeSpirit(1,"asceticism");
+  }
+}
+
+AutoPlay.nightAtStocks = function() {
+  if (!Game.isMinigameReady(Game.Objects["Bank"])) return;
+  var market = Game.Objects["Bank"].minigame;
+  for (var g in market.goods) {
+    let good = market.goods[g];
+	let price = market.getGoodPrice(good);
+	let goodItem = AutoPlay.goodsList[good.id];
+    if (price < goodItem.buyHigh) { // it is affordable
+	      market.buyGood(good.id,10000); // buy all
+	}
+	if (price > goodItem.sellLow) { // it is reasonable
+      market.sellGood(good.id,10000); // sell all
+	}
+  }
+}
+
+AutoPlay.nightAtGarden = function(on) {
+  if (!Game.isMinigameReady(Game.Objects["Farm"])) return;
+  if (on!=Game.Objects["Farm"].minigame.freeze) 
+	FireEvent(l('gardenTool-2'),'click'); // (un)freeze garden
+}
+
 AutoPlay.gardenUpgrades = range(470,476);
 
 AutoPlay.gardenSacrificeReady = function(g) {
@@ -857,24 +892,6 @@ AutoPlay.gardenReady = function(g) { // have all plants and all cookies
   return (Game.Objects["Farm"].level>8) &&
     (g.plantsUnlockedN==g.plantsN) &&
     AutoPlay.allUnlocked(AutoPlay.gardenUpgrades);
-}
-
-AutoPlay.nightAtTemple = function(on) {
-  if (!Game.isMinigameReady(Game.Objects["Temple"])) return;
-  if (on) {
-    AutoPlay.removeSpirit(1,"decadence");
-    AutoPlay.removeSpirit(2,"labor");
-    AutoPlay.assignSpirit(1,"asceticism",1);
-    AutoPlay.assignSpirit(2,"industry",1);
-  } else {
-    AutoPlay.removeSpirit(1,"asceticism");
-  }
-}
-
-AutoPlay.nightAtGarden = function(on) {
-  if (!Game.isMinigameReady(Game.Objects["Farm"])) return;
-  if (on!=Game.Objects["Farm"].minigame.freeze) 
-	FireEvent(l('gardenTool-2'),'click'); // (un)freeze garden
 }
 
 AutoPlay.plantDependencies = [ 
@@ -1424,7 +1441,7 @@ AutoPlay.handleAscend = function() {
     // this costs 3+2 minute per 2 ascend
     AutoPlay.activities = "Going for 100 ascends.";
     AutoPlay.setDeadline(0);
-    AutoPlay.wantAscend = true; //avoid byuing plants
+    AutoPlay.wantAscend = true; //avoid buying plants
     if (Game.ascendMeterLevel>0 && 
 	    AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent) 
 	  AutoPlay.doAscend("go for 100 ascends",0);
