@@ -2,10 +2,43 @@
 // see also https://github.com/prinzstani/CookieBot
 
 var AutoPlay;
-
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.027";
+AutoPlay.version = "2.028";
 AutoPlay.gameVersion = "2.031";
+
+//align for new version of cookie clicker
+AutoPlay.wantedAchievements = [82, 89, 108, // elder calm, 100 antimatter, halloween
+    225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 429, 451, 452, 453, 470, 471, 472, 534, 535, 536, // bake xx cookies
+    533, 530, 397]; // max cps, max buildings, ascend right
+AutoPlay.prioUpgrades = [363, 323, // legacy, dragon
+  411, 412, 413, // lucky upgrades,
+  264, 265, 266, 267, 268, 520, 181, // permanent slots, season switcher,
+  282, 283, 284, 291, 393, 394]; // better golden cookies, kittens, synergies
+AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494,613];
+AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189,660];
+AutoPlay.idleverses = [683,685,686,687,688,689,690,691,692,693,694,695,716];
+AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497,659,699];
+AutoPlay.expensive = [38,39,40,41,42,55,56,80,81,88,89,90,104,105,106,107,
+  120,121,122,123,150,151,256,257,258,259,260,261,262,263,
+  338,339,340,341,342,343,350,351,352,403,404,405,406,407,
+  444,445,446,447,448,453,454,455,456,457,458,464,465,466,467,468,469,
+  498,499,500,501,535,536,538,565,566,567,568,569,570,571,572,573,574,
+  575,576,577,578,579,580,581,582,583,584,585,586,587,588,
+  607,608,609,615,616,617,652,653,654,655,656,657,658,
+  678,679,680,681,682,721,722,723,724];
+AutoPlay.valentineUpgrades = range(169,174).concat([645]);
+AutoPlay.christmasUpgrades = [168];  // just wait for dominion
+AutoPlay.easterUpgrades = range(210,229);
+AutoPlay.halloweenUpgrades = range(134,140);
+AutoPlay.allSeasonUpgrades =
+  AutoPlay.valentineUpgrades.concat(AutoPlay.christmasUpgrades).
+  concat(AutoPlay.easterUpgrades).concat(AutoPlay.halloweenUpgrades);
+AutoPlay.level1Order = [2,6,7,5]; // unlocking in this order for the minigames
+AutoPlay.level10Order = [2,7,0]; // finishing in this order
+AutoPlay.lumpRelatedAchievements = range(307,320).concat([336,427,447,525,396,268,271]);
+AutoPlay.lumpHarvestAchievements = range(266,272).concat([396]);
+
+// cookie bot starting here
 AutoPlay.robotName = "Automated ";
 AutoPlay.delay = 0;
 AutoPlay.night = false;
@@ -37,7 +70,7 @@ AutoPlay.run = function() {
   AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
   // if high cps then do not wait
   if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0);
-  if (AutoPlay.plantPending || AutoPlay.harvestPlant)
+  if (AutoPlay.plantPending /*|| AutoPlay.harvestPlant*/)
     AutoPlay.addActivity("Wait with ascend until plants are harvested!");
   AutoPlay.handleClicking();
   AutoPlay.handleGoldenCookies();
@@ -529,14 +562,6 @@ AutoPlay.handleSeasons = function() {
     AutoPlay.addActivity('Waiting for all results in '+Game.season+'.');
 }
 
-AutoPlay.valentineUpgrades = range(169,174).concat([645]);
-AutoPlay.christmasUpgrades = [168];  // just wait for dominion
-AutoPlay.easterUpgrades = range(210,229);
-AutoPlay.halloweenUpgrades = range(134,140);
-AutoPlay.allSeasonUpgrades =
-  AutoPlay.valentineUpgrades.concat(AutoPlay.christmasUpgrades).
-  concat(AutoPlay.easterUpgrades).concat(AutoPlay.halloweenUpgrades);
-
 AutoPlay.allUnlocked = function(l) {
   return l.every(function (u) { return Game.UpgradesById[u].unlocked; });
 }
@@ -556,10 +581,7 @@ AutoPlay.seasonFinished = function(s) {
 }
 
 //===================== Handle Sugarlumps ==========================
-AutoPlay.level1Order = [2,6,7,5]; // unlocking in this order for the minigames
-AutoPlay.level10Order = [2,7,0]; // finishing in this order
 AutoPlay.minLumps = AutoPlay.level1Order.length+55*AutoPlay.level10Order.length;
-AutoPlay.lumpRelatedAchievements = range(307,320).concat([336,396,268,271]);
 
 AutoPlay.handleSugarLumps = function() {
   if (!Game.canLumps()) return; //do not work with sugar lumps before enabled
@@ -647,7 +669,6 @@ AutoPlay.useLump = function() { // recursive call to handle many sugar lumps
     }
   }
 }
-
 
 /* farming golden sugar lumps - not needed now since we cheat sugar lumps
 AutoPlay.copyWindows=[]; // need to init in the code some place
@@ -822,8 +843,6 @@ AutoPlay.handleMinigames = function() {
 }
 
 // ***********************
-AutoPlay.infoCollect=0;
-
 if (Game.isMinigameReady(Game.Objects["Bank"])) {
   var market = Game.Objects["Bank"].minigame;
   for (var g in market.goods) {
@@ -833,13 +852,6 @@ if (Game.isMinigameReady(Game.Objects["Bank"])) {
     good.lastExtreme=0;
     good.lastETime=0;
   }
-}
-
-AutoPlay.infoLog = function(info) {
-  try {
-    var before = window.localStorage.getItem("autoplayLog");
-    window.localStorage.setItem("autoplayLog",before+info+"\n");
-  } catch (e) {}
 }
 
 // ***********************
@@ -1563,7 +1575,7 @@ AutoPlay.mustRebornAscend = function() {
 }
 
 AutoPlay.doAscend = function(str,log) {
-  AutoPlay.wantAscend = AutoPlay.plantPending || AutoPlay.harvestPlant;
+  AutoPlay.wantAscend = AutoPlay.plantPending /*|| AutoPlay.harvestPlant*/;
   AutoPlay.addActivity("Preparing to ascend.");
   if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant
   if (Game.hasBuff("Sugar frenzy")) return; // do not ascend during sugar frenzy
@@ -1597,9 +1609,6 @@ AutoPlay.doAscend = function(str,log) {
 }
 
 //===================== Handle Achievements ==========================
-AutoPlay.wantedAchievements = [82, 89, 108, // elder calm, 100 antimatter, halloween
-    225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 429, 451, 452, 453, 470, 471, 472, 534, 535, 536, // bake xx cookies
-    533, 530, 397]; // max cps, max buildings, ascend right
 AutoPlay.nextAchievement=AutoPlay.wantedAchievements[0];
 
 AutoPlay.endPhase = function() {
@@ -1682,23 +1691,6 @@ AutoPlay.leaveGame = function() {
 }
 
 //===================== Handle Heavenly Upgrades ==========================
-AutoPlay.prioUpgrades = [363, 323, // legacy, dragon
-  411, 412, 413, // lucky upgrades,
-  264, 265, 266, 267, 268, 520, 181, // permanent slots, season switcher,
-  282, 283, 284, 291, 393, 394]; // better golden cookies, kittens, synergies
-AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494,613];
-AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189,660];
-AutoPlay.idleverses = [683,685,686,687,688,689,690,691,692,693,694,695,716];
-AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497,659,699];
-AutoPlay.expensive = [38,39,40,41,42,55,56,80,81,88,89,90,104,105,106,107,
-  120,121,122,123,150,151,256,257,258,259,260,261,262,263,
-  338,339,340,341,342,343,350,351,352,403,404,405,406,407,
-  444,445,446,447,448,453,454,455,456,457,458,464,465,466,467,468,469,
-  498,499,500,501,535,536,538,565,566,567,568,569,570,571,572,573,574,
-  575,576,577,578,579,580,581,582,583,584,585,586,587,588,
-  607,608,609,615,616,617,652,653,654,655,656,657,658,
-  678,679,680,681,682,721,722,723,724];
-
 AutoPlay.buyHeavenlyUpgrades = function() {
   AutoPlay.prioUpgrades.forEach(function(id) {
     var e = Game.UpgradesById[id];
@@ -1744,8 +1736,6 @@ AutoPlay.assignPermanentSlot = function(slot,options) {
 }
 
 //===================== Handle Dragon ==========================
-AutoPlay.lumpHarvestAchievements = range(266,272).concat([396]);
-
 AutoPlay.handleDragon = function() {
   var wantedAura=0;
   if (Game.Upgrades["A crumbly egg"].unlocked) {
