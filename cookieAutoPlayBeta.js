@@ -796,7 +796,7 @@ AutoPlay.handleMinigames = function() {
       for (var g in market.goods) {
         let good = market.goods[g];
         let price = market.getGoodPrice(good);
-        let highMark = market.getRestingVal(good.id);
+        let highMark = market.getRestingVal(good.id)+1;
         let lowMark = market.getRestingVal(good.id) / 3; // could also use 2
         let distance = highMark - lowMark;
         AutoPlay.goodsList[good.id] = { min:price, max:price, delta:(good.id>3)?5:2,

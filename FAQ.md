@@ -1,5 +1,7 @@
 # Cookie Bot Frequently Asked Questions
+
 ## General Questions
+
 ### The bot is not doing anything - what is wrong?
 When you start the bot on a new game of cookie clicker, it will wait for the true neverclick and the hardcore achievements and therefore not click or buy upgrades. Just be patient and wait.
 You can see the status of the bot when hovering over the version information of the bot (bottom left of game screen).
@@ -79,12 +81,7 @@ The following steps are taken, and if you start somewhere in the middle, the pro
 2. Get 100 antimatter condensers, develop the dragon with kitten aura, get the season switcher: this takes about 3 days
 3. Complete christmas, easter, valentine, and halloween: about 2 days
 4. With five permanent slots: get 1000 ascends; until then continue with step 5: about 2 days
-5. Get all "bake xx cookies" achievements & all building achievements: see below
-    1. Get all "bake xx cookies" achievements until 1 tredecillion: about 6 weeks
-    2. Get "bake 100 tredecillion cookies" achievement: about one month
-    3. Get "bake 1 quattuordecillion cookies" achievement: about two weeks
-    4. Get "bake 100 quattuordecillion cookies" achievement: about two months
-    5. Get "bake 1 quindecillion cookies" achievement: about one month
+5. Get all "bake xx cookies" achievements & all building achievements: about 5 months
 6. Get all shadow achievements and all the remaining achievements: about one month
 7. Get all the level 10 buildings: about six months
 8. Get the golden sugar lump: more than three more years
@@ -102,13 +99,21 @@ After seasons are enabled, the bot will go through each and complete them in the
 ### What is the wrinkler strategy?
 Wrinklers are normally left alone unless we need them to get easter eggs or other drop. In the endphase, wrinklers are popped in order to get the shiny wrinkler. During grinding, one wrinkler is popped per two hours to get more cookies for buying objects.
 
+### What is the strategy for lucky payout upgrade?
+In order to exactly match the 777777 for the lucky payout, the bot only goes to half the distance. 
+So if starting from 333333, it will only go to 555555 and then ascend. From 555555, it will ascend at 666666. 
+This makes it uncritical to go too high, as there is typically plenty of space left. 
+This approach ensures that the bot can get single prestige levels when it gets close to 777777.
+However, when the prestige level is too high, the precision of prestige makes it impossible to achieve single steps.
+In this case, the bot goes as close to 777777 as possible and the cheats the upgrade.
+
 ### What is the Grandmapocalypse strategy?
 In the first ascension, the bot will complete the Grandmapocalypse in order to get all the related achievements.
 After all the Grandmapocalypse achievements are in place, the bot will not buy Communal Brainsweep in subsequent runs.
 
 ## Minigame Strategy
 
-### What is the strategy for the garden?
+### What is the strategy for the Garden?
 At night, the garden is frozen.  During the day:
 1. Enable the garden minigame.
 2. Wait for MeddleWeed.
@@ -121,9 +126,21 @@ Step 3 may result in an empty garden as there is not enough money for the plants
 
 Currently, sugar lumps are the most precious resource, so the garden is used harvest more through sacrifices. Unfortunately, it is not possible to plant juicy queenbeets, which would solve the sugar lump problem. With frequent sacrifices, the garden produces around one extra sugar lump per day. This strategy halves the time for the level 10 achievements, but does not help for the golden sugar lump.
 
-### What is the strategy for the Grimoires?
-Grimoires will only cast "Hand of Fate" when there is already an active golden cookie. This is done in order to maybe get a sugar lump when the spell backfires. It also helps to maybe get the four-leaf cookie.
+### What is the strategy for the Stock Market?
+The bot is buying cheap and selling high. In this case, high means higher than the resting value of the stock, and low means 1/3 of the high.
+In order to have more flexibility, the bot uses also three intermediate points equally distributed between low and high, thus having five points: low, l, m, h, high. 
+The bot buys 100% below low, 80% below l, and 60% below m.
+The bot sells 100% above high, and 70% above h.
+For example, the bot will buy 100% CHC at 10, 80% at 15, and 60% at 20. The bot will sell 100% CHC at 30 and 70% at 25.
+As another example, the bot will buy 100% CKI at 50, 80% at 75, and 60% at 100. The bot will sell 100% CHC at 150 and 70% at 125.
+
+In addition, the bot follows the development and waits with buying (selling) as long as the price is dropping (rising).
+The buying strategy is likely to be changed in future releases.
+The bot does not use loans, but upgrades offices as much as possible and uses as many as possible brokers.
 
 ### What is the strategy for the Pantheon?
 Typically, we use the gods of mother, decadence and labor at daytime.
 At night, mother is replaced with asceticism. When the current sugar lump is almost ripe, the god of order is used in slot 1 to make it ripen sooner.
+
+### What is the strategy for the Grimoires?
+Grimoires will only cast "Hand of Fate" when there is already an active golden cookie. This is done in order to maybe get a sugar lump when the spell backfires. It also helps to maybe get the four-leaf cookie.
