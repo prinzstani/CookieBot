@@ -1616,7 +1616,8 @@ AutoPlay.endPhase = function() {
 }
 
 AutoPlay.grinding = function() {
-  if (Game.AchievementsById[534].won) {
+  let grindingStart=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-8];
+  if (Game.AchievementsById[grindingStart].won) { // grind for the last 5 big achievements
     if (!AutoPlay.endPhase())
       AutoPlay.addActivity('Grinding cookies - do not sleep at night.');
     return true;
