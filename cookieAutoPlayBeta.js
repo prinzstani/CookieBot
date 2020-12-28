@@ -91,7 +91,7 @@ AutoPlay.runJustRight = function() {
   AutoPlay.activities = "Running just right.";
   AutoPlay.handleAscend();
   if (Game.ObjectsById[Game.ObjectsById.length-1].amount)
-    AutoPlay.doAscend("Starting runJustRight properly.",0);
+    AutoPlay.doAscend("Starting to ascend just right properly.",0);
   const goal = 1000000000000;
   const notBuy = [0,1,2,3,4,5,6,129,324];
   if (Game.cookies<goal/10) { // buying buildings and upgrades
@@ -110,7 +110,7 @@ AutoPlay.runJustRight = function() {
       if (Math.round(Game.cookiesd)==goal)
         AutoPlay.doAscend("Fixed run just right.",1);
       else if ((cookieDiff < -goal) && (AutoPlay.now-Game.startDate>60000))
-        AutoPlay.doAscend("runJustRight does not work, retry.",0);
+        AutoPlay.doAscend("ascend just right did not work, retry.",0);
       else if (cookieDiff < -2000000000) Game.ObjectsById[0].buy(130+AutoPlay.runRightCount);
       else if (cookieDiff < -6000000) Game.ObjectsById[0].buy(90+AutoPlay.runRightCount);
       else if (cookieDiff < -30000) Game.ObjectsById[0].buy(50+AutoPlay.runRightCount);
@@ -1705,6 +1705,7 @@ AutoPlay.buyHeavenlyUpgrades = function() {
       Game.Upgrades["Lucky digit"].unlocked=1;
       Game.Upgrades["Lucky number"].unlocked=1;
       Game.Upgrades["Lucky payout"].unlocked=1;
+	  AutoPlay.lastPrestige=0;
     }
   }
   Game.UpgradesById.forEach(function(e) {
