@@ -1359,9 +1359,9 @@ AutoPlay.handleWrinklers = function() {
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
   } else {
     AutoPlay.findNextWrinkler();
+    AutoPlay.addActivity("Popping one wrinkler per two hours, last " +
+      (((AutoPlay.now-AutoPlay.wrinklerTime)/1000/60)>>0) + " minutes ago.");
     if (AutoPlay.nextWrinkler != -1) {
-      AutoPlay.addActivity("Popping one wrinkler per two hours, last " +
-        (((AutoPlay.now-AutoPlay.wrinklerTime)/1000/60)>>0) + " minutes ago.");
       if (AutoPlay.now-AutoPlay.wrinklerTime >= 2*60*60*1000) {
         Game.wrinklers[AutoPlay.nextWrinkler].hp = 0;  // pop
         AutoPlay.wrinklerTime = AutoPlay.now;
