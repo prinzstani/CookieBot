@@ -37,6 +37,8 @@ AutoPlay.level1Order = [2,6,7,5]; // unlocking in this order for the minigames
 AutoPlay.level10Order = [2,7,0]; // finishing in this order
 AutoPlay.lumpRelatedAchievements = range(307,320).concat([336,427,447,525,396,268,271]);
 AutoPlay.lumpHarvestAchievements = range(266,272).concat([396]);
+// 27k golden cookies, shiny wrinkler, one year legacy
+AutoPlay.lateAchievements = [262,491,367].concat(AutoPlay.lumpRelatedAchievements);
 
 // cookie bot starting here
 AutoPlay.robotName = "Automated ";
@@ -1650,6 +1652,15 @@ AutoPlay.findNextAchievement = function() {
 AutoPlay.checkAllAchievementsOK = function() { //We do not stop for one-year legacy
   for (var i in Game.Achievements) {
     var me = Game.Achievements[i];
+    if (!me.won && me.pool!="dungeon" && me.id!=367 && !AutoPlay.lateAchievements.includes(me.id)) { // missing achievement
+      AutoPlay.setMainActivity("Missing achievement #" + me.id +
+        ": " + me.desc.replace(/<q>.*?<\/q>/ig, '') + ", try to get it now.");
+      AutoPlay.nextAchievement = me.id;
+      return false;
+    }
+  }
+  for (var i of AutoPlay.lateAchievements) {
+    var me = Game.AchievementsById[i];
     if (!me.won && me.pool!="dungeon" && me.id!=367) { // missing achievement
       AutoPlay.setMainActivity("Missing achievement #" + me.id +
         ": " + me.desc.replace(/<q>.*?<\/q>/ig, '') + ", try to get it now.");
