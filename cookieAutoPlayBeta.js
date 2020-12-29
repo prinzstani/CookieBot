@@ -1339,7 +1339,7 @@ AutoPlay.removeSpirit = function(slot, god) {
 //===================== Handle Wrinklers ==========================
 AutoPlay.nextWrinkler = -1;
 AutoPlay.poppingWrinklers = false;
-AutoPlay.wrinklerTime = AutoPlay.now;
+AutoPlay.wrinklerTime = Date.now();
 
 AutoPlay.handleWrinklers = function() {
   AutoPlay.poppingWrinklers = false;
