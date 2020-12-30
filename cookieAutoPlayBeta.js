@@ -72,14 +72,14 @@ AutoPlay.run = function() {
   AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
   // if high cps then do not wait
   if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0); // full speed
-  AutoPlay.handleSavings();
-  AutoPlay.bestBuy();
-  AutoPlay.handleSeasons();
-  AutoPlay.handleDragon();
-  AutoPlay.handleWrinklers();
-  AutoPlay.handleSugarLumps();
-  AutoPlay.handleAscend();
-  AutoPlay.handleNotes();
+  AutoPlay.handleSavings(); // no speed needed
+  AutoPlay.bestBuy(); // speed needed
+  AutoPlay.handleSeasons(); // speed for many ascends
+  AutoPlay.handleDragon(); // speed for many ascends
+  AutoPlay.handleWrinklers(); // probably no speed needed
+  AutoPlay.handleSugarLumps(); // speed needed for high level cheats (maybe just check this outside) - and also for mini games
+  AutoPlay.handleAscend(); // speed needed (sometimes)
+  AutoPlay.handleNotes(); // no speed needed
 }
 
 AutoPlay.runRightCount=0;
