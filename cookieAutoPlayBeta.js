@@ -153,7 +153,7 @@ AutoPlay.nightMode = function() {
   if (h>=7 && h<23) { // be active
     if (AutoPlay.night) AutoPlay.useLump();
     AutoPlay.night = false;
-    AutoPlay.nightAtTemple(false);
+    AutoPlay.nightAtPantheon(false);
     var gs = Game.Upgrades["Golden switch [on]"]; if(gs.unlocked) { gs.buy(); }
     AutoPlay.nightAtGarden(false);
     return false;
@@ -174,7 +174,7 @@ AutoPlay.nightMode = function() {
     }
     if (!gs.bought) return true; // do not activate spirits before golden switch
   }
-  AutoPlay.nightAtTemple(true);
+  AutoPlay.nightAtPantheon(true);
   AutoPlay.nightAtGarden(true);
   AutoPlay.nightAtStocks();
   AutoPlay.night = true;
@@ -761,6 +761,31 @@ AutoPlay.handlePantheon = function() {
   }
 }
 
+AutoPlay.nightAtPantheon = function(on) {
+  if (!Game.isMinigameReady(Game.Objects["Temple"])) return;
+  if (on) {
+    AutoPlay.removeSpirit(1,"decadence");
+    AutoPlay.removeSpirit(2,"labor");
+    AutoPlay.assignSpirit(1,"asceticism",1);
+    AutoPlay.assignSpirit(2,"industry",1);
+  } else {
+    AutoPlay.removeSpirit(1,"asceticism");
+  }
+}
+
+AutoPlay.assignSpirit = function(slot, god, force) {
+  var g=Game.Objects["Temple"].minigame;
+  if (g.swaps+force<3) return;
+  if (g.slot[slot]==g.gods[god].id) return;
+  g.slotHovered = slot; g.dragging = g.gods[god]; g.dropGod();
+}
+
+AutoPlay.removeSpirit = function(slot, god) {
+  var g=Game.Objects["Temple"].minigame;
+  if (g.slot[slot]!=g.gods[god].id) return;
+  g.slotHovered = -1; g.dragging = g.gods[god]; g.dropGod();
+}
+
 // farms: garden ================================
 AutoPlay.handleGarden = function() {
   if (Game.isMinigameReady(Game.Objects["Farm"])) {
@@ -781,105 +806,6 @@ AutoPlay.handleGarden = function() {
       //convert garden in order to get more sugar lumps
       g.askConvert(); Game.ConfirmPrompt();
       AutoPlay.plantList=[0,0,0,0];
-    }
-  }
-}
-
-// banks: stock market =============================
-AutoPlay.handleStockMarket = function() {
-  if (Game.isMinigameReady(Game.Objects["Bank"]) && !AutoPlay.wantAscend) {
-    var market = Game.Objects["Bank"].minigame;
-    if (market.brokers < market.getMaxBrokers()) { // buy brokers
-      if (100*market.getBrokerPrice() < Game.cookies) {
-        l("bankBrokersBuy").click();
-    } }
-    if (market.officeLevel < market.offices.length-1) { // upgrade offices
-      var me=market.offices[market.officeLevel];
-      if (me.cost && Game.Objects['Cursor'].amount>=me.cost[0] && Game.Objects['Cursor'].level>=me.cost[1]) {
-        l("bankOfficeUpgrade").click();
-      }
-    }
-    if (!Game.AchievementsById[459].won && market.getGoodMaxStock(market.goodsById[market.goodsById.length-1])>1000) { // 500 of each
-      for (var g in market.goods) {
-        let good = market.goods[g];
-        market.buyGood(good.id, 500-good.stock);
-      }
-    }
-    if (!AutoPlay.goodsList) { // need to init goodsList
-      AutoPlay.goodsList=[];
-      for (var g in market.goods) {
-        let good = market.goods[g];
-        let price = market.getGoodPrice(good);
-        let highMark = market.getRestingVal(good.id)+1;
-        let lowMark = market.getRestingVal(good.id) / 3; // could also use 2
-        let distance = highMark - lowMark;
-        AutoPlay.goodsList[good.id] = { min:price, max:price, delta:(good.id>3)?5:2,
-          sellHigh:highMark, sellLow:(highMark-distance/4),
-          buyHigh:(lowMark+distance/2), buyMedium:(lowMark+distance/4),
-          buyLow:lowMark
-        }
-      }
-    }
-    for (var g in market.goods) {
-      let good = market.goods[g];
-      let price = market.getGoodPrice(good);
-      var maxStock = market.getGoodMaxStock(good);
-      let goodItem = AutoPlay.goodsList[good.id];
-      if (goodItem.min > price) goodItem.min = price;
-      if (goodItem.max < price) goodItem.max = price;
-      if (good.stock < maxStock) { // can buy more
-        if (price - goodItem.delta > goodItem.min && price < goodItem.buyHigh) { // price is rising: buy
-          if (goodItem.min < goodItem.buyLow) { // it is very cheap
-            market.buyGood(good.id,10000); // buy all
-            goodItem.max = price;
-          } else if (goodItem.min < goodItem.buyMedium) { // it is reasonable
-            market.buyGood(good.id, (maxStock*0.8-good.stock)<<0); // buy 80%
-            goodItem.max = price;
-          } else if (goodItem.min < goodItem.buyHigh) { // it is affordable
-            market.buyGood(good.id, (maxStock*0.6-good.stock)<<0); // buy 60%
-            goodItem.max = price;
-          }
-        }
-      }
-      if (good.stock > 0) { // have something to sell
-        if (price + goodItem.delta < goodItem.max && price > goodItem.sellLow) { // price is dropping: sell
-          if (goodItem.max > goodItem.sellHigh) {
-            market.sellGood(good.id,10000); // it is very expensive, sell all
-            goodItem.min = price;
-          } else if (goodItem.max > goodItem.sellLow) { // it is reasonable
-            market.sellGood(good.id, (good.stock-maxStock*0.3)<<0); // sell 70%
-            goodItem.min = price;
-          }
-        }
-      }
-    }
-  }
-}
-
-AutoPlay.nightAtTemple = function(on) {
-  if (!Game.isMinigameReady(Game.Objects["Temple"])) return;
-  if (on) {
-    AutoPlay.removeSpirit(1,"decadence");
-    AutoPlay.removeSpirit(2,"labor");
-    AutoPlay.assignSpirit(1,"asceticism",1);
-    AutoPlay.assignSpirit(2,"industry",1);
-  } else {
-    AutoPlay.removeSpirit(1,"asceticism");
-  }
-}
-
-AutoPlay.nightAtStocks = function() {
-  if (!Game.isMinigameReady(Game.Objects["Bank"])) return;
-  var market = Game.Objects["Bank"].minigame;
-  for (var g in market.goods) {
-    let good = market.goods[g];
-    let price = market.getGoodPrice(good);
-    let goodItem = AutoPlay.goodsList[good.id];
-    if (price < goodItem.buyHigh) { // it is affordable
-          market.buyGood(good.id,10000); // buy all
-    }
-    if (price > goodItem.sellLow) { // it is reasonable
-      market.sellGood(good.id,10000); // sell all
     }
   }
 }
@@ -1323,17 +1249,91 @@ AutoPlay.switchSoil = function(game,sector,which) {
   FireEvent(l('gardenSoil-'+Game.Objects["Farm"].minigame.soils[which].id),'click');
 }
 
-AutoPlay.assignSpirit = function(slot, god, force) {
-  var g=Game.Objects["Temple"].minigame;
-  if (g.swaps+force<3) return;
-  if (g.slot[slot]==g.gods[god].id) return;
-  g.slotHovered = slot; g.dragging = g.gods[god]; g.dropGod();
+// banks: stock market =============================
+AutoPlay.handleStockMarket = function() {
+  if (Game.isMinigameReady(Game.Objects["Bank"]) && !AutoPlay.wantAscend) {
+    var market = Game.Objects["Bank"].minigame;
+    if (market.brokers < market.getMaxBrokers()) { // buy brokers
+      if (100*market.getBrokerPrice() < Game.cookies) {
+        l("bankBrokersBuy").click();
+    } }
+    if (market.officeLevel < market.offices.length-1) { // upgrade offices
+      var me=market.offices[market.officeLevel];
+      if (me.cost && Game.Objects['Cursor'].amount>=me.cost[0] && Game.Objects['Cursor'].level>=me.cost[1]) {
+        l("bankOfficeUpgrade").click();
+      }
+    }
+    if (!Game.AchievementsById[459].won && market.getGoodMaxStock(market.goodsById[market.goodsById.length-1])>1000) { // 500 of each
+      for (var g in market.goods) {
+        let good = market.goods[g];
+        market.buyGood(good.id, 500-good.stock);
+      }
+    }
+    if (!AutoPlay.goodsList) { // need to init goodsList
+      AutoPlay.goodsList=[];
+      for (var g in market.goods) {
+        let good = market.goods[g];
+        let price = market.getGoodPrice(good);
+        let highMark = market.getRestingVal(good.id)+1;
+        let lowMark = market.getRestingVal(good.id) / 3; // could also use 2
+        let distance = highMark - lowMark;
+        AutoPlay.goodsList[good.id] = { min:price, max:price, delta:(good.id>3)?5:2,
+          sellHigh:highMark, sellLow:(highMark-distance/4),
+          buyHigh:(lowMark+distance/2), buyMedium:(lowMark+distance/4),
+          buyLow:lowMark
+        }
+      }
+    }
+    for (var g in market.goods) {
+      let good = market.goods[g];
+      let price = market.getGoodPrice(good);
+      var maxStock = market.getGoodMaxStock(good);
+      let goodItem = AutoPlay.goodsList[good.id];
+      if (goodItem.min > price) goodItem.min = price;
+      if (goodItem.max < price) goodItem.max = price;
+      if (good.stock < maxStock) { // can buy more
+        if (price - goodItem.delta > goodItem.min && price < goodItem.buyHigh) { // price is rising: buy
+          if (goodItem.min < goodItem.buyLow) { // it is very cheap
+            market.buyGood(good.id,10000); // buy all
+            goodItem.max = price;
+          } else if (goodItem.min < goodItem.buyMedium) { // it is reasonable
+            market.buyGood(good.id, (maxStock*0.8-good.stock)<<0); // buy 80%
+            goodItem.max = price;
+          } else if (goodItem.min < goodItem.buyHigh) { // it is affordable
+            market.buyGood(good.id, (maxStock*0.6-good.stock)<<0); // buy 60%
+            goodItem.max = price;
+          }
+        }
+      }
+      if (good.stock > 0) { // have something to sell
+        if (price + goodItem.delta < goodItem.max && price > goodItem.sellLow) { // price is dropping: sell
+          if (goodItem.max > goodItem.sellHigh) {
+            market.sellGood(good.id,10000); // it is very expensive, sell all
+            goodItem.min = price;
+          } else if (goodItem.max > goodItem.sellLow) { // it is reasonable
+            market.sellGood(good.id, (good.stock-maxStock*0.3)<<0); // sell 70%
+            goodItem.min = price;
+          }
+        }
+      }
+    }
+  }
 }
 
-AutoPlay.removeSpirit = function(slot, god) {
-  var g=Game.Objects["Temple"].minigame;
-  if (g.slot[slot]!=g.gods[god].id) return;
-  g.slotHovered = -1; g.dragging = g.gods[god]; g.dropGod();
+AutoPlay.nightAtStocks = function() {
+  if (!Game.isMinigameReady(Game.Objects["Bank"])) return;
+  var market = Game.Objects["Bank"].minigame;
+  for (var g in market.goods) {
+    let good = market.goods[g];
+    let price = market.getGoodPrice(good);
+    let goodItem = AutoPlay.goodsList[good.id];
+    if (price < goodItem.buyHigh) { // it is affordable
+          market.buyGood(good.id,10000); // buy all
+    }
+    if (price > goodItem.sellLow) { // it is reasonable
+      market.sellGood(good.id,10000); // sell all
+    }
+  }
 }
 
 //===================== Handle Wrinklers ==========================
