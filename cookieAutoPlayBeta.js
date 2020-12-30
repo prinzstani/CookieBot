@@ -71,7 +71,7 @@ AutoPlay.run = function() {
   AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
   // if high cps then do not wait
-  if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0);
+  if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0); // full speed
   AutoPlay.handleSavings();
   AutoPlay.bestBuy();
   AutoPlay.handleSeasons();
@@ -149,7 +149,7 @@ AutoPlay.nightMode = function() {
     return false; //do not auto-sleep while grinding
   }
   var h = (new Date).getHours();
-  if (AutoPlay.preNightMode()) AutoPlay.setDeadline(0);
+//  if (AutoPlay.preNightMode()) AutoPlay.setDeadline(0); // not needed
   if (h>=7 && h<23) { // be active
     if (AutoPlay.night) AutoPlay.useLump();
     AutoPlay.night = false;
@@ -191,12 +191,12 @@ AutoPlay.handleGoldenCookies = function() { // pop first golden cookie or reinde
     var s = Game.shimmers[sx];
     if (s.type!="golden" || s.life<Game.fps || !Game.Achievements["Early bird"].won) {
       s.pop();
-      AutoPlay.setDeadline(0);
+      AutoPlay.setDeadline(0); // check whether full activity
       return;
     }
     if ((s.life/Game.fps)<(s.dur-2) && (Game.Achievements["Fading luck"].won)) {
       s.pop();
-      AutoPlay.setDeadline(0);
+      AutoPlay.setDeadline(0); // check whether full activity
       if(AutoPlay.Config.GoldenClickMode==1) return;
     }
   }
@@ -1439,7 +1439,7 @@ AutoPlay.handleAscend = function() {
   if (Game.OnAscend) {
     AutoPlay.doReincarnate();
     AutoPlay.findNextAchievement();
-    AutoPlay.setDeadline(0);
+    AutoPlay.setDeadline(0); // reactivate all activities
     AutoPlay.savingsStart = AutoPlay.now;
     return;
   }
@@ -1453,7 +1453,7 @@ AutoPlay.handleAscend = function() {
       !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) {
     // this costs approx. 1 minute per ascend
     AutoPlay.activities = "Going for 1000 ascends.";
-    AutoPlay.setDeadline(0);
+    AutoPlay.setDeadline(0); // full activity
     AutoPlay.wantAscend = true; //avoid buying plants
     if ((Game.ascendMeterLevel>0) /*&&
          (AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent ||
@@ -1464,7 +1464,7 @@ AutoPlay.handleAscend = function() {
       !Game.Achievements["Reincarnation"].won && !Game.ascensionMode) {
     // this costs 3+2 minute per 2 ascend
     AutoPlay.activities = "Going for 100 ascends.";
-    AutoPlay.setDeadline(0);
+    AutoPlay.setDeadline(0); // full activity
     AutoPlay.wantAscend = true; //avoid buying plants
     if (Game.ascendMeterLevel>0 &&
         AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent)
@@ -1500,7 +1500,7 @@ AutoPlay.handleAscend = function() {
       AutoPlay.lastPrestige=Game.prestige%1000000;
     }
     AutoPlay.wantAscend = true; //avoid buying plants
-    AutoPlay.setDeadline(0);
+    AutoPlay.setDeadline(0); //full activity
     AutoPlay.addActivity("Trying to get heavenly upgrade Lucky Payout.");
     if (Game.ascendMeterLevel>0 && Game.prestige%1000000 < 777777 &&
         (newPrestige+Game.ascendMeterLevel >= 777777))
@@ -1539,20 +1539,20 @@ AutoPlay.canContinue = function() {
   }
   if (needAchievement) return true;
 
-  if (!Game.Achievements["Speed baking III"].won &&
+  if (!Game.Achievements["Speed baking I"].won &&
+            (AutoPlay.now-Game.startDate <= 1000*60*35)) {
+    AutoPlay.addActivity("Trying to get achievement: Speed baking I.");
+  } else if (!Game.Achievements["Speed baking II"].won &&
+            (AutoPlay.now-Game.startDate <= 1000*60*25)) {
+    AutoPlay.addActivity("Trying to get achievement: Speed baking II.");
+  } else if (!Game.Achievements["Speed baking III"].won &&
             (AutoPlay.now-Game.startDate <= 1000*60*15)) {
     AutoPlay.addActivity("Trying to get achievement: Speed baking III.");
     for (var i = 1; i<5; i++)
       setTimeout(function(){Game.ClickCookie(0, Game.computedMouseCps);}, 30*i);
-  } else if (!Game.Achievements["Speed baking II"].won &&
-            (AutoPlay.now-Game.startDate <= 1000*60*25)) {
-    AutoPlay.addActivity("Trying to get achievement: Speed baking II.");
-  } else if (!Game.Achievements["Speed baking I"].won &&
-            (AutoPlay.now-Game.startDate <= 1000*60*35)) {
-    AutoPlay.addActivity("Trying to get achievement: Speed baking I.");
   } else return false;
 
-  AutoPlay.setDeadline(0);
+  AutoPlay.setDeadline(0); // full activity for speed baking
   return true;
 }
 
@@ -1578,7 +1578,7 @@ AutoPlay.doAscend = function(str,log) {
   AutoPlay.addActivity("Preparing to ascend.");
   if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant
   if (Game.hasBuff("Sugar frenzy")) return; // do not ascend during sugar frenzy
-  AutoPlay.setDeadline(0);
+  AutoPlay.setDeadline(0); // full activity to monitor ascension
   if (Game.wrinklers.some(function(w) { return w.close; } )) {
     AutoPlay.assignSpirit(0,"scorn",1);
     AutoPlay.delay = 10;
