@@ -56,26 +56,22 @@ AutoPlay.run = function() {
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   AutoPlay.now=Date.now();
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
-  if (AutoPlay.now<AutoPlay.deadline) {
-    AutoPlay.handleClicking();
-    AutoPlay.handleGoldenCookies();
-//    AutoPlay.addActivity("Activity speed reduced.");
-    return;
-  }
+  AutoPlay.handleClicking();
+  AutoPlay.handleGoldenCookies();
+  if (AutoPlay.now<AutoPlay.deadline) return;
   AutoPlay.activities = AutoPlay.mainActivity;
   AutoPlay.status(false);
+  if (AutoPlay.plantPending)
+    AutoPlay.addActivity("Make sure to harvest the new plant before ascend!");
   AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   if (AutoPlay.nightMode() && !Game.ascensionMode) {
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT);
     return;
   }
+  AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
   // if high cps then do not wait
   if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0);
-  if (AutoPlay.plantPending /*|| AutoPlay.harvestPlant*/)
-    AutoPlay.addActivity("Wait with ascend until plants are harvested!");
-  AutoPlay.handleClicking();
-  AutoPlay.handleGoldenCookies();
   AutoPlay.handleSavings();
   AutoPlay.bestBuy();
   AutoPlay.handleSeasons();
@@ -717,7 +713,14 @@ AutoPlay.farmGoldenSugarLumps = function(age) {
 */
 
 AutoPlay.handleMinigames = function() {
-  // wizard towers: grimoires ===========================
+  AutoPlay.handleGrimoires();
+  AutoPlay.handlePantheon();
+  AutoPlay.handleGarden();
+  AutoPlay.handleStockMarket();
+}
+
+// wizard towers: grimoires ===========================
+AutoPlay.handleGrimoires = function() {
   if (Game.isMinigameReady(Game.Objects["Wizard tower"])) {
     var g = Game.Objects["Wizard tower"].minigame;
     var sp = g.spells["hand of fate"]; // try to get a sugar lump in backfiring
@@ -739,7 +742,10 @@ AutoPlay.handleMinigames = function() {
       if (AutoPlay.canUseLumps && Game.lumps>100) { g.lumpRefill.click(); }
     }
   }
-  // temples: pantheon =============================
+}
+
+// temples: pantheon =============================
+AutoPlay.handlePantheon = function() {
   if (Game.isMinigameReady(Game.Objects["Temple"])) {
     var age = AutoPlay.now-Game.lumpT;
     if (AutoPlay.poppingWrinklers)
@@ -753,7 +759,10 @@ AutoPlay.handleMinigames = function() {
     AutoPlay.assignSpirit(1,"decadence",0);
     AutoPlay.assignSpirit(2,"labor",0);
   }
-  // farms: garden ================================
+}
+
+// farms: garden ================================
+AutoPlay.handleGarden = function() {
   if (Game.isMinigameReady(Game.Objects["Farm"])) {
     var g = Game.Objects["Farm"].minigame;
     AutoPlay.harvesting(g);
@@ -774,7 +783,10 @@ AutoPlay.handleMinigames = function() {
       AutoPlay.plantList=[0,0,0,0];
     }
   }
-  // banks: stock market =============================
+}
+
+// banks: stock market =============================
+AutoPlay.handleStockMarket = function() {
   if (Game.isMinigameReady(Game.Objects["Bank"]) && !AutoPlay.wantAscend) {
     var market = Game.Objects["Bank"].minigame;
     if (market.brokers < market.getMaxBrokers()) { // buy brokers
@@ -843,20 +855,6 @@ AutoPlay.handleMinigames = function() {
     }
   }
 }
-
-// ***********************
-if (Game.isMinigameReady(Game.Objects["Bank"])) {
-  var market = Game.Objects["Bank"].minigame;
-  for (var g in market.goods) {
-    let good = market.goods[g];
-    good.max=0;
-    good.min=0;
-    good.lastExtreme=0;
-    good.lastETime=0;
-  }
-}
-
-// ***********************
 
 AutoPlay.nightAtTemple = function(on) {
   if (!Game.isMinigameReady(Game.Objects["Temple"])) return;
@@ -1456,7 +1454,7 @@ AutoPlay.handleAscend = function() {
     // this costs approx. 1 minute per ascend
     AutoPlay.activities = "Going for 1000 ascends.";
     AutoPlay.setDeadline(0);
-    AutoPlay.wantAscend = true; //avoid byuing plants
+    AutoPlay.wantAscend = true; //avoid buying plants
     if ((Game.ascendMeterLevel>0) /*&&
          (AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent ||
             (Game.prestige+Game.ascendMeterLevel)%1000==777)*/)
@@ -1561,7 +1559,6 @@ AutoPlay.canContinue = function() {
 AutoPlay.doReincarnate = function() {
   AutoPlay.delay = 10;
   AutoPlay.buyHeavenlyUpgrades();
-  AutoPlay.setDeadline(0);
   if (!Game.Achievements["Neverclick"].won || !Game.Achievements["Hardcore"].won) {
     Game.PickAscensionMode(); Game.nextAscensionMode = 1; Game.ConfirmPrompt();
   }
