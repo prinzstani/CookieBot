@@ -3,7 +3,7 @@
 
 var AutoPlay;
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.028";
+AutoPlay.version = "2.029";
 AutoPlay.gameVersion = "2.031";
 
 //align for new version of cookie clicker
@@ -50,42 +50,48 @@ AutoPlay.canUseLumps = false;
 AutoPlay.savingsGoal = 0;
 AutoPlay.savingsStart = Game.startDate;  // time since start of saving
 AutoPlay.buy10 = false;
+AutoPlay.hyperActive=false;
 
 AutoPlay.run = function() {
   if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   AutoPlay.now=Date.now();
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
+  if (AutoPlay.nightMode() && !Game.ascensionMode) {
+    AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT);
+    return;
+  }
   AutoPlay.handleClicking();
   AutoPlay.handleGoldenCookies();
   if (AutoPlay.Config.CheatLumps==4) AutoPlay.handleSugarLumps(); // speed cheating
+  
+  if (AutoPlay.hyperActive || (AutoPlay.now>=AutoPlay.deadline)) { // high activity phase
+    AutoPlay.hyperActive=false; // set to inactive, but can be overwritten
+    AutoPlay.bestBuy(); // speed needed
+    AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
+    // if high cps then do not wait
+    if (AutoPlay.cpsMult>100) AutoPlay.hyperActive=true; // full speed
+  }
+  
   if (AutoPlay.now<AutoPlay.deadline) return;  // end of speed activity
   // run only once a minute from here
   AutoPlay.activities = AutoPlay.mainActivity;
   AutoPlay.status(false);
   if (AutoPlay.plantPending)
     AutoPlay.addActivity("Make sure to harvest the new plant before ascend!");
-  AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
-  if (AutoPlay.nightMode() && !Game.ascensionMode) {
-    AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT);
-    return;
-  }
-  AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
-  AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
-  // if high cps then do not wait
-  if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0); // full speed
-  AutoPlay.bestBuy(); // speed needed
-  
-  AutoPlay.handleMinigames(); // maybe some speed needed?
-  AutoPlay.handleAscend(); // speed needed (sometimes)
+  AutoPlay.deadline=AutoPlay.now+60000; // wait one minute before next step
+  AutoPlay.setDeadline(AutoPlay.now+(AutoPlay.now-Game.startDate)/10); // quick start
 
   // run only once a minute
   if (AutoPlay.Config.CheatLumps!=4) AutoPlay.handleSugarLumps();
-  AutoPlay.handleSavings(); // no speed needed
-  AutoPlay.handleSeasons(); // speed for many ascends - probably not needed
-  AutoPlay.handleDragon(); // speed for many ascends - probably not needed
-  AutoPlay.handleWrinklers(); // probably no speed needed
-  AutoPlay.handleNotes(); // no speed needed
+  AutoPlay.handleSavings();
+  AutoPlay.handleSeasons();
+  AutoPlay.handleDragon();
+  AutoPlay.handleWrinklers();
+  AutoPlay.handleAscend();
+  AutoPlay.handleNotes();
+
+  AutoPlay.handleMinigames(); // maybe some speed needed?
 }
 
 AutoPlay.runRightCount=0;
@@ -197,12 +203,12 @@ AutoPlay.handleGoldenCookies = function() { // pop first golden cookie or reinde
     var s = Game.shimmers[sx];
     if (s.type!="golden" || s.life<Game.fps || !Game.Achievements["Early bird"].won) {
       s.pop();
-      AutoPlay.setDeadline(0); // check whether full activity
+      AutoPlay.hyperActive=true; // check whether full activity
       return;
     }
     if ((s.life/Game.fps)<(s.dur-2) && (Game.Achievements["Fading luck"].won)) {
       s.pop();
-      AutoPlay.setDeadline(0); // check whether full activity
+      AutoPlay.hyperActive=true; // check whether full activity
       if(AutoPlay.Config.GoldenClickMode==1) return;
     }
   }
@@ -330,7 +336,7 @@ AutoPlay.handleSavings = function() {
 AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
   if (building.getSumPrice(checkAmount) < Game.cookies - AutoPlay.savingsGoal) {
     building.buy(buyAmount);
-    AutoPlay.setDeadline(0); // might buy more soon
+    AutoPlay.hyperActive=true; // might buy more soon
     return true;
   }
   return false;
@@ -339,7 +345,7 @@ AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
 AutoPlay.buyUpgrade = function(upgrade, bypass=true) {
   if (upgrade.getPrice() < Game.cookies - AutoPlay.savingsGoal) {
     upgrade.buy(bypass);
-    AutoPlay.setDeadline(0);  // might buy more soon
+    AutoPlay.hyperActive=true;  // might buy more soon
   }
 }
 
@@ -1456,7 +1462,7 @@ AutoPlay.handleAscend = function() {
       !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) {
     // this costs approx. 1 minute per ascend
     AutoPlay.activities = "Going for 1000 ascends.";
-    AutoPlay.setDeadline(0); // full activity
+    AutoPlay.hyperActive=true; // full activity
     AutoPlay.wantAscend = true; //avoid buying plants
     if ((Game.ascendMeterLevel>0) /*&&
          (AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent ||
@@ -1467,7 +1473,7 @@ AutoPlay.handleAscend = function() {
       !Game.Achievements["Reincarnation"].won && !Game.ascensionMode) {
     // this costs 3+2 minute per 2 ascend
     AutoPlay.activities = "Going for 100 ascends.";
-    AutoPlay.setDeadline(0); // full activity
+    AutoPlay.hyperActive=true; // full activity
     AutoPlay.wantAscend = true; //avoid buying plants
     if (Game.ascendMeterLevel>0 &&
         AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent)
@@ -1503,7 +1509,7 @@ AutoPlay.handleAscend = function() {
       AutoPlay.lastPrestige=Game.prestige%1000000;
     }
     AutoPlay.wantAscend = true; //avoid buying plants
-    AutoPlay.setDeadline(0); //full activity
+    AutoPlay.hyperActive=true; //full activity
     AutoPlay.addActivity("Trying to get heavenly upgrade Lucky Payout.");
     if (Game.ascendMeterLevel>0 && Game.prestige%1000000 < 777777 &&
         (newPrestige+Game.ascendMeterLevel >= 777777))
@@ -1555,7 +1561,7 @@ AutoPlay.canContinue = function() {
       setTimeout(function(){Game.ClickCookie(0, Game.computedMouseCps);}, 30*i);
   } else return false;
 
-  AutoPlay.setDeadline(0); // full activity for speed baking
+  AutoPlay.hyperActive=true; // full activity for speed baking
   return true;
 }
 
