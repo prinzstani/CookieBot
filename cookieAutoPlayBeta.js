@@ -330,7 +330,7 @@ AutoPlay.handleSavings = function() {
 AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
   if (building.getSumPrice(checkAmount) < Game.cookies - AutoPlay.savingsGoal) {
     building.buy(buyAmount);
-    AutoPlay.setDeadline(-1);  // -1 for flag to indicate something bought
+    AutoPlay.setDeadline(0); // might buy more soon
     return true;
   }
   return false;
@@ -339,7 +339,7 @@ AutoPlay.buyBuilding = function(building, checkAmount=1, buyAmount=1) {
 AutoPlay.buyUpgrade = function(upgrade, bypass=true) {
   if (upgrade.getPrice() < Game.cookies - AutoPlay.savingsGoal) {
     upgrade.buy(bypass);
-    AutoPlay.setDeadline(-1);  // -1 for flag to indicate something bought
+    AutoPlay.setDeadline(0);  // might buy more soon
   }
 }
 
@@ -396,7 +396,7 @@ AutoPlay.bestBuy = function() {
   }
 
   // change cookie monster values for some 'infinite' pp upgrades
-  for(var u in CM.Cache.Upgrades) {
+  for (var u in CM.Cache.Upgrades) {
     if (u in overrides){
       CM.Cache.Upgrades[u].bonus = overrides[u]* Game.cookiesPs;
       CM.Cache.Upgrades[u].pp = (Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (Game.Upgrades[u].getPrice() / CM.Cache.Upgrades[u].bonus);
@@ -416,13 +416,14 @@ AutoPlay.bestBuy = function() {
     check_obj = CM.Cache.Objects10;
   }
 
+  var haveBought=false;
   // for the following, pp < 1 indicates we can pay off the cost in less
   // than a second.  It's better to just buy it instead of checking it repeatedly
   // CheckDragon twice in case the pp < 1 case set us over the limit
-  for(var b in check_obj){
-    if(AutoPlay.checkDragon(b) && check_obj[b].pp < 1)
-      AutoPlay.buyBuilding(Game.Objects[b], buy_amt, buy_amt);
-    if(check_obj[b].pp < minpp && AutoPlay.checkDragon(b)){
+  for (var b in check_obj){
+    if (AutoPlay.checkDragon(b) && check_obj[b].pp < 1)
+      if (AutoPlay.buyBuilding(Game.Objects[b], buy_amt, buy_amt)) haveBought=true;
+    if (check_obj[b].pp < minpp && AutoPlay.checkDragon(b)) {
       minpp = check_obj[b].pp;
       best = b;
       type = 'building';
@@ -433,12 +434,12 @@ AutoPlay.bestBuy = function() {
   AutoPlay.buy10 = minpp < 1;
 
   // upgrades
-  if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned!=0){
-    for(var u of Game.UpgradesInStore){
-      if(!AutoPlay.avoidbuy(u) && !u.bought) {
-        if(CM.Cache.Upgrades[u.name].pp < 1)
-          AutoPlay.buyUpgrade(u);
-        else if(CM.Cache.Upgrades[u.name].pp < minpp){
+  if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned!=0) {
+    for (var u of Game.UpgradesInStore) {
+      if (!AutoPlay.avoidbuy(u) && !u.bought) {
+        if (CM.Cache.Upgrades[u.name].pp < 1)
+          if (AutoPlay.buyUpgrade(u)) haveBought=true;
+        else if (CM.Cache.Upgrades[u.name].pp < minpp) {
           minpp = CM.Cache.Upgrades[u.name].pp;
           best = u.name;
           type = 'upgrade';
@@ -448,10 +449,9 @@ AutoPlay.bestBuy = function() {
   }
 
   if (type == 'building')
-    AutoPlay.buyBuilding(Game.Objects[best], buy_amt, buy_amt);
-
+    if (AutoPlay.buyBuilding(Game.Objects[best], buy_amt, buy_amt)) haveBought=true;
   else if (type == 'upgrade')
-    AutoPlay.buyUpgrade(Game.Upgrades[best], true);
+    if (AutoPlay.buyUpgrade(Game.Upgrades[best], true)) haveBought=true;
 
   // sugar frenzy check
   if (Game.lumps>100 && Game.Upgrades["Sugar frenzy"].unlocked &&
@@ -460,10 +460,9 @@ AutoPlay.bestBuy = function() {
       Game.Upgrades["Sugar frenzy"].buy();
 
   // nothing bought, within first 10 minutes, have neverclick
-  if (AutoPlay.deadline != -1) {
+  if (!haveBought) {
     if ((AutoPlay.now-Game.startDate) < 10*60*1000 &&
-        Game.Achievements['Neverclick'].won)
-    {
+        Game.Achievements['Neverclick'].won) {
       AutoPlay.setDeadline(AutoPlay.now+5000); // wait five seconds before next step
     }
     AutoPlay.addActivity('Waiting to buy ' + best);
@@ -1356,7 +1355,6 @@ AutoPlay.handleWrinklers = function() {
   doPop = doPop ||
     (AutoPlay.endPhase() && !Game.Achievements["Last Chance to See"].won);
   if (doPop) {
-    AutoPlay.setDeadline(AutoPlay.now+20000);
     AutoPlay.poppingWrinklers = true;
     AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
