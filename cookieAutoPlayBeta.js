@@ -1987,12 +1987,13 @@ AutoPlay.status = function(print=true) { // just for testing purposes
   var ach=0;
   var sach=0;
   var up=0;
+  var lum=0;
   let nonUp=[71,72,73,87,227];
   for (var a in Game.Achievements) {
     var me = Game.Achievements[a];
     if (!me.won && me.pool!="dungeon") { // missing achievement
       if (print) AutoPlay.info("Missing achievement #" + me.id +
-        ": " + me.desc.replace(/<q>.*?<\/q>/ig, '') + ".");
+        ": " + me.desc.replace(/<q>.*?<\/q>/ig, ''));
       if (me.pool=="shadow") sach++;
       ach++;
     }
@@ -2005,7 +2006,16 @@ AutoPlay.status = function(print=true) { // just for testing purposes
       up++;
     }
   }
-  AutoPlay.addActivity("Missing "+(ach)+" achievements ("+sach+" shadow) and "+up+" upgrades.");
+  for (var o in Game.Objects) {
+    var me = Game.Objects[o];
+    var maxl = 10;
+    var myl = 0;
+    if (me.id==0) maxl=12; // cursors need level 12
+    for (var l=me.level+1; l<=maxl; l++) myl+=l;
+    if (print && myl) AutoPlay.info(""+myl+" sugar lumps missing for " + me.name + ".");
+	lum+=myl;
+  }
+  AutoPlay.addActivity("Missing "+(ach)+" achievements ("+sach+" shadow), "+up+" upgrades, and "+lum+" sugar lumps.");
 }
 
 AutoPlay.setDeadline = function(d) {
