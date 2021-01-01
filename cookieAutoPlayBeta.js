@@ -71,6 +71,7 @@ AutoPlay.run = function() {
     AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
     // if high cps then do not wait
     if (AutoPlay.cpsMult>100) AutoPlay.hyperActive=true; // full speed
+    AutoPlay.handleSpeedMinigames();
   }
   
   if (AutoPlay.now<AutoPlay.deadline) return;  // end of speed activity
@@ -89,9 +90,8 @@ AutoPlay.run = function() {
   AutoPlay.handleDragon();
   AutoPlay.handleWrinklers();
   AutoPlay.handleAscend();
+  AutoPlay.handleMinigames();
   AutoPlay.handleNotes();
-
-  AutoPlay.handleMinigames(); // maybe some speed needed?
 }
 
 AutoPlay.runRightCount=0;
@@ -723,10 +723,13 @@ AutoPlay.farmGoldenSugarLumps = function(age) {
 */
 
 AutoPlay.handleMinigames = function() {
-  AutoPlay.handleGrimoires();
   AutoPlay.handlePantheon();
   AutoPlay.handleGarden();
   AutoPlay.handleStockMarket();
+}
+
+AutoPlay.handleSpeedMinigames = function() {
+  AutoPlay.handleGrimoires();
 }
 
 // wizard towers: grimoires ===========================
