@@ -58,7 +58,9 @@ AutoPlay.run = function() {
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
   AutoPlay.handleClicking();
   AutoPlay.handleGoldenCookies();
-  if (AutoPlay.now<AutoPlay.deadline) return;
+  if (AutoPlay.Config.CheatLumps==4) AutoPlay.handleSugarLumps(); // speed cheating
+  if (AutoPlay.now<AutoPlay.deadline) return;  // end of speed activity
+  // run only once a minute from here
   AutoPlay.activities = AutoPlay.mainActivity;
   AutoPlay.status(false);
   if (AutoPlay.plantPending)
@@ -72,13 +74,17 @@ AutoPlay.run = function() {
   AutoPlay.deadline = AutoPlay.now+60000; // wait one minute before next step
   // if high cps then do not wait
   if (AutoPlay.cpsMult>100) AutoPlay.setDeadline(0); // full speed
-  AutoPlay.handleSavings(); // no speed needed
   AutoPlay.bestBuy(); // speed needed
-  AutoPlay.handleSeasons(); // speed for many ascends
-  AutoPlay.handleDragon(); // speed for many ascends
-  AutoPlay.handleWrinklers(); // probably no speed needed
-  AutoPlay.handleSugarLumps(); // speed needed for high level cheats (maybe just check this outside) - and also for mini games
+  
+  AutoPlay.handleMinigames(); // maybe some speed needed?
   AutoPlay.handleAscend(); // speed needed (sometimes)
+
+  // run only once a minute
+  if (AutoPlay.Config.CheatLumps!=4) AutoPlay.handleSugarLumps();
+  AutoPlay.handleSavings(); // no speed needed
+  AutoPlay.handleSeasons(); // speed for many ascends - probably not needed
+  AutoPlay.handleDragon(); // speed for many ascends - probably not needed
+  AutoPlay.handleWrinklers(); // probably no speed needed
   AutoPlay.handleNotes(); // no speed needed
 }
 
@@ -580,6 +586,7 @@ AutoPlay.seasonFinished = function(s) {
 
 //===================== Handle Sugarlumps ==========================
 AutoPlay.minLumps = AutoPlay.level1Order.length+55*AutoPlay.level10Order.length;
+AutoPlay.cheatLumps = false;
 
 AutoPlay.handleSugarLumps = function() {
   if (!Game.canLumps()) return; //do not work with sugar lumps before enabled
@@ -594,7 +601,6 @@ AutoPlay.handleSugarLumps = function() {
     AutoPlay.harvestLump(); // normal harvesting, should check !masterCopy
   AutoPlay.cheatSugarLumps(age);
   AutoPlay.useLump();
-  AutoPlay.handleMinigames();
 }
 
 AutoPlay.cheatSugarLumps = function(age) {
@@ -617,7 +623,6 @@ AutoPlay.cheatSugarLumps = function(age) {
   if (AutoPlay.Config.CheatLumps==3) cheatReduction = 25*25;
   if (AutoPlay.Config.CheatLumps==4) {
     cheatReduction = 25*25*25;
-    AutoPlay.setDeadline(0);
   }
   var cheatDelay = Game.lumpRipeAge/cheatReduction;
   if (age<Game.lumpRipeAge-cheatDelay) Game.lumpT -= cheatDelay*(cheatReduction-1);
