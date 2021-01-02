@@ -33,8 +33,8 @@ AutoPlay.halloweenUpgrades = range(134,140);
 AutoPlay.allSeasonUpgrades =
   AutoPlay.valentineUpgrades.concat(AutoPlay.christmasUpgrades).
   concat(AutoPlay.easterUpgrades).concat(AutoPlay.halloweenUpgrades);
-AutoPlay.level1Order = [2,6,7,5]; // unlocking in this order for the minigames
-AutoPlay.level10Order = [2,7,0]; // finishing in this order
+AutoPlay.level1Order = [2,6,7,5]; // unlocking order for minigames: garden, pantheon, grimoire, stock market
+AutoPlay.level10Order = [2,0]; // finishing order: garden, stock market
 AutoPlay.lumpRelatedAchievements = range(307,320).concat([336,427,447,525,396,268,271]);
 AutoPlay.lumpHarvestAchievements = range(266,272).concat([396]);
 // 27k golden cookies, shiny wrinkler, one year legacy
@@ -2015,6 +2015,8 @@ AutoPlay.status = function(print=true) { // just for testing purposes
     if (print && myl) AutoPlay.info(""+myl+" sugar lumps missing for " + me.name + ".");
 	lum+=myl;
   }
+  lum-=Game.lumps;
+  if (lum<0) lum=0;
   AutoPlay.addActivity("Missing "+(ach)+" achievements ("+sach+" shadow), "+up+" upgrades, and "+lum+" sugar lumps.");
 }
 
