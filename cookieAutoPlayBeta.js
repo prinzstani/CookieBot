@@ -590,7 +590,7 @@ AutoPlay.seasonFinished = function(s) {
 }
 
 //===================== Handle Sugarlumps ==========================
-AutoPlay.minLumps = AutoPlay.level1Order.length+55*AutoPlay.level10Order.length;
+AutoPlay.minLumpsOK = false;
 AutoPlay.cheatLumps = false;
 
 AutoPlay.handleSugarLumps = function() {
@@ -598,7 +598,7 @@ AutoPlay.handleSugarLumps = function() {
   if (Game.ascensionMode==1) return; //no sugar lumps in born again
   var age = AutoPlay.now-Game.lumpT;
   if (age>=Game.lumpMatureAge && Game.lumpCurrentType==0 &&
-      Game.lumpsTotal>AutoPlay.minLumps && !Game.Achievements["Hand-picked"].won)
+      AutoPlay.minLumpsOK && !Game.Achievements["Hand-picked"].won)
     AutoPlay.harvestLump();
 //  if(Game.lumpCurrentType==0) AutoPlay.farmGoldenSugarLumps(age);
 // not needed now, because we cheat sugar lumps
@@ -645,29 +645,27 @@ AutoPlay.useLump = function() { // recursive call to handle many sugar lumps
     var me = Game.ObjectsById[AutoPlay.level1Order[i]];
     if (!me.level && Game.lumps) { me.levelUp(); AutoPlay.useLump(); return; }
   }
-  for (var i in AutoPlay.level10Order) {
-    var me = Game.ObjectsById[AutoPlay.level10Order[i]];
-    if (me.level<10) {
-      if (me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); }
-      return;
-    }
-  }
-  var me = Game.Objects["Cursor"]; // need 12 cursors for stock market
-  if (me.level<12) {
+  var me = Game.Objects["Farm"]; // bring Garden to level 9
+  if (me.level<9) {
     if (me.level<Game.lumps) { me.levelUp(); AutoPlay.useLump(); }
     return;
   }
-  AutoPlay.canUseLumps = true;
+  AutoPlay.minLumpsOK = true;
+  let lumpLimit = AutoPlay.endPhase()?0:100; // keep 100 lumps before the end game
+  var me = Game.Objects["Cursor"]; // need 12 cursors for stock market
+  if (me.level<12) {
+    if (me.level+lumpLimit<Game.lumps) { me.levelUp(); AutoPlay.useLump(); }
+    return;
+  }
   for (var i = Game.ObjectsById.length-1; i>=0; i--) {
     var me = Game.ObjectsById[i];
     if (me.level<10) {
-      if (me.level+100<Game.lumps) {
+      if (me.level+lumpLimit<Game.lumps) {
         me.levelUp(); AutoPlay.useLump(); return;
-      } else {
-        AutoPlay.canUseLumps = false;
       }
     }
   }
+  AutoPlay.canUseLumps = true;
   var me = Game.Objects["Cursor"]; // 20 cursors for luminous gloves
   if (me.level<20) {
     if (me.level+100<Game.lumps) {
