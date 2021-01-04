@@ -74,6 +74,8 @@ AutoPlay.run = function() {
     AutoPlay.handleSpeedMinigames();
   }
   
+  if (Game.ascensionMode==1) AutoPlay.handleAscend(); // check ascend often in reborn
+
   if (AutoPlay.now<AutoPlay.deadline) return;  // end of speed activity
   // run only once a minute from here
   AutoPlay.activities = AutoPlay.mainActivity;
@@ -1555,6 +1557,8 @@ AutoPlay.canContinue = function() {
   } else if (!Game.Achievements["Speed baking II"].won &&
             (AutoPlay.now-Game.startDate <= 1000*60*25)) {
     AutoPlay.addActivity("Trying to get achievement: Speed baking II.");
+    for (var i = 1; i<3; i++)
+      setTimeout(function(){Game.ClickCookie(0, Game.computedMouseCps);}, 30*i);
   } else if (!Game.Achievements["Speed baking III"].won &&
             (AutoPlay.now-Game.startDate <= 1000*60*15)) {
     AutoPlay.addActivity("Trying to get achievement: Speed baking III.");
