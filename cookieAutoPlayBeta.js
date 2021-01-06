@@ -75,7 +75,9 @@ AutoPlay.run = function() {
   }
   
   if (Game.ascensionMode==1) AutoPlay.handleAscend(); // check ascend often in reborn
-
+  if (!Game.Upgrades["Lucky payout"].bought && Game.heavenlyChips>77777777) {
+    AutoPlay.handleAscend(); // check ascend often for lucky payout
+  }
   if (AutoPlay.now<AutoPlay.deadline) return;  // end of speed activity
   // run only once a minute from here
   AutoPlay.activities = AutoPlay.mainActivity;
@@ -219,6 +221,7 @@ AutoPlay.handleGoldenCookies = function() { // pop first golden cookie or reinde
 
 AutoPlay.cheatGoldenCookies = function() {
   if (AutoPlay.Config.CheatGolden==0) return;
+  if (!Game.Upgrades["Lucky payout"].bought && Game.heavenlyChips>77777777) return;
   var level = 10+30*(AutoPlay.Config.CheatGolden-1);
   if (AutoPlay.Config.CheatGolden==1) {
     if (AutoPlay.wantAscend) return; // already cheated enough
@@ -1445,6 +1448,7 @@ AutoPlay.unDunk = function() {
 //===================== Handle Ascend ==========================
 AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 AutoPlay.wantAscend = false;
+AutoPlay.onAscend = false;
 
 AutoPlay.lastPrestige=0;
 AutoPlay.handleAscend = function() {
@@ -1453,6 +1457,7 @@ AutoPlay.handleAscend = function() {
     AutoPlay.findNextAchievement();
     AutoPlay.setDeadline(0); // reactivate all activities
     AutoPlay.savingsStart = AutoPlay.now;
+    AutoPlay.onAscend=false;
     return;
   }
   if (Game.ascensionMode == 0 && Game.prestige == 0)
@@ -1607,6 +1612,8 @@ AutoPlay.mustRebornAscend = function() {
 }
 
 AutoPlay.doAscend = function(str,log) {
+  if (Game.AscendTimer>0 || Game.ReincarnateTimer>0 || Game.OnAscend) return;
+  if (AutoPlay.onAscend || Game.OnAscend) return;
   AutoPlay.wantAscend = AutoPlay.plantPending /*|| AutoPlay.harvestPlant*/;
   AutoPlay.addActivity("Preparing to ascend.");
   if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant
@@ -1636,7 +1643,8 @@ AutoPlay.doAscend = function(str,log) {
     AutoPlay.delay = 10;
   } else {
     AutoPlay.info(str); AutoPlay.loggingInfo=log?str:0;
-    AutoPlay.logging(); AutoPlay.delay=10; Game.Ascend(true);
+    AutoPlay.logging(); AutoPlay.delay=15; Game.Ascend(true);
+    AutoPlay.onAscend=true;
   }
 }
 
