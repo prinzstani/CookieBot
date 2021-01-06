@@ -1457,8 +1457,21 @@ AutoPlay.handleAscend = function() {
   }
   if (Game.ascensionMode == 0 && Game.prestige == 0)
     AutoPlay.canContinue();  // update achievement goals
-  if (Game.ascensionMode==1 && !AutoPlay.canContinue())
+  if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
+    var date = new Date();
+    date.setTime(AutoPlay.now-Game.startDate);
+    var legacyTime = Game.sayTime(date.getTime()/1000*Game.fps,-1);
+    date.setTime(AutoPlay.now-Game.fullDate);
+    var fullTime=Game.sayTime(date.getTime()/1000*Game.fps,-1);
+    AutoPlay.doAscend("have achievement: " +
+      Game.AchievementsById[AutoPlay.nextAchievement].desc.replace(/<q>.*?<\/q>/ig, '') +
+      " after " + legacyTime + "(total: " + fullTime + ")",1);
+    return;
+  }
+  if (Game.ascensionMode==1 && !AutoPlay.canContinue() && !Game.AchievementsById[AutoPlay.nextAchievement].won) {
     AutoPlay.doAscend("reborn mode did not work, retry.",0);
+    return;
+  }
   if (AutoPlay.preNightMode() && AutoPlay.Config.NightMode>0)
     return; //do not ascend right before the night
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won &&
@@ -1469,8 +1482,10 @@ AutoPlay.handleAscend = function() {
     AutoPlay.wantAscend = true; //avoid buying plants
     if ((Game.ascendMeterLevel>0) /*&&
          (AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent ||
-            (Game.prestige+Game.ascendMeterLevel)%1000==777)*/)
+            (Game.prestige+Game.ascendMeterLevel)%1000==777)*/) {
       AutoPlay.doAscend("go for 1000 ascends",0);
+      return;
+    }
   }
   if (Game.Upgrades["Permanent upgrade slot V"].bought &&
       !Game.Achievements["Reincarnation"].won && !Game.ascensionMode) {
@@ -1479,8 +1494,10 @@ AutoPlay.handleAscend = function() {
     AutoPlay.hyperActive=true; // full activity
     AutoPlay.wantAscend = true; //avoid buying plants
     if (Game.ascendMeterLevel>0 &&
-        AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent)
+        AutoPlay.ascendLimit<Game.ascendMeterLevel*Game.ascendMeterPercent) {
       AutoPlay.doAscend("go for 100 ascends",0);
+      return;
+    }
   }
   var daysInRun = (AutoPlay.now-Game.startDate)/1000/60/60/24;
   if (AutoPlay.nextAchievement==463 && daysInRun > 10 && Game.Objects["Bank"].minigame.profit > daysInRun*300000) {
@@ -1494,16 +1511,23 @@ AutoPlay.handleAscend = function() {
     if (daysInRun>maxDaysInRun) {
       for (var x = Game.cookiesEarned; x>10; x/=10);
       // do not ascend if the first digit of the total cookies is a 9
-      if (x<9) AutoPlay.doAscend("ascend after " + (daysInRun<<0) +
-                 " days just while waiting for next achievement.",1);
+      if (x<9) {
+        AutoPlay.doAscend("ascend after " + (daysInRun<<0) +
+            " days just while waiting for next achievement.",1);
+        return;
+      }
     }
   }
   if (!Game.Upgrades["Lucky digit"].bought && Game.heavenlyChips>777 &&
-      Game.ascendMeterLevel>0 && Game.ascendMeterLevel<20 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7))
+      Game.ascendMeterLevel>0 && Game.ascendMeterLevel<20 && ((Game.prestige+Game.ascendMeterLevel)%10 == 7)) {
     AutoPlay.doAscend("ascend for heavenly upgrade lucky digit.",0);
+    return;
+  }
   if (!Game.Upgrades["Lucky number"].bought && Game.heavenlyChips>77777 &&
-      Game.ascendMeterLevel>0 && Game.ascendMeterLevel<200 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777))
+      Game.ascendMeterLevel>0 && Game.ascendMeterLevel<200 && ((Game.prestige+Game.ascendMeterLevel)%1000 == 777)) {
     AutoPlay.doAscend("ascend for heavenly upgrade lucky number.",0);
+    return;
+  }
   if (!Game.Upgrades["Lucky payout"].bought && Game.heavenlyChips>77777777) {
     var newPrestige = (Game.prestige+Game.ascendMeterLevel)%1000000;
     if (Game.prestige == Game.prestige+1) {
@@ -1515,24 +1539,19 @@ AutoPlay.handleAscend = function() {
     AutoPlay.hyperActive=true; //full activity
     AutoPlay.addActivity("Trying to get heavenly upgrade Lucky Payout.");
     if (Game.ascendMeterLevel>0 && Game.prestige%1000000 < 777777 &&
-        (newPrestige+Game.ascendMeterLevel >= 777777))
+        (newPrestige+Game.ascendMeterLevel >= 777777)) {
       AutoPlay.doAscend("ascend for heavenly upgrade lucky payout.",0);
-    if (Game.prestige%1000000 >= 777777 && Game.ascendMeterLevel>500000)
+      return;
+    }
+    if (Game.prestige%1000000 >= 777777 && Game.ascendMeterLevel>500000) {
       AutoPlay.doAscend("ascend for heavenly upgrade lucky payout.",0);
+      return;
+    }
   }
   if (!Game.Upgrades["Season switcher"].bought &&
       AutoPlay.nextAchievement==108 && Game.ascendMeterLevel>1111) {
     AutoPlay.doAscend("getting season switcher.",1);
-  }
-  if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
-    var date = new Date();
-    date.setTime(AutoPlay.now-Game.startDate);
-    var legacyTime = Game.sayTime(date.getTime()/1000*Game.fps,-1);
-    date.setTime(AutoPlay.now-Game.fullDate);
-    var fullTime=Game.sayTime(date.getTime()/1000*Game.fps,-1);
-      AutoPlay.doAscend("have achievement: " +
-      Game.AchievementsById[AutoPlay.nextAchievement].desc.replace(/<q>.*?<\/q>/ig, '') +
-        " after " + legacyTime + "(total: " + fullTime + ")",1);
+    return;
   }
 }
 
