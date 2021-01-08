@@ -1368,6 +1368,7 @@ AutoPlay.handleWrinklers = function() {
     (AutoPlay.endPhase() && !Game.Achievements["Last Chance to See"].won);
   if (doPop) {
     AutoPlay.poppingWrinklers = true;
+    AutoPlay.wrinklerTime = AutoPlay.now;
     AutoPlay.addActivity("Popping wrinklers for droppings and/or achievements.");
     Game.wrinklers.forEach(function(w) { if (w.close==1) w.hp = 0; } );
   } else {
