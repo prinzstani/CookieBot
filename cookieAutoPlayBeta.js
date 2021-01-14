@@ -1524,7 +1524,7 @@ AutoPlay.handleAscend = function() {
     if (AutoPlay.grinding() && !AutoPlay.wantAscend)
       AutoPlay.addActivity("Still " + ((maxDaysInRun-daysInRun)<<0) +
           " days until next hard ascend.");
-    if (daysInRun>maxDaysInRun) {
+    if (daysInRun>maxDaysInRun && daysInRun>20) {
       for (var x = Game.cookiesEarned; x>10; x/=10);
       // do not ascend if the first digit of the total cookies is a 9
       if (x<9) {
