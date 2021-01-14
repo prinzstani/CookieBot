@@ -80,6 +80,9 @@ AutoPlay.run = function() {
   }
   if (AutoPlay.now<AutoPlay.deadline) return;  // end of speed activity
   // run only once a minute from here
+  if (Game.bakeryNameL.textContent.slice(0,AutoPlay.robotName.length)!=AutoPlay.robotName) {
+    Game.bakeryNameL.textContent = AutoPlay.robotName+Game.bakeryNameL.textContent;
+  } // write the robot name in front of the bakery name
   AutoPlay.activities = AutoPlay.mainActivity;
   AutoPlay.status(false);
   if (AutoPlay.plantPending)
@@ -1402,6 +1405,10 @@ AutoPlay.findNextWrinkler = function() {
 
 //===================== Handle Small Achievements ==========================
 AutoPlay.backupHeight = 0;
+if (Game.bakeryName.slice(0,AutoPlay.robotName.length)==AutoPlay.robotName) {
+  Game.bakeryName = Game.bakeryName.slice(AutoPlay.robotName.length,Game.bakeryName.length);
+  Game.bakeryNamePrompt(); Game.ConfirmPrompt();
+}
 AutoPlay.handleSmallAchievements = function() {
   if (!Game.Achievements["Tabloid addiction"].won)
     for (var i = 0; i < 50; i++) Game.tickerL.click();
@@ -1412,9 +1419,12 @@ AutoPlay.handleSmallAchievements = function() {
   if (!Game.Achievements["God complex"].won) {
     Game.bakeryName = "Orteil"; Game.bakeryNamePrompt(); Game.ConfirmPrompt();
   }
-  if (!Game.Achievements["What's in a name"].won ||
-      Game.bakeryName.slice(0,AutoPlay.robotName.length)!=AutoPlay.robotName) {
+  if (!Game.Achievements["What's in a name"].won) {
     Game.bakeryName = AutoPlay.robotName+bakeryName;
+    Game.bakeryNamePrompt(); Game.ConfirmPrompt();
+  }
+  if (Game.bakeryName.slice(0,AutoPlay.robotName.length)==AutoPlay.robotName) {
+    Game.bakeryName = Game.bakeryName.slice(AutoPlay.robotName.length,Game.bakeryName.length);
     Game.bakeryNamePrompt(); Game.ConfirmPrompt();
   }
   if (AutoPlay.endPhase() && !Game.Achievements["Cheated cookies taste awful"].won)
