@@ -1418,6 +1418,7 @@ AutoPlay.handleSmallAchievements = function() {
   var bakeryName = Game.bakeryName;
   if (!Game.Achievements["God complex"].won) {
     Game.bakeryName = "Orteil"; Game.bakeryNamePrompt(); Game.ConfirmPrompt();
+    Game.bakeryName = bakeryName; Game.bakeryNamePrompt(); Game.ConfirmPrompt();
   }
   if (!Game.Achievements["What's in a name"].won) {
     Game.bakeryName = AutoPlay.robotName+bakeryName;
