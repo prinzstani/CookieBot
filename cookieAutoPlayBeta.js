@@ -1574,7 +1574,11 @@ AutoPlay.handleAscend = function() {
 AutoPlay.canContinue = function() {
   var needAchievement = false;
   if (!Game.Achievements["True Neverclick"].won && Game.cookieClicks==0) {
-    AutoPlay.addActivity("Trying to get achievement: True Neverclick.");
+    if (AutoPlay.addActivity("Trying to get achievement: True Neverclick."))
+	  Game.Prompt('<h2>Attention</h2><div class="block">'+
+      '<h3>Cookie Bot is trying to get the true neverclick achievement.</h3>'+
+      '<h3>Please do not click cookies now.</h3>'+
+      '</div>',['OK']);
     needAchievement = true;
   }
   if (!Game.Achievements["Neverclick"].won && Game.cookieClicks<=15) {
@@ -2120,8 +2124,10 @@ AutoPlay.whatTheBotIsDoing = function() {
 }
 
 AutoPlay.addActivity = function(str) {
-  if (!AutoPlay.activities.includes(str))
+  if (!AutoPlay.activities.includes(str)) {
     AutoPlay.activities+= '<div class="line"></div>'+str;
+    return true;
+  } else return false;
 }
 
 //===================== Init & Start ==========================
