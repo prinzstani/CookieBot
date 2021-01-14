@@ -1576,7 +1576,8 @@ AutoPlay.canContinue = function() {
   if (!Game.Achievements["True Neverclick"].won && Game.cookieClicks==0) {
     AutoPlay.addActivity("Trying to get achievement: True Neverclick.");
     needAchievement = true;
-  } else if (!Game.Achievements["Neverclick"].won && Game.cookieClicks<=15) {
+  }
+  if (!Game.Achievements["Neverclick"].won && Game.cookieClicks<=15) {
     AutoPlay.addActivity("Trying to get achievement: Neverclick.");
     needAchievement = true;
   }
