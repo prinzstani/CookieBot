@@ -1571,14 +1571,18 @@ AutoPlay.handleAscend = function() {
   }
 }
 
+AutoPlay.neverclickWarn=true;
+
 AutoPlay.canContinue = function() {
   var needAchievement = false;
   if (!Game.Achievements["True Neverclick"].won && Game.cookieClicks==0) {
-    if (AutoPlay.addActivity("Trying to get achievement: True Neverclick."))
-	  Game.Prompt('<h2>Attention</h2><div class="block">'+
-      '<h3>Cookie Bot is trying to get the true neverclick achievement.</h3>'+
-      '<h3>Please do not click cookies now.</h3>'+
+    AutoPlay.addActivity("Trying to get achievement: True Neverclick.");
+    if (AutoPlay.neverclickWarn)
+	  Game.Prompt('<h3>Attention</h3><div class="block">'+
+      '<p>Cookie Bot is trying to get the true neverclick achievement.</p>'+
+      '<p>Please do not click cookies now.</p>'+
       '</div>',['OK']);
+    AutoPlay.neverclickWarn=false;
     needAchievement = true;
   }
   if (!Game.Achievements["Neverclick"].won && Game.cookieClicks<=15) {
@@ -1620,6 +1624,7 @@ AutoPlay.doReincarnate = function() {
     Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt();
   }
   Game.Reincarnate(true);
+  AutoPlay.neverclickWarn=true;
   AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 }
 
