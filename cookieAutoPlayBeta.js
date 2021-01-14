@@ -1947,6 +1947,8 @@ AutoPlay.ToggleConfigUp = function(config) {
   AutoPlay.SaveConfig(AutoPlay.Config);
 }
 
+AutoPlay.ConfigData.BotMode =
+  {label: ['IDLE', 'AUTO', 'MANUAL'], desc: 'Cookiebot global mode'};
 AutoPlay.ConfigData.NightMode =
   {label: ['OFF', 'AUTO', 'ON'], desc: 'Handling of night mode'};
 AutoPlay.ConfigData.ClickMode =
@@ -1964,7 +1966,7 @@ AutoPlay.ConfigData.CheatGolden =
 AutoPlay.ConfigData.CleanLog = {label: ['Clean Log'], desc: 'Cleaning the log'};
 AutoPlay.ConfigData.ShowLog = {label: ['Show Log'], desc: 'Showing the log'};
 
-AutoPlay.ConfigDefault = {NightMode: 1, ClickMode: 1, GoldenClickMode: 1,
+AutoPlay.ConfigDefault = {BotMode: 1, NightMode: 1, ClickMode: 1, GoldenClickMode: 1,
                           SavingStrategy: 1, CheatLumps: 1, CheatGolden: 1,
                           CleanLog: 0, ShowLog: 0};
 
@@ -2006,6 +2008,7 @@ AutoPlay.Disp.AddMenuPref = function() {
     div.appendChild(label);
     return div;
   }
+  frag.appendChild(listing('BotMode',AutoPlay.setBotMode));
   frag.appendChild(listing('NightMode',null));
   frag.appendChild(listing('ClickMode',null));
   frag.appendChild(listing('GoldenClickMode',null));
@@ -2021,6 +2024,12 @@ AutoPlay.Disp.AddMenuPref = function() {
 }
 
 if (!AutoPlay.Backup.UpdateMenu) AutoPlay.Backup.UpdateMenu = Game.UpdateMenu;
+
+AutoPlay.setBotMode = function() {
+  AutoPlay.ToggleConfig('BotMode');
+  AutoPlay.info("The bot has changed mode to "+AutoPlay.ConfigData.BotMode.label[AutoPlay.Config.BotMode]);
+//  AutoPlay.info("The bot has changed mode to "+AutoPlay.ConfigData.BotMode[]);
+}
 
 Game.UpdateMenu = function() {
   AutoPlay.Backup.UpdateMenu();
