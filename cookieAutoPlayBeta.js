@@ -1070,9 +1070,10 @@ AutoPlay.plantSeeds = function(game, targets) {
     if (!game.isTileUnlocked(whereX, whereY)){
       continue;
     }
-    if(!game.canPlant(game.plants[seed]))
-      return;
+    if (!game.canPlant(game.plants[seed]))
+      continue;
     // check if position is already occupied by target
+	// should be empty if canPlant is true
     var oldPlant = (game.getTile(whereX,whereY))[0];
     if (oldPlant!=0) { // slot is already planted
       // get rid of it if it isn't the target
@@ -1080,9 +1081,7 @@ AutoPlay.plantSeeds = function(game, targets) {
         AutoPlay.cleanSeed(game,whereX,whereY);
         return;  //will try again next update
       }
-    }
-    // here we know that nothing is in the spot
-    else {
+    } else { // here we know that nothing is in the spot
       cost += game.plants[seed].cost
       toPlant = toPlant.concat([target])
     }
@@ -1092,7 +1091,6 @@ AutoPlay.plantSeeds = function(game, targets) {
   if (cost > Game.cookies - AutoPlay.savingsGoal) {
     return;
   }
-
   for (var target of toPlant){
     var seed = target[0],
       whereX = target[1],
