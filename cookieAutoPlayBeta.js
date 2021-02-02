@@ -101,7 +101,7 @@ AutoPlay.run = function() {
   AutoPlay.handleNotes();
   // add some more hints what the bot is doing
   if (!Game.HasAchiev('Elder')) AutoPlay.addActivity("Getting 7 grandma types");
-  if (Game.HasAchiev('Elder') && !Game.Upgrades['Bingo center/Research facility'].unlocked &&
+  if (Game.HasAchiev('Elder') && Game.Upgrades['Bingo center/Research facility'].unlocked &&
       !Game.Upgrades['Bingo center/Research facility'].bought)
     AutoPlay.addActivity("Funding the grandma research facility");
 }
@@ -1529,7 +1529,7 @@ AutoPlay.handleAscend = function() {
   } else {
     var maxDaysInRun =
           40*(Game.prestige+1000000000)/(Game.prestige+Game.ascendMeterLevel);
-    if (AutoPlay.grinding() && !AutoPlay.wantAscend)
+    if (AutoPlay.grinding() && !AutoPlay.wantAscend && daysInRun>10)
       AutoPlay.addActivity("Still " + ((maxDaysInRun-daysInRun)<<0) +
           " days until next hard ascend.");
     if (daysInRun>maxDaysInRun && daysInRun>20) {
