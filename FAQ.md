@@ -8,7 +8,17 @@ You can see the status of the bot when hovering over the version information of 
 
 ### What is the bot aiming at right now?
 You can see the current steps the bot is working on by hovering over the version information of the bot (bottom left of game screen). 
-Please note that the bot has a main goal as displayed in the first line, and several activities it is pursuing just now.
+Please note that the bot has a main goal as displayed in the first line, and several sub-goals it is pursuing at any given time.
+
+The main goal is basically the goal where as soon as it's achieved, assuming it's not waiting for something else (usually a plant to finish maturing so it can harvest it for its seed), it will ascend and begin a new cycle.
+
+Subgoals are smaller ones, usually not related to a major achievement, which is stuff like trying to buy new upgrades/harvest plants/buy buildings/etc.
+
+For example, my current major achievement is for 1 quindecillion cookies to be baked in one ascension. As soon as this is reached, unless the bot is waiting to harvest a plant, it will ascend. But it's ALSO saving 636.677 tredecillion cookies (for bank) at a minimum, waiting to buy Putri Salju (which it never will since I'll hit the major achievement first), trying to grow Golden Clovers and Chimerose on the farm (and if they appear before the major achievement is hit, it will let them grow, harvest them, then ascend), or failing all of those, will hard ascend in 34 days (but it will only take about another day at most to achieve it, really).
+
+Lastly, if the achievement isn't exactly major enough (such as some of the earliest milestones), it will tend to just collect those on the way through to some larger achievement. Ascending, for example, is pointless without at least one prestige level, so it will never select some mundane achievement like "bake 1000 cookies" to ascend for.
+
+Basically, after Hardcore and Neverclick are attained, the bot begins knocking out all the grandma-related achievements. The grandmapocalypse is, naturally, part of that. Once that's done, it will begin doing stuff like getting antimatter condensers, develop the dragon, and get the season switcher. From there, it begins completing all season achievements.
 
 ### The bot is stuck - what do I do?
 First, you might want to create an issue about the problem, in particular if the bot has run itself into the problem.
