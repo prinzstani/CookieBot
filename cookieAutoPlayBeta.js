@@ -1606,9 +1606,12 @@ AutoPlay.canContinue = function() {
   if (!Game.Achievements["Speed baking I"].won &&
             (AutoPlay.now-Game.startDate <= 1000*60*35)) {
     AutoPlay.addActivity("Trying to get achievement: Speed baking I.");
+    AutoPlay.addActivity("Trying to get achievement: Speed baking II.");
+    AutoPlay.addActivity("Trying to get achievement: Speed baking III.");
   } else if (!Game.Achievements["Speed baking II"].won &&
             (AutoPlay.now-Game.startDate <= 1000*60*25)) {
     AutoPlay.addActivity("Trying to get achievement: Speed baking II.");
+    AutoPlay.addActivity("Trying to get achievement: Speed baking III.");
     for (var i = 1; i<3; i++) // threefold clicking speed
       setTimeout(function(){Game.ClickCookie(0, Game.computedMouseCps);}, 60*i);
   } else if (!Game.Achievements["Speed baking III"].won &&
