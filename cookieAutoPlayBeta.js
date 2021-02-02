@@ -57,6 +57,7 @@ AutoPlay.run = function() {
   if (AutoPlay.delay>0) { AutoPlay.delay--; return; }
   AutoPlay.now=Date.now();
   if (AutoPlay.nextAchievement==397) { AutoPlay.runJustRight(); return; }
+  AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
   if (AutoPlay.nightMode() && !Game.ascensionMode) {
     AutoPlay.cheatSugarLumps(AutoPlay.now-Game.lumpT);
     return;
@@ -68,7 +69,6 @@ AutoPlay.run = function() {
   if (AutoPlay.hyperActive || (AutoPlay.now>=AutoPlay.deadline)) { // high activity phase
     AutoPlay.hyperActive=false; // set to inactive, but can be overwritten
     AutoPlay.bestBuy(); // speed needed
-    AutoPlay.cpsMult = Game.cookiesPs/Game.unbuffedCps;
     // if high cps then do not wait
     if (AutoPlay.cpsMult>100) AutoPlay.hyperActive=true; // full speed
     AutoPlay.handleSpeedMinigames();
@@ -194,7 +194,6 @@ AutoPlay.nightMode = function() {
     AutoPlay.handleGoldenCookies();
     AutoPlay.addActivity('Waiting for good time to buy Golden switch.');
     if ((AutoPlay.cpsMult<0.8) || h<7) {
-      AutoPlay.addActivity('Now is a good time to buy Golden switch.');
       var sv = Game.Upgrades["Shimmering veil [off]"];
       if (sv.unlocked && sv.canBuy() &&
         Game.Upgrades["Reinforced membrane"].bought) sv.buy();
@@ -1348,6 +1347,7 @@ AutoPlay.handleStockMarket = function() {
 
 AutoPlay.nightAtStocks = function() {
   if (!Game.isMinigameReady(Game.Objects["Bank"])) return;
+  AutoPlay.handleStockMarket();
   var market = Game.Objects["Bank"].minigame;
   for (var g in market.goods) {
     let good = market.goods[g];
