@@ -99,6 +99,10 @@ AutoPlay.run = function() {
   AutoPlay.handleAscend();
   AutoPlay.handleMinigames();
   AutoPlay.handleNotes();
+  // add some more hints what the bot is doing
+  if (!Game.HasAchiev('Elder')) AutoPlay.addActivity("Getting 7 grandma types");
+  if (Game.HasAchiev('Elder') && !Game.Upgrades['Bingo center/Research facility'].bought)
+    AutoPlay.addActivity("Funding the grandma research facility");
 }
 
 AutoPlay.runRightCount=0;
