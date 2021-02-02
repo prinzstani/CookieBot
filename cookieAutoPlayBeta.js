@@ -101,7 +101,8 @@ AutoPlay.run = function() {
   AutoPlay.handleNotes();
   // add some more hints what the bot is doing
   if (!Game.HasAchiev('Elder')) AutoPlay.addActivity("Getting 7 grandma types");
-  if (Game.HasAchiev('Elder') && !Game.Upgrades['Bingo center/Research facility'].bought)
+  if (Game.HasAchiev('Elder') && !Game.Upgrades['Bingo center/Research facility'].unlocked &&
+      !Game.Upgrades['Bingo center/Research facility'].bought)
     AutoPlay.addActivity("Funding the grandma research facility");
 }
 
@@ -736,6 +737,7 @@ AutoPlay.farmGoldenSugarLumps = function(age) {
 */
 
 AutoPlay.handleMinigames = function() {
+  if (Game.ascensionMode==1) return; //no mini games in born again
   AutoPlay.handlePantheon();
   AutoPlay.handleGarden();
   AutoPlay.handleStockMarket();
