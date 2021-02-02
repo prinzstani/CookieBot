@@ -186,10 +186,14 @@ AutoPlay.nightMode = function() {
     return true;
   }
   AutoPlay.addActivity('Preparing for the night.');
+  AutoPlay.nightAtGarden(true);
+  AutoPlay.nightAtStocks();
   var gs = Game.Upgrades["Golden switch [off]"];
   if (gs.unlocked) {
     AutoPlay.handleGoldenCookies();
+    AutoPlay.addActivity('Waiting for good time to buy Golden switch.');
     if ((AutoPlay.cpsMult<0.8) || h<7) {
+      AutoPlay.addActivity('Now is a good time to buy Golden switch.');
       var sv = Game.Upgrades["Shimmering veil [off]"];
       if (sv.unlocked && sv.canBuy() &&
         Game.Upgrades["Reinforced membrane"].bought) sv.buy();
@@ -198,8 +202,6 @@ AutoPlay.nightMode = function() {
     if (!gs.bought) return true; // do not activate spirits before golden switch
   }
   AutoPlay.nightAtPantheon(true);
-  AutoPlay.nightAtGarden(true);
-  AutoPlay.nightAtStocks();
   AutoPlay.night = true;
   return true;
 }
