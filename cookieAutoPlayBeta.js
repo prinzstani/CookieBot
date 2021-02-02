@@ -102,7 +102,7 @@ AutoPlay.run = function() {
   // add some more hints what the bot is doing
   if (!Game.HasAchiev('Elder')) AutoPlay.addActivity("Getting 7 grandma types");
   if (Game.HasAchiev('Elder') && Game.Upgrades['Bingo center/Research facility'].unlocked &&
-      !Game.Upgrades['Bingo center/Research facility'].bought)
+      Game.ascensionMode!=1 && !Game.Upgrades['Bingo center/Research facility'].bought)
     AutoPlay.addActivity("Funding the grandma research facility");
 }
 
