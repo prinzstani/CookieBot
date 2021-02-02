@@ -260,7 +260,8 @@ AutoPlay.handleClicking = function() {
     for (var i = 1; i<10; i++) setTimeout(AutoPlay.speedClicking, 30*i);
   else{  // ClickMode == 1
     Game.ClickCookie();
-    if ('Click frenzy' in Game.buffs || 'Dragonflight' in Game.buffs){
+    if ('Click frenzy' in Game.buffs || 'Dragonflight' in Game.buffs 
+	    || 'Cursed finger' in Game.buffs) {
       for (var i = 1; i<5; i++) setTimeout(Game.ClickCookie, 30*i);
     }
   }
