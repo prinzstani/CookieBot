@@ -3,7 +3,7 @@
 
 var AutoPlay;
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.029";
+AutoPlay.version = "2.030";
 AutoPlay.gameVersion = "2.031";
 
 //align for new version of cookie clicker
