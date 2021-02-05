@@ -74,7 +74,8 @@ AutoPlay.run = function() {
     AutoPlay.handleSpeedMinigames();
   }
   
-  if (Game.ascensionMode==1) AutoPlay.handleAscend(); // check ascend often in reborn
+  // check ascend often in reborn and during ascend
+  if (Game.ascensionMode==1 || AutoPlay.onAscend) AutoPlay.handleAscend();
   if (!Game.Upgrades["Lucky payout"].bought && Game.heavenlyChips>77777777) {
     AutoPlay.handleAscend(); // check ascend often for lucky payout
   }
@@ -214,15 +215,14 @@ AutoPlay.handleGoldenCookies = function() { // pop first golden cookie or reinde
      !Game.Achievements['Four-leaf cookie'].won) return;
   for (var sx in Game.shimmers) {
     var s = Game.shimmers[sx];
+    AutoPlay.hyperActive=true; // check whether full activity
     if (s.type!="golden" || s.life<Game.fps || !Game.Achievements["Early bird"].won) {
       s.pop();
-      AutoPlay.hyperActive=true; // check whether full activity
       return;
     }
     if ((s.life/Game.fps)<(s.dur-2) && (Game.Achievements["Fading luck"].won)) {
       s.pop();
-      AutoPlay.hyperActive=true; // check whether full activity
-      if(AutoPlay.Config.GoldenClickMode==1) return;
+      if (AutoPlay.Config.GoldenClickMode==1) return;
     }
   }
   AutoPlay.cheatGoldenCookies();
@@ -752,16 +752,17 @@ AutoPlay.handleGrimoires = function() {
     var g = Game.Objects["Wizard tower"].minigame;
     var sp = g.spells["hand of fate"]; // try to get a sugar lump in backfiring
     if (Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) &&
-        g.magic/g.magicM >= 0.95)
+        g.magic/g.magicM >= 0.95) {
       g.castSpell(sp);
-    if (Game.shimmerTypes['golden'].n == 2 &&
-        !Game.Achievements["Four-leaf cookie"].won && Game.lumps>0 &&
-        g.magic>=g.getSpellCost(sp))
-      g.castSpell(sp);
+    }
     if (Game.shimmerTypes['golden'].n == 3 &&
         !Game.Achievements["Four-leaf cookie"].won) {
-      g.lumpRefill.click();
-      g.castSpell(sp);
+	    if (g.magic>30) {
+        //AutoPlay.info("getting the fourth leaf");
+        var t=Game.Objects["Wizard tower"];
+        t.sell(t.amount-30);
+        // need to wait a while for update of grimoire
+      }
     }
     sp = g.spells["conjure baked goods"];
     if (AutoPlay.cpsMult>100) {
