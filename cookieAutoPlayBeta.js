@@ -868,7 +868,11 @@ AutoPlay.plantDependencies = [
 ['dummy','dummy','dummy'], // just to fill index 0
 ['queenbeetLump','queenbeet','queenbeet'], // need to know its index
 ['everdaisy','elderwort','tidygrass'], // need to know its index
-// critical path
+// queenbeet is most important
+['bakeberry','bakerWheat','bakerWheat'], //level 1
+['chocoroot','bakerWheat','brownMold'], //level 1
+['queenbeet','chocoroot','bakeberry'], //level 2
+// longest path
 ['thumbcorn','bakerWheat','bakerWheat'], //level 1
 ['cronerice','bakerWheat','thumbcorn'], //level 2
 ['gildmillet','thumbcorn','cronerice'], //level 3
@@ -879,10 +883,8 @@ AutoPlay.plantDependencies = [
 ['drowsyfern','chocoroot','keenmoss'], //level 7
 ['duketater','queenbeet','queenbeet'], //level 3
 ['tidygrass','bakerWheat','whiteChocoroot'], //level 3
-['queenbeet','chocoroot','bakeberry'], //level 2
 ['nursetulip','whiskerbloom','whiskerbloom'], //level 7
 ['doughshroom','crumbspore','crumbspore'], //level 1
-['bakeberry','bakerWheat','bakerWheat'], //level 1
 ['wrinklegill','crumbspore','brownMold'], //level 1
 ['shriekbulb','wrinklegill','elderwort'], //level 7
 ['ichorpuff','crumbspore','elderwort'], //level 7
@@ -891,7 +893,6 @@ AutoPlay.plantDependencies = [
 ['keenmoss','brownMold','greenRot'], //level 6
 ['wardlichen','cronerice','whiteMildew'], //level 3
 ['glovemorel','thumbcorn','crumbspore'], //level 2
-['chocoroot','bakerWheat','brownMold'], //level 1
 ['whiteChocoroot','chocoroot','whiteMildew'], //level 2
 ['whiteMildew','brownMold','brownMold'], //level 1
 ['goldenClover','bakerWheat','gildmillet'], //level 4
@@ -1112,12 +1113,26 @@ AutoPlay.seedCalendar = function(game,sector) {
   if (sector==0) AutoPlay.plantsMissing = false;
   var doPrint =
     (sector==0) || (sector!=3 && Game.Objects["Farm"].level==sector+6);
-  if (!Game.Upgrades["Wheat slims"].unlocked &&
-      game.plants["bakerWheat"].unlocked) {
+  if (!Game.Upgrades["Ichor syrup"].unlocked &&
+      game.plants["ichorpuff"].unlocked) {
     AutoPlay.switchSoil(game,sector,'fertilizer');
-    if (doPrint) AutoPlay.addActivity("Trying to get Wheat slims.");
+    if (doPrint) AutoPlay.addActivity("Trying to get Ichor syrup.");
     AutoPlay.plantCookies = true;
-    return "bakerWheat";
+    return "ichorpuff";
+  }
+  if (!Game.Upgrades["Green yeast digestives"].unlocked &&
+      game.plants["greenRot"].unlocked) {
+    AutoPlay.switchSoil(game,sector,'fertilizer');
+    if (doPrint) AutoPlay.addActivity("Trying to get Green yeast digestives.");
+    AutoPlay.plantCookies = true;
+    return "greenRot";
+  }
+  if (!Game.Upgrades["Duketater cookies"].unlocked &&
+      game.plants["duketater"].unlocked) {
+    AutoPlay.switchSoil(game,sector,'fertilizer');
+    if (doPrint) AutoPlay.addActivity("Trying to get Duketater cookies.");
+    AutoPlay.plantCookies = true;
+    return "duketater";
   }
   if (!Game.Upgrades["Elderwort biscuits"].unlocked &&
       game.plants["elderwort"].unlocked) {
@@ -1133,33 +1148,19 @@ AutoPlay.seedCalendar = function(game,sector) {
     AutoPlay.plantCookies = true;
     return "bakeberry";
   }
+  if (!Game.Upgrades["Wheat slims"].unlocked &&
+      game.plants["bakerWheat"].unlocked) {
+    AutoPlay.switchSoil(game,sector,'fertilizer');
+    if (doPrint) AutoPlay.addActivity("Trying to get Wheat slims.");
+    AutoPlay.plantCookies = true;
+    return "bakerWheat";
+  }
   if (!Game.Upgrades["Fern tea"].unlocked &&
       game.plants["drowsyfern"].unlocked) {
     AutoPlay.switchSoil(game,sector,'fertilizer');
     if (doPrint) AutoPlay.addActivity("Trying to get Fern tea.");
     AutoPlay.plantCookies = true;
     return "drowsyfern";
-  }
-  if (!Game.Upgrades["Duketater cookies"].unlocked &&
-      game.plants["duketater"].unlocked) {
-    AutoPlay.switchSoil(game,sector,'fertilizer');
-    if (doPrint) AutoPlay.addActivity("Trying to get Duketater cookies.");
-    AutoPlay.plantCookies = true;
-    return "duketater";
-  }
-  if (!Game.Upgrades["Green yeast digestives"].unlocked &&
-      game.plants["greenRot"].unlocked) {
-    AutoPlay.switchSoil(game,sector,'fertilizer');
-    if (doPrint) AutoPlay.addActivity("Trying to get Green yeast digestives.");
-    AutoPlay.plantCookies = true;
-    return "greenRot";
-  }
-  if (!Game.Upgrades["Ichor syrup"].unlocked &&
-      game.plants["ichorpuff"].unlocked) {
-    AutoPlay.switchSoil(game,sector,'fertilizer');
-    if (doPrint) AutoPlay.addActivity("Trying to get Ichor syrup.");
-    AutoPlay.plantCookies = true;
-    return "ichorpuff";
   }
   AutoPlay.plantCookies = false;
   AutoPlay.switchSoil(game,sector,(AutoPlay.plantPending)?'fertilizer':'clay');
