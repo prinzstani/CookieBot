@@ -1032,10 +1032,8 @@ AutoPlay.plantSector = function(game,sector,plant1,plant2,plant0) {
   }
   if (plant0=="everdaisy") {
     for (var y = Y; y < Y+3; y++) {
-      AutoPlay.plantSeeds(game,[
-        [plant1,X,y],
-        [plant2,X+2,y]
-      ]);
+      AutoPlay.plantSeed(game,plant1,X,y);
+      AutoPlay.plantSeed(game,plant2,X+2,y);
     }
     return;
   }
@@ -1072,10 +1070,17 @@ AutoPlay.plantSeeds = function(game, targets) {
   // calculate costs
   let cost = 0;
   let toPlant = []; // array of targets to plant
+  // if something is in the way, reorder
+  var keepSeed=0;
   for (var target of targets){
     var seed = target[0],
       whereX = target[1],
       whereY = target[2];
+    if (keepSeed) {
+      var swap=seed;
+      seed=keepSeed;
+      keepSeed=swap;
+    }
     // check if valid position and can plant
     if (!game.isTileUnlocked(whereX, whereY)){
       continue;
@@ -1083,17 +1088,18 @@ AutoPlay.plantSeeds = function(game, targets) {
     if (!game.canPlant(game.plants[seed]))
       continue;
     // check if position is already occupied by target
-	// should be empty if canPlant is true
+	  // should be empty if canPlant is true
     var oldPlant = (game.getTile(whereX,whereY))[0];
     if (oldPlant!=0) { // slot is already planted
       // get rid of it if it isn't the target
       if (game.plantsById[oldPlant-1].key!=seed){
         AutoPlay.cleanSeed(game,whereX,whereY);
-        return;  //will try again next update
+        keepSeed=seed;
+        continue;  //jump over filled slot
       }
     } else { // here we know that nothing is in the spot
       cost += game.plants[seed].cost
-      toPlant = toPlant.concat([target])
+      toPlant = toPlant.concat([[seed,whereX,whereY]])
     }
   }
   // cost is cost in minutes of current CPS
