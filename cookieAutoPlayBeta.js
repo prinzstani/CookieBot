@@ -755,14 +755,10 @@ AutoPlay.handleGrimoires = function() {
         g.magic/g.magicM >= 0.95) {
       g.castSpell(sp);
     }
-    if (Game.shimmerTypes['golden'].n == 3 &&
-        !Game.Achievements["Four-leaf cookie"].won) {
-	    if (g.magic>30) {
-        //AutoPlay.info("getting the fourth leaf");
-        var t=Game.Objects["Wizard tower"];
-        t.sell(t.amount-30);
-        // need to wait a while for update of grimoire
-      }
+    if (Game.shimmerTypes['golden'].n >= 3 && g.magic > 30) {
+      var t=Game.Objects["Wizard tower"];
+      t.sell(t.amount-30);
+      // need to wait a while for update of grimoire
     }
     sp = g.spells["conjure baked goods"];
     if (AutoPlay.cpsMult>100) {
