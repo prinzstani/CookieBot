@@ -3,6 +3,8 @@
 
 The tool is designed to mimic a human player, and it avoids being super-human in terms of clicking speed and possible moves. This includes also not playing at night, i.e. from 23:00 until 07:00. For the night mode, if possible, the golden switch is used together with fitting spirits in order to maximize output.
 
+In most cases, the bot uses the same interface as a human player. Some achievements take very long time or are even impossible with the regular game interface. In these cases, the bot accesses the internal game parameters and cheats the game. Cheats are activities that are not possible from the user interface.
+
 Cookie Bot will start wherever you are in your game and continue to a complete playthrough.
 
 ## Current version
