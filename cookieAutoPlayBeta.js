@@ -216,13 +216,14 @@ AutoPlay.handleGoldenCookies = function() { // pop first golden cookie or reinde
   for (var sx in Game.shimmers) {
     var s = Game.shimmers[sx];
     AutoPlay.hyperActive=true; // check whether full activity
+    if (s.force == "cookie storm drop" && AutoPlay.Config.GoldenClickMode==2) s.pop();
     if (s.type!="golden" || s.life<Game.fps || !Game.Achievements["Early bird"].won) {
       s.pop();
       return;
     }
     if ((s.life/Game.fps)<(s.dur-2) && (Game.Achievements["Fading luck"].won)) {
       s.pop();
-      if (AutoPlay.Config.GoldenClickMode==1) return;
+      return;
     }
   }
   AutoPlay.cheatGoldenCookies();
