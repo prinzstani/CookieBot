@@ -1534,7 +1534,7 @@ AutoPlay.handleAscend = function() {
   } else {
     var maxDaysInRun =
           40*(Game.prestige+1000000000)/(Game.prestige+Game.ascendMeterLevel);
-    if (AutoPlay.grinding() && !AutoPlay.wantAscend && daysInRun>10)
+    if (!AutoPlay.wantAscend && daysInRun>20)
       AutoPlay.addActivity("Still " + ((maxDaysInRun-daysInRun)<<0) +
           " days until next hard ascend.");
     if (daysInRun>maxDaysInRun && daysInRun>20) {
