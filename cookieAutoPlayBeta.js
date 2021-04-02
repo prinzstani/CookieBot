@@ -1655,6 +1655,7 @@ AutoPlay.doAscend = function(str,log) {
   AutoPlay.addActivity("Preparing to ascend.");
   if (AutoPlay.wantAscend) return; // do not ascend when we wait for a plant
   if (Game.hasBuff("Sugar frenzy")) return; // do not ascend during sugar frenzy
+  if (Game.hasBuff("Sugar blessing")) return; // do not ascend during sugar blessing
   AutoPlay.setDeadline(0); // full activity to monitor ascension
   if (Game.wrinklers.some(function(w) { return w.close; } )) {
     AutoPlay.assignSpirit(0,"scorn",1);
