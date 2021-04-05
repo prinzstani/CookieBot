@@ -211,6 +211,7 @@ AutoPlay.nightMode = function() {
 AutoPlay.handleGoldenCookies = function() { // pop first golden cookie or reindeer
   if (AutoPlay.Config.GoldenClickMode==0) return;
   if (Game.TickerEffect) Game.tickerL.click(); // grab fortune cookie
+  if (Game.shimmerTypes['golden'].n>=2) AutoPlay.hyperActive=true;
   if (Game.shimmerTypes['golden'].n>=4 &&
      !Game.Achievements['Four-leaf cookie'].won) return;
   for (var sx in Game.shimmers) {
@@ -761,8 +762,10 @@ AutoPlay.handleGrimoires = function() {
       t.sell(t.amount-30);
       // need to wait a while for update of grimoire
     }
-    sp = g.spells["conjure baked goods"];
     if (AutoPlay.cpsMult>100) {
+      sp = g.spells["hand of fate"]; // try to get another golden cookie
+      if (g.magic>=g.getSpellCost(sp)) { g.castSpell(sp); return; }
+      sp = g.spells["conjure baked goods"]; // normally not worth it
       if (g.magic>=g.getSpellCost(sp)) { g.castSpell(sp); return; }
       if (AutoPlay.canUseLumps && Game.lumps>100) { g.lumpRefill.click(); }
     }
