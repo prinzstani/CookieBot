@@ -170,7 +170,7 @@ AutoPlay.preNightMode = function() {
 AutoPlay.nightMode = function() {
   if (Game.OnAscend) return false;
   if (AutoPlay.Config.NightMode==0) return false;
-  if (AutoPlay.Config.NightMode==1 && AutoPlay.grinding() && !AutoPlay.endPhase()) {
+  if (AutoPlay.Config.NightMode==1 && AutoPlay.grinding()) {
     return false; //do not auto-sleep while grinding
   }
   var h = (new Date).getHours();
@@ -236,7 +236,7 @@ AutoPlay.cheatGoldenCookies = function() {
   var level = 10+30*(AutoPlay.Config.CheatGolden-1);
   if (AutoPlay.Config.CheatGolden==1) {
     if (AutoPlay.wantAscend) return; // already cheated enough
-    if (!AutoPlay.grinding() || AutoPlay.endPhase())
+    if (!AutoPlay.grindingCheat())
       return; // only cheat in grinding
     var daysInRun = (AutoPlay.now-Game.startDate)/1000/60/60/24;
     if (daysInRun<20) return; // cheat only after 20 days
@@ -1697,10 +1697,20 @@ AutoPlay.endPhase = function() {
 }
 
 AutoPlay.grinding = function() {
-  let grindingStart=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-8];
-  if (Game.AchievementsById[grindingStart].won) { // grind for the last 5 big achievements
-    if (!AutoPlay.endPhase())
+  let grindingStart=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-10];
+  if (Game.AchievementsById[grindingStart].won) { // grind for the last 7 big achievements
+    if (!AutoPlay.endPhase()) {
       AutoPlay.addActivity('Grinding cookies - do not sleep at night.');
+      return true;
+    }
+  }
+  return false;
+}
+
+AutoPlay.grindingCheat = function() {
+  if (!AutoPlay.grinding()) return false;
+  let cheatingStart=AutoPlay.wantedAchievements[AutoPlay.wantedAchievements.length-8];
+  if (Game.AchievementsById[cheatingStart].won) { // cheat for the last 5 big achievements
     return true;
   }
   return false;
