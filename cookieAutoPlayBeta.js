@@ -1977,7 +1977,7 @@ AutoPlay.ToggleConfigUp = function(config) {
 }
 
 AutoPlay.ConfigData.BotMode =
-  {label: ['IDLE', 'AUTO', 'MANUAL'], desc: 'Cookiebot global mode'};
+  {label: ['IDLE', 'AUTO', 'MANUAL'], desc: 'Cookiebot global mode (work in progress)'};
 AutoPlay.ConfigData.NightMode =
   {label: ['OFF', 'AUTO', 'ON'], desc: 'Handling of night mode'};
 AutoPlay.ConfigData.ClickMode =
