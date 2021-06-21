@@ -1065,7 +1065,7 @@ AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
 AutoPlay.plantSeeds = function(game, targets) {
   // plant target locations.  Will only plant if can afford all targets.
   // targets is an array of arrays with seed, x, y positions
-  if (AutoPlay.cpsMult > 1) return; // do not plant when it is expensive
+  if (AutoPlay.cpsMult > 1+100*AutoPlay.grindingCheat()) return; // do not plant when it is expensive
 
   // calculate costs
   let cost = 0;
