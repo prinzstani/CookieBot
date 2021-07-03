@@ -1048,7 +1048,10 @@ AutoPlay.plantCookies = false;
 AutoPlay.wantGardenSacrifice = false;
 
 AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
-  if (AutoPlay.cpsMult>1) return; // do not plant when it is expensive
+  if (AutoPlay.cpsMult > 1+10*(AutoPlay.grindingCheat()+(AutoPlay.Config.CheatGolden>1))) {
+    AutoPlay.addActivity("Do not buy plants now - it is too expensive.");
+    return; // do not plant when it is expensive
+  }
   if (!game.isTileUnlocked(whereX,whereY)) return; // do not plant on locked tiles
   var oldPlant = (game.getTile(whereX,whereY))[0];
   if (oldPlant!=0) { // slot is already planted, try to get rid of it
@@ -1065,8 +1068,10 @@ AutoPlay.plantSeed = function(game,seed,whereX,whereY) {
 AutoPlay.plantSeeds = function(game, targets) {
   // plant target locations.  Will only plant if can afford all targets.
   // targets is an array of arrays with seed, x, y positions
-  if (AutoPlay.cpsMult > 1+100*AutoPlay.grindingCheat()) return; // do not plant when it is expensive
-
+  if (AutoPlay.cpsMult > 1+10*(AutoPlay.grindingCheat()+(AutoPlay.Config.CheatGolden>1))) {
+    AutoPlay.addActivity("Do not buy plants now - it is too expensive.");
+    return; // do not plant when it is expensive
+  }
   // calculate costs
   let cost = 0;
   let toPlant = []; // array of targets to plant
