@@ -123,9 +123,11 @@ AutoPlay.runJustRight = function() {
       if ((me.getPrice()<Game.cookies) &&
           (me.amount<10+Game.ObjectsById[i+1].amount)) { me.buy(1); return; }
     }
-    Game.UpgradesById.forEach(function(e) {
-      if (e.unlocked && !e.bought && e.canBuy() && e.pool!="toggle" &&
-          notBuy.indexOf(e.id)<0) { e.buy(true); } });
+    for (var me in Game.UpgradesById) {
+        var e = Game.UpgradesById[me];
+        if (e.unlocked && !e.bought && e.canBuy() && e.pool != "toggle" &&
+              notBuy.indexOf(e.id) < 0) { e.buy(true); }
+      };
   } else {
     var cookieDiff = goal-Game.cookies;
     if (Game.BuildingsOwned==0) { // almost there
@@ -495,10 +497,11 @@ AutoPlay.bestBuy = function() {
 //===================== Handle Upgrades ==========================
 AutoPlay.handleUpgrades = function() {
   if (!Game.Achievements["Hardcore"].won && Game.UpgradesOwned==0) return;
-  Game.UpgradesById.forEach(function(e) {
-    if (e.unlocked && !e.bought && !AutoPlay.avoidbuy(e))
-      AutoPlay.buyUpgrade(e, true);  // checks price, bypass = true
-  });
+    for (var me in Game.UpgradesById) {
+        var e = Game.UpgradesById[me];
+        if (e.unlocked && !e.bought && !AutoPlay.avoidbuy(e))
+            AutoPlay.buyUpgrade(e, true);  // checks price, bypass = true
+    };
   if (AutoPlay.canUseLumps && Game.Upgrades["Sugar frenzy"].unlocked &&
       !Game.Upgrades["Sugar frenzy"].bought &&
       (AutoPlay.now-Game.startDate) > 3*24*60*60*1000)
@@ -1813,11 +1816,12 @@ AutoPlay.buyHeavenlyUpgrades = function() {
 	  AutoPlay.lastPrestige=0;
     }
   }
-  Game.UpgradesById.forEach(function(e) {
-    if (e.canBePurchased && !e.bought && e.buy(true)) {
-      AutoPlay.info("buying "+e.name);
-    }
-  });
+    for (var me in Game.UpgradesById) {
+        var e = Game.UpgradesById[me];
+        if (e.canBePurchased && !e.bought && e.buy(true)) {
+            AutoPlay.info("buying " + e.name);
+        }
+    };
   AutoPlay.assignPermanentSlot(1,AutoPlay.kittens);
   AutoPlay.assignPermanentSlot(2,AutoPlay.idleverses);
   if (!Game.Achievements["Reincarnation"].won) { // for many ascends
