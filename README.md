@@ -93,6 +93,31 @@ var code = "(" + (function() {
 window.eval(code);
 ```
 
+## Steam
+Cookie Bot can be used in the *Steam* version by creating a new folder and 2 files within it. These scripts are courtesy of **[thelmexx](https://github.com/thelmexx)**.
+Create a folder in the `{Install Folder}\resources\app\mods\local` folder named `CookieBot` and add these 2 files within it.
+
+###### *info.txt*:
+```json
+{
+	"Name": "CookieBot",
+	"ID": "cookie bot",
+	"Author": "prinzstani",
+	"Description": "Cookie Bot is an add-on you can load into Cookie Clicker, that will do an automatic playthrough for Cookie Clicker.",
+	"ModVersion": 2.030,
+	"GameVersion": 2.042,
+	"Date": "13/09/2021",
+	"Dependencies": [],
+	"Disabled": 1
+}
+```
+
+###### *main.js*:
+`Game.LoadMod('https://prinzstani.github.io/CookieBot/cookieAutoPlay.js');`
+
+Or for the beta:
+`Game.LoadMod('https://prinzstani.github.io/CookieBot/cookieAutoPlayBeta.js');`
+
 # Bugs and suggestions
 
 Any bug or suggestion should be **created as an issue** [in the repository](https://github.com/prinzstani/CookieBot) for easier tracking. This allows to follow the status of the issue.
