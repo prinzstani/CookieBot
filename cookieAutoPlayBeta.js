@@ -1292,6 +1292,7 @@ AutoPlay.switchSoil = function(game,sector,which) {
 
 // banks: stock market =============================
 AutoPlay.handleStockMarket = function() {
+  if (Date.now() < AutoPlay.resetTime + 3600000) return;
   if (Game.isMinigameReady(Game.Objects["Bank"]) && !AutoPlay.wantAscend) {
     var market = Game.Objects["Bank"].minigame;
     if (market.brokers < market.getMaxBrokers()) { // buy brokers
@@ -1651,6 +1652,7 @@ AutoPlay.doReincarnate = function() {
     Game.PickAscensionMode(); Game.nextAscensionMode=1; Game.ConfirmPrompt();
   }
   Game.Reincarnate(true);
+  AutoPlay.resetTime=Date.now(); // save the current date for things that need to be delayed after reincarnating
   AutoPlay.neverclickWarn=true;
   AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 }
