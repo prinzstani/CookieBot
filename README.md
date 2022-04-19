@@ -118,6 +118,9 @@ Create a folder in the `{Install Folder}\resources\app\mods\local` folder named 
 Or for the beta:
 `Game.LoadMod('https://prinzstani.github.io/CookieBot/cookieAutoPlayBeta.js');`
 
+#### Alternative Install
+Alternatively, you can download the files `CookieBot4Steam.zip` or `CookieBotBeta4Steam.zip`, extract it, and place it in your `{Install Folder}\resources\app\mods\local`.
+
 # Bugs and suggestions
 
 Any bug or suggestion should be **created as an issue** [in the repository](https://github.com/prinzstani/CookieBot) for easier tracking. This allows to follow the status of the issue.
