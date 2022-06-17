@@ -1515,7 +1515,7 @@ AutoPlay.handleAscend = function() {
     date.setTime(AutoPlay.now-Game.fullDate);
     var fullTime=Game.sayTime(date.getTime()/1000*Game.fps,-1);
     AutoPlay.doAscend("have achievement: " +
-      Game.AchievementsById[AutoPlay.nextAchievement].desc.replace(/<q>.*?<\/q>/ig, '') +
+      Game.AchievementsById[AutoPlay.nextAchievement].ddesc.replace(/<q>.*?<\/q>/ig, '') +
       " after " + legacyTime + "(total: " + fullTime + ")",1);
     return;
   }
@@ -1763,7 +1763,7 @@ AutoPlay.checkAllAchievementsOK = function() { //We do not stop for one-year leg
     var me = Game.Achievements[i];
     if (!me.won && me.pool!="dungeon" && me.id!=367 && !AutoPlay.lateAchievements.includes(me.id)) { // missing achievement
       AutoPlay.setMainActivity("Missing achievement #" + me.id +
-        ": " + me.desc.replace(/<q>.*?<\/q>/ig, '') + ", try to get it now.");
+        ": " + me.ddesc.replace(/<q>.*?<\/q>/ig, '') + ", try to get it now.");
       AutoPlay.nextAchievement = me.id;
       return false;
     }
@@ -1772,7 +1772,7 @@ AutoPlay.checkAllAchievementsOK = function() { //We do not stop for one-year leg
     var me = Game.AchievementsById[i];
     if (!me.won && me.pool!="dungeon" && me.id!=367) { // missing achievement
       AutoPlay.setMainActivity("Missing achievement #" + me.id +
-        ": " + me.desc.replace(/<q>.*?<\/q>/ig, '') + ", try to get it now.");
+        ": " + me.ddesc.replace(/<q>.*?<\/q>/ig, '') + ", try to get it now.");
       AutoPlay.nextAchievement = me.id;
       return false;
     }
@@ -1790,7 +1790,7 @@ AutoPlay.checkAllAchievementsOK = function() { //We do not stop for one-year leg
   if (!Game.Achievements["So much to do so much to see"].won) { //wait until one-year legacy (367)
     var me = Game.Achievements["So much to do so much to see"];
     AutoPlay.setMainActivity("Missing achievement #" + me.id +
-      ": " + me.desc.replace(/<q>.*?<\/q>/ig, '') + ", try to get it now.");
+      ": " + me.ddesc.replace(/<q>.*?<\/q>/ig, '') + ", try to get it now.");
     AutoPlay.nextAchievement = me.id;
     return false;
   }
@@ -2103,7 +2103,7 @@ AutoPlay.status = function(print=true) { // just for testing purposes
     var me = Game.Achievements[a];
     if (!me.won && me.pool!="dungeon") { // missing achievement
       if (print) AutoPlay.info("Missing achievement #" + me.id +
-        ": " + me.desc.replace(/<q>.*?<\/q>/ig, ''));
+        ": " + me.ddesc.replace(/<q>.*?<\/q>/ig, ''));
       if (me.pool=="shadow") sach++;
       ach++;
     }
