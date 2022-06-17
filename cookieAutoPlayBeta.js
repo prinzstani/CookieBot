@@ -3,21 +3,18 @@
 
 var AutoPlay;
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.030";
-AutoPlay.gameVersion = "2.031";
+AutoPlay.version = "2.040";
+AutoPlay.gameVersion = "2.048";
 
-//align for new version of cookie clicker
+//align for new version of cookie clicker - try to collect automatically
 AutoPlay.wantedAchievements = [82, 89, 108, // elder calm, 100 antimatter, halloween
-    225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 429, 451, 452, 453, 470, 471, 472, 534, 535, 536, // bake xx cookies
-    533, 530, 397]; // max cps, max buildings, ascend right
-AutoPlay.prioUpgrades = [363, 323, // legacy, dragon
-  411, 412, 413, // lucky upgrades,
-  264, 265, 266, 267, 268, 520, 181, // permanent slots, season switcher,
-  282, 283, 284, 291, 393, 394]; // better golden cookies, kittens, synergies
-AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494,613];
-AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189,660];
-AutoPlay.idleverses = [683,685,686,687,688,689,690,691,692,693,694,695,716];
-AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497,659,699];
+    225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 429, 451, 452, 453, 470, 471, 472, // bake xx cookies
+    534, 535, 536, 578, 579, 586, 587, // bake xx cookies
+    585, 575, 397]; // max cps, max buildings, ascend right
+AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494,613,766];
+AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189,660,764];
+AutoPlay.maxBuildings = [730,731,732,733,734,735,736,737,738,739,740,741,742,760];
+AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497,659,699,767];
 AutoPlay.expensive = [38,39,40,41,42,55,56,80,81,88,89,90,104,105,106,107,
   120,121,122,123,150,151,256,257,258,259,260,261,262,263,
   338,339,340,341,342,343,350,351,352,403,404,405,406,407,
@@ -25,7 +22,14 @@ AutoPlay.expensive = [38,39,40,41,42,55,56,80,81,88,89,90,104,105,106,107,
   498,499,500,501,535,536,538,565,566,567,568,569,570,571,572,573,574,
   575,576,577,578,579,580,581,582,583,584,585,586,587,588,
   607,608,609,615,616,617,652,653,654,655,656,657,658,
-  678,679,680,681,682,721,722,723,724];
+  678,679,680,681,682,721,722,723,724,
+  807,808,809,810,811,812,813,814,815,816]; // most expensive cookies
+
+//might need to align if bigger changes in cookie clicker
+AutoPlay.prioUpgrades = [363, 323, // legacy, dragon
+  411, 412, 413, // lucky upgrades,
+  264, 265, 266, 267, 268, 520, 181, // permanent slots, season switcher,
+  282, 283, 284, 291, 393, 394]; // better golden cookies, kittens, synergies
 AutoPlay.valentineUpgrades = range(169,174).concat([645]);
 AutoPlay.christmasUpgrades = [168];  // just wait for dominion
 AutoPlay.easterUpgrades = range(210,229);
@@ -1470,6 +1474,12 @@ AutoPlay.handleSmallAchievements = function() {
       setTimeout(AutoPlay.unDunk, 20*1000);
     }
   }
+  if (!Game.Achievements["Stifling the press"].won) {
+    savedNarrowSize = Game.tickerTooNarrow;
+    Game.tickerTooNarrow = Game.windowW+10;
+    Game.tickerL.click();
+    Game.tickerTooNarrow = savedNarrowSize;
+  }
 }
 
 AutoPlay.unDunk = function() {
@@ -1741,7 +1751,7 @@ AutoPlay.findNextAchievement = function() {
     if (!(Game.AchievementsById[AutoPlay.wantedAchievements[i]].won)) {
       AutoPlay.nextAchievement = AutoPlay.wantedAchievements[i];
       AutoPlay.setMainActivity("Trying to get achievement: " +
-        Game.AchievementsById[AutoPlay.nextAchievement].desc.replace(/<q>.*?<\/q>/ig, ''));
+        Game.AchievementsById[AutoPlay.nextAchievement].ddesc.replace(/<q>.*?<\/q>/ig, ''));
       return;
     }
   }
@@ -1825,7 +1835,7 @@ AutoPlay.buyHeavenlyUpgrades = function() {
         }
     };
   AutoPlay.assignPermanentSlot(1,AutoPlay.kittens);
-  AutoPlay.assignPermanentSlot(2,AutoPlay.idleverses);
+  AutoPlay.assignPermanentSlot(2,AutoPlay.maxBuildings);
   if (!Game.Achievements["Reincarnation"].won) { // for many ascends
     AutoPlay.assignPermanentSlot(0,AutoPlay.cursors);
     AutoPlay.assignPermanentSlot(3,[52]); // lucky day
