@@ -3,7 +3,7 @@
 
 var AutoPlay;
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.040";
+AutoPlay.version = "2.045";
 AutoPlay.gameVersion = "2.048";
 
 //align for new version of cookie clicker - try to collect automatically
@@ -583,6 +583,20 @@ AutoPlay.handleSeasons = function() {
     Game.UpgradeSanta();
     Game.ToggleSpecialMenu(0);
   }
+  if (Game.season == "christmas" && !Game.Achievements["Baby it\'s old outside"].won) {
+    if (Game.onMenu) Game.ShowMenu('');
+    Game.Objects['Grandma'].canvas.parentElement.scrollIntoView()
+    elfGrandmas = Game.Objects["Grandma"].pics.filter(function(p) { return p.pic=="elfGrandma.png"; });
+    if (elfGrandmas.length) {
+      elfGranny = elfGrandmas[0];
+      xPos = elfGranny.x+32;
+      yPos = elfGranny.y+32;
+      Game.Objects['Grandma'].mousePos=[xPos,yPos];
+      Game.Objects['Grandma'].mouseOn=true;
+      Game.mouseDown = 1;
+      setTimeout(AutoPlay.unElf, 1000);
+    }
+  }
   if (!Game.Upgrades["Season switcher"].bought || Game.ascensionMode==1) return;
   if (AutoPlay.seasonFinished(Game.season)) {
     switch (Game.season) {
@@ -593,6 +607,11 @@ AutoPlay.handleSeasons = function() {
     }
   } else if (!(AutoPlay.allUnlocked(AutoPlay.allSeasonUpgrades)))
     AutoPlay.addActivity('Waiting for all results in '+Game.season+'.');
+}
+
+AutoPlay.unElf = function() {
+  Game.mouseDown = 0;
+  Game.tickerL.scrollIntoView();
 }
 
 AutoPlay.allUnlocked = function(l) {
@@ -1460,9 +1479,16 @@ AutoPlay.handleSmallAchievements = function() {
     Game.Win("Cheated cookies taste awful"); // take this after all is done
   if (!Game.Achievements["Third-party"].won)
     Game.Win("Third-party"); // cookie bot is a third party itself
-  if (!Game.Achievements["Olden days"].won) { // could try to click on the madeleine
+  if (!Game.Achievements["Olden days"].won) {
+    what=Game.onMenu;
+    Game.ShowMenu('log');
+    menuDivs = l('menu').getElementsByTagName('div');
+    madeleine = menuDivs[menuDivs.length-1];
+    madeleine.scrollIntoView();
+    madeleine.click();
+    Game.tickerL.scrollIntoView();
+    Game.ShowMenu(what);
     AutoPlay.info("found the forgotten madeleine at the very bottom of the \"Info\" menu");
-    Game.Win("Olden days");
   }
   if (!Game.Achievements["Cookie-dunker"].won && Game.milkProgress>1 && Game.milkHd>0.34) {
     if (AutoPlay.backupHeight) {
