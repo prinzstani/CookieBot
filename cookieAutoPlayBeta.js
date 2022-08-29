@@ -1581,11 +1581,11 @@ AutoPlay.handleAscend = function() {
     AutoPlay.addActivity("Making money in stock market for achievements.");
   } else {
     var maxDaysInRun =
-          40*(Game.prestige+1000000000)/(Game.prestige+Game.ascendMeterLevel);
-    if (!AutoPlay.wantAscend && daysInRun>20)
+          40*(Game.prestige+1000000000)/(Game.prestige+Game.ascendMeterLevel+1);
+    if (!AutoPlay.wantAscend && daysInRun>20 && maxDaysInRun<36)
       AutoPlay.addActivity("Still " + ((maxDaysInRun-daysInRun)<<0) +
           " days until next hard ascend.");
-    if (daysInRun>maxDaysInRun && daysInRun>20) {
+    if (daysInRun>maxDaysInRun && daysInRun>20 && maxDaysInRun<36) {
       for (var x = Game.cookiesEarned; x>10; x/=10);
       // do not ascend if the first digit of the total cookies is a 9
       if (x<9) {
