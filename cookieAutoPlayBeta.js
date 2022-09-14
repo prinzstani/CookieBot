@@ -2223,17 +2223,25 @@ AutoPlay.addActivity = function(str) {
 
 //===================== Init & Start ==========================
 
-if (AutoPlay.autoPlayer) {
-  AutoPlay.info("replacing old version of autoplay");
-  clearInterval(AutoPlay.autoPlayer);
+AutoPlay.launch = function() {
+  if (!Game.ready) {
+    setTimeout(AutoPlay.launch, 1000);
+	return;
+  }
+  if (AutoPlay.autoPlayer) {
+    AutoPlay.info("replacing old version of autoplay");
+    clearInterval(AutoPlay.autoPlayer);
+  }
+  AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // 100 is too quick
+  AutoPlay.findNextAchievement();
+  l('versionNumber').innerHTML=
+    'v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
+  l('versionNumber').innerHTML='v. '+Game.version+' <span '+
+    Game.getDynamicTooltip('AutoPlay.whatTheBotIsDoing','this')+
+    ">(with autoplay v."+AutoPlay.version+")"+'</span>';
+  if (Game.version!=AutoPlay.gameVersion)
+    AutoPlay.info("Warning: cookieBot is last tested with "+
+      "cookie clicker version " + AutoPlay.gameVersion);
 }
-AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // 100 is too quick
-AutoPlay.findNextAchievement();
-l('versionNumber').innerHTML=
-  'v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
-l('versionNumber').innerHTML='v. '+Game.version+' <span '+
-  Game.getDynamicTooltip('AutoPlay.whatTheBotIsDoing','this')+
-  ">(with autoplay v."+AutoPlay.version+")"+'</span>';
-if (Game.version!=AutoPlay.gameVersion)
-  AutoPlay.info("Warning: cookieBot is last tested with "+
-    "cookie clicker version " + AutoPlay.gameVersion);
+
+AutoPlay.launch();
