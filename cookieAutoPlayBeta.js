@@ -372,10 +372,10 @@ AutoPlay.buyUpgrade = function(upgrade, bypass=true) {
   }
 }
 
-//======================= CM Strategy ============================
+//======================= CookieMonster Strategy ============================
 AutoPlay.bestBuy = function() {
   // if cookie monster isn't installed
-  if (typeof CM == 'undefined') {
+  if (typeof CookieMonsterData == 'undefined') {
     AutoPlay.handleBuildings();
     AutoPlay.handleUpgrades();
     return;
@@ -392,18 +392,18 @@ AutoPlay.bestBuy = function() {
 
   // these values are multiplied by game.cps below
   const overrides = {
-    'Plastic mouse': CM.Cache.AvgClicks * 0.01,
-    'Iron mouse': CM.Cache.AvgClicks * 0.01,
-    'Titanium mouse': CM.Cache.AvgClicks * 0.01,
-    'Adamantium mouse': CM.Cache.AvgClicks * 0.01,
-    'Unobtainium mouse': CM.Cache.AvgClicks * 0.01,
-    'Eludium mouse': CM.Cache.AvgClicks * 0.01,
-    'Wishalloy mouse': CM.Cache.AvgClicks * 0.01,
-    'Fantasteel mouse': CM.Cache.AvgClicks * 0.01,
-    'Nevercrack mouse': CM.Cache.AvgClicks * 0.01,
-    'Armythril mouse': CM.Cache.AvgClicks * 0.01,
-    'Technobsidian mouse': CM.Cache.AvgClicks * 0.01,
-    'Plasmarble mouse': CM.Cache.AvgClicks * 0.01,
+    'Plastic mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Iron mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Titanium mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Adamantium mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Unobtainium mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Eludium mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Wishalloy mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Fantasteel mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Nevercrack mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Armythril mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Technobsidian mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
+    'Plasmarble mouse': CookieMonsterData.Cache.AverageClicks * 0.01,
     'Lucky day': 0.5,
     'Serendipity': 0.5,
     'Get lucky': 0.5,
@@ -415,25 +415,25 @@ AutoPlay.bestBuy = function() {
     'Season savings': 0.01,
     'Toy workshop': 0.05,
     'Santa\'s bottomless bag': 0.1,
-    'Santa\'s helpers': CM.Cache.AvgClicks * 0.1,
+    'Santa\'s helpers': CookieMonsterData.Cache.AverageClicks * 0.1,
     'Golden goose egg': 0.05,
     'Faberge egg': 0.01,
     'Wrinklerspawn': 0.05,
-    'Cookie egg': CM.Cache.AvgClicks * 0.1,
+    'Cookie egg': CookieMonsterData.Cache.AverageClicks * 0.1,
     'Omelette': 0.1,
     'Elder Pledge': 0.1, // avoidbuy will catch this if have achievement
   }
 
   // change cookie monster values for some 'infinite' pp upgrades
-  for (var u in CM.Cache.Upgrades) {
+  for (var u in CookieMonsterData.Upgrades) {
     if (u in overrides){
-      CM.Cache.Upgrades[u].bonus = overrides[u]* Game.cookiesPs;
-      CM.Cache.Upgrades[u].pp = (Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (Game.Upgrades[u].getPrice() / CM.Cache.Upgrades[u].bonus);
+      CookieMonsterData.Upgrades[u].bonus = overrides[u]* Game.cookiesPs;
+      CookieMonsterData.Upgrades[u].pp = (Math.max(Game.Upgrades[u].getPrice() - (Game.cookies + CookieMonsterData.Cache.WrinklersTotal), 0) / Game.cookiesPs) + (Game.Upgrades[u].getPrice() / CookieMonsterData.Upgrades[u].bonus);
     }
   }
 
   // buildings
-  let check_obj = CM.Cache.Objects;
+  let check_obj = CookieMonsterData.Objects1;
   let buy_amt = 1;
   if ((Game.resets && Game.ascensionMode!=1 &&
        Game.isMinigameReady(Game.Objects["Temple"]) &&
@@ -442,7 +442,7 @@ AutoPlay.bestBuy = function() {
       || AutoPlay.buy10){
     // if owned % 10 != 0, will just buy one
     buy_amt = 10;
-    check_obj = CM.Cache.Objects10;
+    check_obj = CookieMonsterData.Objects10;
   }
 
   var haveBought=false;
@@ -466,10 +466,10 @@ AutoPlay.bestBuy = function() {
   if (Game.Achievements["Hardcore"].won || Game.UpgradesOwned!=0) {
     for (var u of Game.UpgradesInStore) {
       if (!AutoPlay.avoidbuy(u) && !u.bought) {
-        if (CM.Cache.Upgrades[u.name].pp < 1)
+        if (CookieMonsterData.Upgrades[u.name].pp < 1) {
           if (AutoPlay.buyUpgrade(u)) haveBought=true;
-        else if (CM.Cache.Upgrades[u.name].pp < minpp) {
-          minpp = CM.Cache.Upgrades[u.name].pp;
+        } else if (CookieMonsterData.Upgrades[u.name].pp < minpp) {
+          minpp = CookieMonsterData.Upgrades[u.name].pp;
           best = u.name;
           type = 'upgrade';
         }
@@ -477,9 +477,9 @@ AutoPlay.bestBuy = function() {
     }
   }
 
-  if (type == 'building')
+  if (type == 'building') {
     if (AutoPlay.buyBuilding(Game.Objects[best], buy_amt, buy_amt)) haveBought=true;
-  else if (type == 'upgrade')
+  } else if (type == 'upgrade')
     if (AutoPlay.buyUpgrade(Game.Upgrades[best], true)) haveBought=true;
 
   // sugar frenzy check
