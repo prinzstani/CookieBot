@@ -781,10 +781,12 @@ AutoPlay.handleGrimoires = function() {
     var sp = g.spells["hand of fate"]; // try to get a sugar lump in backfiring
     if (Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) &&
         g.magic/g.magicM >= 0.95) {
+      AutoPlay.info("Having already "+Game.shimmerTypes['golden'].n+" golden cookies - getting another one.");
       g.castSpell(sp);
     }
     if (Game.shimmerTypes['golden'].n >= 3 && g.magic > 30) {
       var t=Game.Objects["Wizard tower"];
+      AutoPlay.info("Having already "+Game.shimmerTypes['golden'].n+" golden cookies - selling "+(t.amount-30)+" of "+t.amount+" wizard towers.");
       t.sell(t.amount-30);
       // need to wait a while for update of grimoire
     }
@@ -2117,6 +2119,15 @@ Game.UpdateMenu = function() {
 AutoPlay.info = function(s) {
   console.log("### "+s);
   Game.Notify("CookieBot",s,1,100);
+  AutoPlay.debugLogging("### "+s)
+}
+
+AutoPlay.debugLogging = function(s) {
+  try {
+    var before = window.localStorage.getItem("autoplayLog");
+    var toAdd = "#debug logging autoplay V" + AutoPlay.version + ": " + s + "\n";
+    window.localStorage.setItem("autoplayLog",before+toAdd);
+  } catch (e) {}
 }
 
 AutoPlay.status = function(print=true) { // just for testing purposes
@@ -2225,6 +2236,7 @@ AutoPlay.addActivity = function(str) {
 
 AutoPlay.launch = function() {
   if (!Game.ready) {
+    AutoPlay.info("Game is not ready, waiting ...");
     setTimeout(AutoPlay.launch, 1000);
 	return;
   }
@@ -2234,6 +2246,7 @@ AutoPlay.launch = function() {
   }
   AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // 100 is too quick
   AutoPlay.findNextAchievement();
+  AutoPlay.info("value of won for next achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].won);
   l('versionNumber').innerHTML=
     'v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
   l('versionNumber').innerHTML='v. '+Game.version+' <span '+
