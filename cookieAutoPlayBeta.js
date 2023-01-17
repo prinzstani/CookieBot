@@ -2240,6 +2240,11 @@ AutoPlay.launch = function() {
     setTimeout(AutoPlay.launch, 1000);
 	return;
   }
+  if (localStorageGet(Game.SaveTo) && !Game.AchievementsById[0].won) {
+    AutoPlay.info("Game is not loaded yet, waiting ...");
+    setTimeout(AutoPlay.launch, 1000);
+	return;
+  }
   if (AutoPlay.autoPlayer) {
     AutoPlay.info("replacing old version of autoplay");
     clearInterval(AutoPlay.autoPlayer);
