@@ -3,18 +3,18 @@
 
 var AutoPlay;
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.045";
+AutoPlay.version = "2.050";
 AutoPlay.gameVersion = "2.048";
 
 //align for new version of cookie clicker - try to collect automatically
 AutoPlay.wantedAchievements = [82, 89, 108, // elder calm, 100 antimatter, halloween
     225, 227, 229, 279, 280, 372, 373, 374, 375, 390, 391, 429, 451, 452, 453, 470, 471, 472, // bake xx cookies
-    534, 535, 536, 578, 579, 586, 587, // bake xx cookies
+    534, 535, 536, 578, 579, 586, 587, 592, 593, // bake xx cookies
     585, 575, 397]; // max cps, max buildings, ascend right
-AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494,613,766];
-AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189,660,764];
-AutoPlay.maxBuildings = [730,731,732,733,734,735,736,737,738,739,740,741,742,760];
-AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497,659,699,767];
+AutoPlay.kittens = [31,32,54,108,187,320,321,322,425,442,462,494,613,766, 865];
+AutoPlay.cursors = [0,1,2,3,4,5,6,43,82,109,188,189,660,764,873];
+AutoPlay.maxBuildings = [826,827,828,829,830,831,832,833,834,835,836,837,838,839,858];
+AutoPlay.butterBiscuits = [334,335,336,337,400,477,478,479,497,659,699,767,862];
 AutoPlay.expensive = [38,39,40,41,42,55,56,80,81,88,89,90,104,105,106,107,
   120,121,122,123,150,151,256,257,258,259,260,261,262,263,
   338,339,340,341,342,343,350,351,352,403,404,405,406,407,
@@ -23,7 +23,8 @@ AutoPlay.expensive = [38,39,40,41,42,55,56,80,81,88,89,90,104,105,106,107,
   575,576,577,578,579,580,581,582,583,584,585,586,587,588,
   607,608,609,615,616,617,652,653,654,655,656,657,658,
   678,679,680,681,682,721,722,723,724,
-  807,808,809,810,811,812,813,814,815,816]; // most expensive cookies
+  807,808,809,810,811,812,813,814,815,816,
+  820,821,822,823,867,868,869,870,871,872]; // most expensive cookies
 
 //might need to align if bigger changes in cookie clicker
 AutoPlay.prioUpgrades = [363, 323, // legacy, dragon
@@ -219,7 +220,7 @@ AutoPlay.handleGoldenCookies = function() { // pop first golden cookie or reinde
   if (Game.TickerEffect) Game.tickerL.click(); // grab fortune cookie
   if (Game.shimmerTypes['golden'].n>=2) AutoPlay.hyperActive=true;
   if (Game.shimmerTypes['golden'].n>=4 &&
-     !Game.Achievements['Four-leaf cookie'].won) return;
+     !Game.Achievements['Four-leaf cookie'].won) return; // wait for achievement
   for (var sx in Game.shimmers) {
     var s = Game.shimmers[sx];
     AutoPlay.hyperActive=true; // check whether full activity
@@ -778,23 +779,33 @@ AutoPlay.handleSpeedMinigames = function() {
 AutoPlay.handleGrimoires = function() {
   if (Game.isMinigameReady(Game.Objects["Wizard tower"])) {
     var g = Game.Objects["Wizard tower"].minigame;
+    if (!Game.Achievements['Four-leaf cookie'].won && 
+        Game.Upgrades["Distilled essence of redoubled luck"].bought) {
+      // try to get four golden cookies - wait for getting two at once
+      var sp = g.spells["hand of fate"]; // get one more golden cookie
+      if (Game.shimmerTypes['golden'].n>1 && g.magic>=g.getSpellCost(sp)) {
+        g.castSpell(sp);
+      }
+      var t=Game.Objects["Wizard tower"];
+      if (Game.shimmerTypes['golden'].n >= 3 && g.magic > 30 && t.amount>30) {
+        t.sell(t.amount-1); // need to wait a while for update of grimoire
+      }
+      return; // save magic for when we get two golden cookies
+    }
     var sp = g.spells["hand of fate"]; // try to get a sugar lump in backfiring
     if (Game.shimmerTypes['golden'].n && g.magic>=g.getSpellCost(sp) &&
         g.magic/g.magicM >= 0.95) {
-      AutoPlay.info("Having already "+Game.shimmerTypes['golden'].n+" golden cookies - getting another one.");
       g.castSpell(sp);
-    }
-    if (Game.shimmerTypes['golden'].n >= 3 && g.magic > 30) {
-      var t=Game.Objects["Wizard tower"];
-      AutoPlay.info("Having already "+Game.shimmerTypes['golden'].n+" golden cookies - selling "+(t.amount-30)+" of "+t.amount+" wizard towers.");
-      t.sell(t.amount-30);
-      // need to wait a while for update of grimoire
     }
     if (AutoPlay.cpsMult>100) {
       sp = g.spells["hand of fate"]; // try to get another golden cookie
-      if (g.magic>=g.getSpellCost(sp)) { g.castSpell(sp); return; }
+      if (g.magic>=g.getSpellCost(sp)) { 
+        g.castSpell(sp); return; 
+      }
       sp = g.spells["conjure baked goods"]; // normally not worth it
-      if (g.magic>=g.getSpellCost(sp)) { g.castSpell(sp); return; }
+      if (g.magic>=g.getSpellCost(sp)) { 
+        g.castSpell(sp); return; 
+      }
       if (AutoPlay.canUseLumps && Game.lumps>100) { g.lumpRefill.click(); }
     }
   }
@@ -1856,12 +1867,12 @@ AutoPlay.buyHeavenlyUpgrades = function() {
 	  AutoPlay.lastPrestige=0;
     }
   }
-    for (var me in Game.UpgradesById) {
-        var e = Game.UpgradesById[me];
-        if (e.canBePurchased && !e.bought && e.buy(true)) {
-            AutoPlay.info("buying " + e.name);
-        }
-    };
+  for (var me in Game.UpgradesById) {
+      var e = Game.UpgradesById[me];
+      if (e.canBePurchased && !e.bought && e.buy(true)) {
+          AutoPlay.info("buying " + e.name);
+      }
+  };
   AutoPlay.assignPermanentSlot(1,AutoPlay.kittens);
   AutoPlay.assignPermanentSlot(2,AutoPlay.maxBuildings);
   if (!Game.Achievements["Reincarnation"].won) { // for many ascends
@@ -2251,7 +2262,6 @@ AutoPlay.launch = function() {
   }
   AutoPlay.autoPlayer = setInterval(AutoPlay.run, 300); // 100 is too quick
   AutoPlay.findNextAchievement();
-  AutoPlay.info("value of won for next achievement: " + Game.AchievementsById[AutoPlay.nextAchievement].won);
   l('versionNumber').innerHTML=
     'v. '+Game.version+" (with autoplay v."+AutoPlay.version+")";
   l('versionNumber').innerHTML='v. '+Game.version+' <span '+
