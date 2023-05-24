@@ -1469,6 +1469,7 @@ if (Game.bakeryName.slice(0,AutoPlay.robotName.length)==AutoPlay.robotName) {
   Game.bakeryName = Game.bakeryName.slice(AutoPlay.robotName.length,Game.bakeryName.length);
   Game.bakeryNamePrompt(); Game.ConfirmPrompt();
 }
+AutoPlay.giftCode = 0;
 AutoPlay.handleSmallAchievements = function() {
   if (!Game.Achievements["Tabloid addiction"].won)
     for (var i = 0; i < 50; i++) Game.tickerL.click();
@@ -1519,6 +1520,24 @@ AutoPlay.handleSmallAchievements = function() {
     Game.tickerL.click();
     Game.tickerTooNarrow = savedNarrowSize;
   }
+  if (!Game.Achievements['No time like the present'].won && 
+      Game.Has('Wrapping paper') && !Game.hasBuff('Gifted out')) {
+    if (!AutoPlay.giftCode) {
+      Game.promptGiftSend();
+      l('giftAmount').value=42;
+      l('giftMessage').value = "A gift for myself";
+      l('promptOption0').click();
+      AutoPlay.giftCode = l('giftCode').value;
+      l('promptOption0').click();
+      AutoPlay.info("Created present with code "+AutoPlay.giftCode);
+      setTimeout(AutoPlay.redeemPresent, 61*60*1000); // wait an hour
+    } else {
+      Game.promptGiftRedeem();
+      l('giftCode').value = AutoPlay.giftCode;
+      AutoPlay.giftCode = 0;
+      l('promptOption0').click();
+    }
+  }
 }
 
 AutoPlay.unDunk = function() {
@@ -1528,6 +1547,16 @@ AutoPlay.unDunk = function() {
   }
   Game.LeftBackground.canvas.height = AutoPlay.backupHeight;
   AutoPlay.backupHeight = 0;
+}
+
+AutoPlay.redeemPresent = function() {
+  AutoPlay.info("Redeeming present with code "+AutoPlay.giftCode);
+  if (AutoPlay.giftCode) {
+    Game.promptGiftRedeem();
+    l('giftCode').value = AutoPlay.giftCode;
+    AutoPlay.giftCode = 0;
+    l('promptOption0').click();
+  }
 }
 
 //===================== Handle Ascend ==========================
