@@ -516,6 +516,7 @@ AutoPlay.handleUpgrades = function() {
 AutoPlay.avoidbuy = function(up) { //normally we do not buy 227, 71, ...
   switch(up.id) {
     case 71: case 73: return Game.Achievements["Elder nap"].won &&
+      Game.Achievements["Grandmapocalypse"].won &&
       Game.Achievements["Elder slumber"].won &&
       Game.Achievements["Elder calm"].won; // brainsweep
     case 74: return Game.Achievements["Elder nap"].won &&
