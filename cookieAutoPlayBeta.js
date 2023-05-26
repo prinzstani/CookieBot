@@ -1572,6 +1572,7 @@ AutoPlay.redeemPresent = function() {
 AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 AutoPlay.wantAscend = false;
 AutoPlay.onAscend = false;
+AutoPlay.speedReduction = 1;
 
 AutoPlay.lastPrestige=0;
 AutoPlay.handleAscend = function() {
@@ -1658,20 +1659,25 @@ AutoPlay.handleAscend = function() {
   }
   if (!Game.Upgrades["Lucky payout"].bought && Game.heavenlyChips>77777777) {
     var newPrestige = (Game.prestige+Game.ascendMeterLevel)%1000000;
+    var oldPrestige = (Game.prestige)%1000000;
     if (Game.prestige == Game.prestige+1) {
     // cannot get just one heavenly chip
       if (!AutoPlay.lastPrestige) AutoPlay.info("Impossible to get lucky payout - cheating it");
-      AutoPlay.lastPrestige=Game.prestige%1000000;
+      AutoPlay.lastPrestige=oldPrestige;
     }
     AutoPlay.wantAscend = true; //avoid buying plants
     AutoPlay.hyperActive=true; //full activity
     AutoPlay.addActivity("Trying to get heavenly upgrade Lucky Payout.");
-    if (Game.ascendMeterLevel>0 && Game.prestige%1000000 < 777777 &&
-        (newPrestige+Game.ascendMeterLevel >= 777777)) {
+    if (Game.ascendMeterLevel>0 && oldPrestige < 777777 &&
+        (newPrestige+AutoPlay.speedReduction*Game.ascendMeterLevel >= 777777)) {
+      if (newPrestige < oldPrestige) {
+        AutoPlay.speedReduction++;
+        AutoPlay.info("Cooling down the ascend speed.");
+      }
       AutoPlay.doAscend("ascend for heavenly upgrade lucky payout.",0);
       return;
     }
-    if (Game.prestige%1000000 >= 777777 && Game.ascendMeterLevel>500000) {
+    if (oldPrestige >= 777777 && Game.ascendMeterLevel>500000) {
       AutoPlay.doAscend("ascend for heavenly upgrade lucky payout.",0);
       return;
     }
