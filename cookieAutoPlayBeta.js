@@ -1348,6 +1348,10 @@ AutoPlay.handleStockMarket = function() {
         market.buyGood(good.id, 500-good.stock);
       }
     }
+    if (!Game.Achievements['Debt evasion'].won && !AutoPlay.plantPending) {
+      l('bankLoan2').click();
+      setTimeout(function() { AutoPlay.doAscend("trying debt evasion"); }, 30*1000); // wait 30 seconds
+    }
     if (!AutoPlay.goodsList) { // need to init goodsList
       AutoPlay.goodsList=[];
       for (var g in market.goods) {
