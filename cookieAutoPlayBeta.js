@@ -1533,18 +1533,22 @@ AutoPlay.handleSmallAchievements = function() {
       Game.Has('Wrapping paper') && !Game.hasBuff('Gifted out')) {
     if (!AutoPlay.giftCode) {
       Game.promptGiftSend();
-      l('giftAmount').value=42;
-      l('giftMessage').value = "A gift for myself";
-      l('promptOption0').click();
-      AutoPlay.giftCode = l('giftCode').value;
-      l('promptOption0').click();
-      AutoPlay.info("Created present with code "+AutoPlay.giftCode);
-      setTimeout(AutoPlay.redeemPresent, 61*60*1000); // wait an hour
+      if (l('giftAmount')) {
+        l('giftAmount').value=42;
+        l('giftMessage').value = "A gift for myself";
+        l('promptOption0').click();
+        AutoPlay.giftCode = l('giftCode').value;
+        l('promptOption0').click();
+        AutoPlay.info("Created present with code "+AutoPlay.giftCode);
+        setTimeout(AutoPlay.redeemPresent, 61*60*1000); // wait an hour
+      }
     } else {
       Game.promptGiftRedeem();
-      l('giftCode').value = AutoPlay.giftCode;
-      AutoPlay.giftCode = 0;
-      l('promptOption0').click();
+      if (l('giftCode')) {
+        l('giftCode').value = AutoPlay.giftCode;
+        AutoPlay.giftCode = 0;
+        l('promptOption0').click();
+      }
     }
   }
 }
@@ -1572,9 +1576,7 @@ AutoPlay.redeemPresent = function() {
 AutoPlay.ascendLimit = 0.9*Math.floor(2*(1-Game.ascendMeterPercent));
 AutoPlay.wantAscend = false;
 AutoPlay.onAscend = false;
-AutoPlay.speedReduction = 1;
 
-AutoPlay.lastPrestige=0;
 AutoPlay.handleAscend = function() {
   if (Game.OnAscend) {
     AutoPlay.doReincarnate();
@@ -1584,6 +1586,7 @@ AutoPlay.handleAscend = function() {
     AutoPlay.onAscend=false;
     return;
   }
+  if (AutoPlay.onAscend && Game.AscendTimer==0) Game.Ascend(true);
   if (Game.ascensionMode == 0 && Game.prestige == 0)
     AutoPlay.canContinue();  // update achievement goals
   if (Game.AchievementsById[AutoPlay.nextAchievement].won) {
@@ -1658,26 +1661,12 @@ AutoPlay.handleAscend = function() {
     return;
   }
   if (!Game.Upgrades["Lucky payout"].bought && Game.heavenlyChips>77777777) {
-    var newPrestige = (Game.prestige+Game.ascendMeterLevel)%1000000;
-    var oldPrestige = (Game.prestige)%1000000;
-    if (Game.prestige == Game.prestige+1) {
-    // cannot get just one heavenly chip
-      if (!AutoPlay.lastPrestige) AutoPlay.info("Impossible to get lucky payout - cheating it");
-      AutoPlay.lastPrestige=oldPrestige;
-    }
+    // now we only need six number 7 in the prestige - easy with higher prestige
+    var newPrestige = Game.prestige+Game.ascendMeterLevel;
     AutoPlay.wantAscend = true; //avoid buying plants
     AutoPlay.hyperActive=true; //full activity
     AutoPlay.addActivity("Trying to get heavenly upgrade Lucky Payout.");
-    if (Game.ascendMeterLevel>0 && oldPrestige < 777777 &&
-        (newPrestige+AutoPlay.speedReduction*Game.ascendMeterLevel >= 777777)) {
-      if (newPrestige < oldPrestige) {
-        AutoPlay.speedReduction++;
-        AutoPlay.info("Cooling down the ascend speed.");
-      }
-      AutoPlay.doAscend("ascend for heavenly upgrade lucky payout.",0);
-      return;
-    }
-    if (oldPrestige >= 777777 && Game.ascendMeterLevel>500000) {
+    if (Math.ceil(((newPrestige+'').split('7').length-1))>=4) {
       AutoPlay.doAscend("ascend for heavenly upgrade lucky payout.",0);
       return;
     }
@@ -1736,6 +1725,7 @@ AutoPlay.canContinue = function() {
 }
 
 AutoPlay.doReincarnate = function() {
+  AutoPlay.onAscend = false;
   AutoPlay.delay = 10;
   AutoPlay.buyHeavenlyUpgrades();
   if (!Game.Achievements["Neverclick"].won || !Game.Achievements["Hardcore"].won) {
@@ -1755,7 +1745,7 @@ AutoPlay.mustRebornAscend = function() {
 }
 
 AutoPlay.doAscend = function(str,log) {
-  if (Game.AscendTimer>0 || Game.ReincarnateTimer>0 || Game.OnAscend) return;
+  if (Game.AscendTimer>0 || Game.ReincarnateTimer>0) return;
   if (AutoPlay.onAscend || Game.OnAscend) return;
   AutoPlay.wantAscend = AutoPlay.plantPending /*|| AutoPlay.harvestPlant*/;
   AutoPlay.addActivity("Preparing to ascend.");
@@ -1902,15 +1892,6 @@ AutoPlay.buyHeavenlyUpgrades = function() {
       AutoPlay.info("buying "+e.name);
     }
   });
-  if (AutoPlay.lastPrestige!=0 && !Game.Upgrades["Lucky payout"].bought) {
-    AutoPlay.info("Partly cheating lucky payout - cannot be bought regularly");
-    if (AutoPlay.lastPrestige<777777 && Game.prestige%1000000 > 777777) {
-      Game.Upgrades["Lucky digit"].unlocked=1;
-      Game.Upgrades["Lucky number"].unlocked=1;
-      Game.Upgrades["Lucky payout"].unlocked=1;
-	  AutoPlay.lastPrestige=0;
-    }
-  }
   for (var me in Game.UpgradesById) {
       var e = Game.UpgradesById[me];
       if (e.canBePurchased && !e.bought && e.buy(true)) {
