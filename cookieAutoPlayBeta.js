@@ -1551,6 +1551,11 @@ AutoPlay.handleSmallAchievements = function() {
       }
     }
   }
+  if (!Game.Achievements['In her likeness'].won) {
+    Game.YouCustomizer.load('9,6,-,3,-,0,3',true);
+    // this is already correct, but we need to trigger the change
+    Game.YouCustomizer.offsetGene('head',-1);
+  }
 }
 
 AutoPlay.unDunk = function() {
@@ -1568,7 +1573,8 @@ AutoPlay.redeemPresent = function() {
     Game.promptGiftRedeem();
     l('giftCode').value = AutoPlay.giftCode;
     AutoPlay.giftCode = 0;
-    l('promptOption0').click();
+    l('promptOption0').click(); // redeem
+    l('promptOption0').click(); // close window
   }
 }
 
@@ -1607,7 +1613,8 @@ AutoPlay.handleAscend = function() {
   if (AutoPlay.preNightMode() && AutoPlay.Config.NightMode>0)
     return; //do not ascend right before the night
   if (AutoPlay.endPhase() && !Game.Achievements["Endless cycle"].won &&
-      !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought) {
+      !Game.ascensionMode && Game.Upgrades["Sucralosia Inutilis"].bought &&
+      Game.Upgrades['Lucky payout'].bought) {
     // this costs approx. 1 minute per ascend
     AutoPlay.activities = "Going for 1000 ascends.";
     AutoPlay.hyperActive=true; // full activity
