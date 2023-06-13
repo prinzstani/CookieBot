@@ -237,17 +237,25 @@ AutoPlay.handleGoldenCookies = function() { // pop first golden cookie or reinde
   AutoPlay.cheatGoldenCookies();
 }
 
+AutoPlay.cheatMax = 0; // limit cheating to sensible size
+AutoPlay.cheatMaxTime = Date.now();
 AutoPlay.cheatGoldenCookies = function() {
   if (AutoPlay.Config.CheatGolden==0) return;
   if (!Game.Upgrades["Lucky payout"].bought && Game.heavenlyChips>77777777) return;
   var level = 10+30*(AutoPlay.Config.CheatGolden-1);
-  if (AutoPlay.Config.CheatGolden==1) {
+  if (AutoPlay.Config.CheatGolden==1) { //auto cheat
     if (AutoPlay.wantAscend) return; // already cheated enough
     if (!AutoPlay.grindingCheat())
       return; // only cheat in grinding
     var daysInRun = (AutoPlay.now-Game.startDate)/1000/60/60/24;
     if (daysInRun<20) return; // cheat only after 20 days
     level = ((3*daysInRun)<<0)-20;
+    if (level > AutoPlay.cheatMax) level = AutoPlay.cheatMax;
+    AutoPlay.cheatMax = level;
+    if (AutoPlay.now-AutoPlay.cheatMaxTime >= 2*60*60*1000) {
+      AutoPlay.cheatMaxTime = AutoPlay.now;
+      AutoPlay.cheatMax++;
+    }
   }
   if (level>100) level = 100;
   AutoPlay.addActivity('Cheating golden cookies at level ' + level + '.');
@@ -1643,11 +1651,12 @@ AutoPlay.handleAscend = function() {
     AutoPlay.addActivity("Making money in stock market for achievements.");
   } else {
     var maxDaysInRun =
-          40*(Game.prestige+1000000000)/(Game.prestige+Game.ascendMeterLevel+1);
-    if (!AutoPlay.wantAscend && daysInRun>20 && maxDaysInRun<36)
-      AutoPlay.addActivity("Still " + ((maxDaysInRun-daysInRun)<<0) +
+          40*(Game.prestige+1000000000)/(Game.ascendMeterLevel+1);
+    maxDaysInRun *= maxDaysInRun; // square the amount
+    if (!AutoPlay.wantAscend && daysInRun>20)
+      AutoPlay.addActivity("Still " + Beautify(maxDaysInRun-daysInRun) +
           " days until next hard ascend.");
-    if (daysInRun>maxDaysInRun && daysInRun>20 && maxDaysInRun<36) {
+    if (daysInRun>maxDaysInRun && daysInRun>20) {
       for (var x = Game.cookiesEarned; x>10; x/=10);
       // do not ascend if the first digit of the total cookies is a 9
       if (x<9) {
