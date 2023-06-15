@@ -250,14 +250,15 @@ AutoPlay.cheatGoldenCookies = function() {
     var daysInRun = (AutoPlay.now-Game.startDate)/1000/60/60/24;
     if (daysInRun<20) return; // cheat only after 20 days
     level = ((3*daysInRun)<<0)-20;
-    if (level > AutoPlay.cheatMax) level = AutoPlay.cheatMax;
-    AutoPlay.cheatMax = level;
-    if (AutoPlay.now-AutoPlay.cheatMaxTime >= 2*60*60*1000) {
+    if (level > 100) level = 100;
+    var timeToNextLevel = 2*60*60*1000/((level-AutoPlay.cheatMax+8)/10);
+    if (AutoPlay.now-AutoPlay.cheatMaxTime >= timeToNextLevel) {
       AutoPlay.cheatMaxTime = AutoPlay.now;
       AutoPlay.cheatMax++;
     }
+    if (level > AutoPlay.cheatMax) level = AutoPlay.cheatMax;
+    AutoPlay.cheatMax = level;
   }
-  if (level>100) level = 100;
   AutoPlay.addActivity('Cheating golden cookies at level ' + level + '.');
   var levelTime = Game.shimmerTypes.golden.maxTime*level/140;
   if (Game.shimmerTypes.golden.time<levelTime)
