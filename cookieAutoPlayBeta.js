@@ -2286,15 +2286,16 @@ AutoPlay.addActivity = function(str) {
 }
 
 //===================== Init & Start ==========================
-
+AutoPlay.launchCount = 0;
 AutoPlay.launch = function() {
   if (!Game.ready) {
     AutoPlay.info("Game is not ready, waiting ...");
     setTimeout(AutoPlay.launch, 1000);
 	return;
   }
-  if (localStorageGet(Game.SaveTo) && !Game.AchievementsById[0].won) {
+  if (AutoPlay.launchCount < 5 && localStorageGet(Game.SaveTo) && !Game.AchievementsById[0].won) {
     AutoPlay.info("Game is not loaded yet, waiting ...");
+    AutoPlay.launchCount++;
     setTimeout(AutoPlay.launch, 1000);
 	return;
   }
