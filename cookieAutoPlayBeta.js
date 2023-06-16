@@ -3,8 +3,8 @@
 
 var AutoPlay;
 if (!AutoPlay) AutoPlay = {};
-AutoPlay.version = "2.050";
-AutoPlay.gameVersion = "2.048";
+AutoPlay.version = "2.051";
+AutoPlay.gameVersion = "2.052";
 
 //align for new version of cookie clicker - try to collect automatically
 AutoPlay.wantedAchievements = [82, 89, 108, // elder calm, 100 antimatter, halloween
