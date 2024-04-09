@@ -608,7 +608,7 @@ AutoPlay.handleSeasons = function() {
       setTimeout(AutoPlay.unElf, 1000);
     }
   }
-  if (!Game.Upgrades["Season switcher"].bought || Game.ascensionMode==1) return;
+  if (!Game.Upgrades["Season switcher"].bought || Game.ascensionMode==1 || Game.seasonUses>20) return;
   if (AutoPlay.seasonFinished(Game.season)) {
     switch (Game.season) {
       case "christmas": Game.Upgrades["Lovesick biscuit"].buy(); break; // to valentine
