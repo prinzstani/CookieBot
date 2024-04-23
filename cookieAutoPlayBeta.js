@@ -789,16 +789,16 @@ AutoPlay.handleSpeedMinigames = function() {
 AutoPlay.handleGrimoires = function() {
   if (Game.isMinigameReady(Game.Objects["Wizard tower"])) {
     var g = Game.Objects["Wizard tower"].minigame;
-    if (!Game.Achievements['Four-leaf cookie'].won && 
+    var t = Game.Objects["Wizard tower"];
+    if (!Game.Achievements['Four-leaf cookie'].won && t.amount>500 && 
         Game.Upgrades["Distilled essence of redoubled luck"].bought) {
-      // try to get four golden cookies - wait for getting two at once
+      // try to get four golden cookies - wait to get two at once
       var sp = g.spells["hand of fate"]; // get one more golden cookie
       if (Game.shimmerTypes['golden'].n>1 && g.magic>=g.getSpellCost(sp)) {
         g.castSpell(sp);
       }
-      var t=Game.Objects["Wizard tower"];
       if (Game.shimmerTypes['golden'].n >= 3 && g.magic > 30 && t.amount>30) {
-        t.sell(t.amount-1); // need to wait a while for update of grimoire
+        t.sell(t.amount-g.magic); // need to wait a while for update of grimoire
       }
       return; // save magic for when we get two golden cookies
     }
