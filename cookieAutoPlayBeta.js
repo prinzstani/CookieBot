@@ -1043,7 +1043,20 @@ AutoPlay.planting = function(game) {
     for (var i = 0; i<4; i++) AutoPlay.plantSector(game,i,'','','dummy');
     return;
   }
-  AutoPlay.switchSoil(game,0,AutoPlay.plantPending?'fertilizer':'woodchips'); // want mutations
+  /* Kikicat123's Editorializing:
+   * This function is a mess and could do with a refactor. That being said:
+   * The current strategy for the plants uses Fertilizer for maturing plants (because of the reduced tick length) 
+   * and Wood Chips for Mutation, because of the increased chance. 
+   * However, We may not have Wood Chips, because you need >= 300 farms. 
+   * In that case, you want to still use fertilizer as it is still the second best for mutation, instead of dirt.
+   * But, if we don't have Fertilizer, we need to fallback on dirt. 
+   */
+  var soil = "dirt";
+  if (AutoPlay.plantPending && game.parent.bought >= game.soils["fertilizer"].req) soil = "fertilizer"; // if we are waiting on a plant to mature, and we have enough farms, use Fertilizer
+  else if (game.parent.bought >= game.soils["woodchips"].req) soil = "woodchips";                       // else, if we have enough farms, and we aren't waiting on a plant to mature, use Wood Chips
+  else if (game.parent.bought >= game.soils["fertilizer"].req) soil = "fertilizer";                     // else, if we have enough farms for fertilizer but *not* for Wood Chips, fallback
+  // else, dirt fallback (already assigned)
+  AutoPlay.switchSoil(game,0,soil); 
   if (Game.Objects["Farm"].level<4) {
     var targets = [[AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,2],
       [AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],3,3]];
