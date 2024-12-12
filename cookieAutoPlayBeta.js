@@ -1328,8 +1328,12 @@ AutoPlay.harvesting = function(game) {
         if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature)
           if (!AutoPlay.plantsMissing || !game.isTileUnlocked(x-x%3,y-y%3))
             game.harvest(x,y); // is mature and can give cookies
-        if (plant.ageTick+plant.ageTickR+tile[1] >= 100)
-          AutoPlay.harvest(game,x,y); // would die in next round
+        if (plant.ageTick+plant.ageTickR+tile[1] >= 100) {
+          // check if the plant is immortal. If so, do not harvest it. Elderworts and Everdaisies are the only immortal plants. Fixes #66.
+          if (!(plant.name == "Elderwort" || plant.name == "Everdaisy")) {
+            AutoPlay.harvest(game,x,y); // would die in next round
+          }
+        }
       }
     }
 }
