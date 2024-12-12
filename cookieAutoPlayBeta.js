@@ -685,6 +685,18 @@ AutoPlay.cheatSugarLumps = function(age) {
   }
   var cheatDelay = Game.lumpRipeAge/cheatReduction;
   if (age<Game.lumpRipeAge-cheatDelay) Game.lumpT -= cheatDelay*(cheatReduction-1);
+  // if cheating is on the max level, cheat the lump types as a form of RNG Manipulation
+  if (AutoPlay.Config.CheatLumps==4) {
+    if (!Game.Achievements["Sugar Sugar"].won) { // bifurcated sugar lumps
+      Game.lumpCurrentType = 1;
+    } else if (!Game.Achievements["Sweetmeats"].won) { // meaty sugar lumps
+      Game.lumpCurrentType = 3;
+    } else if (!Game.Achievements["Maillard reaction"].won) { // caramelised sugar lumps
+      Game.lumpCurrentType = 4;
+    } else { // golden sugar lumps by default, because they give the most sugar lumps when harvested. 
+      Game.lumpCurrentType = 3;
+    } 
+  }
 }
 
 AutoPlay.harvestLump = function() {
