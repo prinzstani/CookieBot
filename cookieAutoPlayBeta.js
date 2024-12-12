@@ -1560,7 +1560,7 @@ AutoPlay.handleSmallAchievements = function() {
       }
     }
   }
-  if (!Game.Achievements['In her likeness'].won) {
+  if (!Game.Achievements['In her likeness'].won && Game.Objects.You.amount > 0) { // we want to make sure the bot can't do this before the player normally can. This fixes issue #97.
     Game.YouCustomizer.load('9,6,-,3,-,0,3',true);
     // this is already correct, but we need to trigger the change
     Game.YouCustomizer.offsetGene('head',-1);
