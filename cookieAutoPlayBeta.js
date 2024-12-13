@@ -694,7 +694,7 @@ AutoPlay.cheatSugarLumps = function(age) {
     } else if (!Game.Achievements["Maillard reaction"].won) { // caramelised sugar lumps
       Game.lumpCurrentType = 4;
     } else { // golden sugar lumps by default, because they give the most sugar lumps when harvested. 
-      Game.lumpCurrentType = 3;
+      Game.lumpCurrentType = 2;
     } 
   }
 }
