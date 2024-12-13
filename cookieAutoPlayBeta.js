@@ -687,7 +687,7 @@ AutoPlay.cheatSugarLumps = function(age) {
   if (age<Game.lumpRipeAge-cheatDelay) Game.lumpT -= cheatDelay*(cheatReduction-1);
   // if cheating is on the max level, cheat the lump types as a form of RNG Manipulation
   if (AutoPlay.Config.CheatLumps==4) {
-    if (!Game.Achievements["Sugar Sugar"].won) { // bifurcated sugar lumps
+    if (!Game.Achievements["Sugar sugar"].won) { // bifurcated sugar lumps
       Game.lumpCurrentType = 1;
     } else if (!Game.Achievements["Sweetmeats"].won && Game.elderWrath > 0) { // meaty sugar lumps (grandmapocalypse only)
       Game.lumpCurrentType = 3;
