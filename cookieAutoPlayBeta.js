@@ -685,6 +685,18 @@ AutoPlay.cheatSugarLumps = function(age) {
   }
   var cheatDelay = Game.lumpRipeAge/cheatReduction;
   if (age<Game.lumpRipeAge-cheatDelay) Game.lumpT -= cheatDelay*(cheatReduction-1);
+  // if cheating is on the max level, cheat the lump types as a form of RNG Manipulation
+  if (AutoPlay.Config.CheatLumps==4) {
+    if (!Game.Achievements["Sugar sugar"].won) { // bifurcated sugar lumps
+      Game.lumpCurrentType = 1;
+    } else if (!Game.Achievements["Sweetmeats"].won && Game.elderWrath > 0) { // meaty sugar lumps (grandmapocalypse only)
+      Game.lumpCurrentType = 3;
+    } else if (!Game.Achievements["Maillard reaction"].won) { // caramelised sugar lumps
+      Game.lumpCurrentType = 4;
+    } else { // golden sugar lumps by default, because they give the most sugar lumps when harvested. 
+      Game.lumpCurrentType = 2;
+    } 
+  }
 }
 
 AutoPlay.harvestLump = function() {
@@ -1031,7 +1043,20 @@ AutoPlay.planting = function(game) {
     for (var i = 0; i<4; i++) AutoPlay.plantSector(game,i,'','','dummy');
     return;
   }
-  AutoPlay.switchSoil(game,0,AutoPlay.plantPending?'fertilizer':'woodchips'); // want mutations
+  /* Kikicat123's Editorializing:
+   * This function is a mess and could do with a refactor. That being said:
+   * The current strategy for the plants uses Fertilizer for maturing plants (because of the reduced tick length) 
+   * and Wood Chips for Mutation, because of the increased chance. 
+   * However, We may not have Wood Chips, because you need >= 300 farms. 
+   * In that case, you want to still use fertilizer as it is still the second best for mutation, instead of dirt.
+   * But, if we don't have Fertilizer, we need to fallback on dirt. 
+   */
+  var soil = "dirt";
+  if (AutoPlay.plantPending && game.parent.bought >= game.soils["fertilizer"].req) soil = "fertilizer"; // if we are waiting on a plant to mature, and we have enough farms, use Fertilizer
+  else if (game.parent.bought >= game.soils["woodchips"].req) soil = "woodchips";                       // else, if we have enough farms, and we aren't waiting on a plant to mature, use Wood Chips
+  else if (game.parent.bought >= game.soils["fertilizer"].req) soil = "fertilizer";                     // else, if we have enough farms for fertilizer but *not* for Wood Chips, fallback
+  // else, dirt fallback (already assigned)
+  AutoPlay.switchSoil(game,0,soil); 
   if (Game.Objects["Farm"].level<4) {
     var targets = [[AutoPlay.plantDependencies[AutoPlay.plantList[0]][1],3,2],
       [AutoPlay.plantDependencies[AutoPlay.plantList[0]][2],3,3]];
@@ -1316,8 +1341,12 @@ AutoPlay.harvesting = function(game) {
         if (AutoPlay.plantCookies && tile[1]>=game.plantsById[tile[0]-1].mature)
           if (!AutoPlay.plantsMissing || !game.isTileUnlocked(x-x%3,y-y%3))
             game.harvest(x,y); // is mature and can give cookies
-        if (plant.ageTick+plant.ageTickR+tile[1] >= 100)
-          AutoPlay.harvest(game,x,y); // would die in next round
+        if (plant.ageTick+plant.ageTickR+tile[1] >= 100) {
+          // check if the plant is immortal. If so, do not harvest it. Elderworts and Everdaisies are the only immortal plants. Fixes #66.
+          if (!(plant.name == "Elderwort" || plant.name == "Everdaisy")) {
+            AutoPlay.harvest(game,x,y); // would die in next round
+          }
+        }
       }
     }
 }
@@ -1560,7 +1589,7 @@ AutoPlay.handleSmallAchievements = function() {
       }
     }
   }
-  if (!Game.Achievements['In her likeness'].won) {
+  if (!Game.Achievements['In her likeness'].won && Game.Objects.You.amount > 0) { // we want to make sure the bot can't do this before the player normally can. This fixes issue #97.
     Game.YouCustomizer.load('9,6,-,3,-,0,3',true);
     // this is already correct, but we need to trigger the change
     Game.YouCustomizer.offsetGene('head',-1);
